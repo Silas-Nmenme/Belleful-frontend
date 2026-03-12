@@ -184,11 +184,61 @@
             background-color: var(--gold) !important;
             color: var(--wine-dark) !important;
         }
-        /* Responsive adjustments */
+    /* Toast notification */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 9999;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+        .toast-success {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+        }
+        .toast-remove {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+
+        /* Search results */
+        .search-result {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            border-left: 4px solid var(--gold);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .search-result:hover {
+            background: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .search-result h6 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--wine);
+        }
+        .search-result small {
+            color: #666;
+        }
+
+    /* Responsive adjustments */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem !important; }
+            .toast-notification { right: 10px; left: 10px; top: 10px; }
         }
     </style>
+
 </head>
 <body class="bg-cream-gradient">
 
@@ -261,8 +311,8 @@
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 <!-- Dish 1 -->
-                <div class="col">
-                    <div class="card card-dish h-100 bg-white text-dark border-0">
+                        <div class="col">
+                    <div class="card card-dish h-100 bg-white text-dark border-0" data-id="1">
                         <div class="card-img-top" style="background-image: url('https://images.unsplash.com/photo-1635545169500-1dd4721e7019?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover;"></div>
                         <div class="card-body p-4">
                             <h3 class="card-title fs-3 fw-bold mb-3 text-primary">Jollof Rice & Fried Chicken</h3>
@@ -276,9 +326,10 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- Dish 2 -->
                 <div class="col">
-                    <div class="card card-dish h-100 bg-white text-dark border-0">
+                    <div class="card card-dish h-100 bg-white text-dark border-0" data-id="2">
                         <div class="card-img-top" style="background-image: url('https://images.unsplash.com/photo-1635545169500-1dd4721e7019?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover;"></div>
                         <div class="card-body p-4">
                             <h3 class="card-title fs-3 fw-bold mb-3 text-primary">White Rice & Beans Stew</h3>
@@ -292,9 +343,10 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- Dish 3 -->
                 <div class="col">
-                    <div class="card card-dish h-100 bg-white text-dark border-0">
+                    <div class="card card-dish h-100 bg-white text-dark border-0" data-id="3">
                         <div class="card-img-top" style="background-image: url('https://images.unsplash.com/photo-1626074423560-696e6f397474?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover;"></div>
                         <div class="card-body p-4">
                             <h3 class="card-title fs-3 fw-bold mb-3 text-primary">Grilled Catfish & Fried Yam</h3>
@@ -308,9 +360,10 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- Dish 4 -->
                 <div class="col-lg-12 col-md-12">
-                    <div class="card card-dish h-100 bg-white text-dark border-0">
+                    <div class="card card-dish h-100 bg-white text-dark border-0" data-id="4">
                         <div class="card-img-top" style="height: 300px; background-image: url('https://images.unsplash.com/photo-1632411832725-7888b038a141?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80'); background-size: cover;"></div>
                         <div class="card-body p-4">
                             <h3 class="card-title fs-3 fw-bold mb-3 text-primary">Ofe Owerri Soup with Pounded Yam</h3>
@@ -324,6 +377,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
@@ -542,5 +596,102 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <!-- App JS -->
     <script src="js/app.js"></script>
+    
+    <!-- Index-specific functionality for search and cart -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dishes data
+            const dishes = [
+                { id: 1, name: 'Jollof Rice & Fried Chicken', price: 2500 },
+                { id: 2, name: 'White Rice & Beans Stew', price: 1800 },
+                { id: 3, name: 'Grilled Catfish & Fried Yam', price: 3500 },
+                { id: 4, name: 'Ofe Owerri Soup with Pounded Yam', price: 4000 }
+            ];
+
+            // Load cart and update badge
+            let cart = JSON.parse(localStorage.getItem('belleful-cart')) || [];
+            function updateCartCount() {
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                document.getElementById('cart-count').textContent = totalItems;
+            }
+            updateCartCount();
+
+            // Show toast
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast-notification toast-${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 100);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => document.body.removeChild(toast), 300);
+                }, 3000);
+            }
+
+            // Add to cart
+            document.querySelectorAll('.add-cart-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const card = this.closest('.card');
+                    const id = parseInt(card.dataset.id);
+                    const dish = dishes.find(d => d.id === id);
+                    if (!dish) return;
+
+                    const existingItem = cart.find(item => item.id === id);
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        cart.push({ ...dish, quantity: 1 });
+                    }
+                    localStorage.setItem('belleful-cart', JSON.stringify(cart));
+                    updateCartCount();
+                    showToast(`${dish.name} added to cart! (${existingItem ? existingItem.quantity : 1})`);
+                    
+                    // Button animation
+                    this.style.transform = 'scale(1.1)';
+                    setTimeout(() => this.style.transform = 'scale(1)', 200);
+                });
+            });
+
+            // Search functionality
+            const searchToggle = document.getElementById('search-toggle');
+            const searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+
+            if (searchToggle) {
+                searchToggle.addEventListener('click', () => searchModal.show());
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const query = this.value.toLowerCase().trim();
+                    if (query.length === 0) {
+                        searchResults.innerHTML = '';
+                        return;
+                    }
+
+                    const matches = dishes.filter(dish => 
+                        dish.name.toLowerCase().includes(query)
+                    ).sort((a, b) => a.name.localeCompare(b.name));
+
+                    if (matches.length === 0) {
+                        searchResults.innerHTML = '<div class="text-center py-4 text-muted">No dishes found.</div>';
+                        return;
+                    }
+
+                    searchResults.innerHTML = matches.map(dish => 
+                        `<div class="search-result" onclick="document.querySelector('[data-id="${dish.id}"]').scrollIntoView({behavior: \'smooth\'});">
+                            <h6>${dish.name}</h6>
+                            <small>₦${dish.price.toLocaleString()}</small>
+                        </div>`
+                    ).join('');
+                });
+            }
+
+            // Close modals on outside/esc handled by Bootstrap
+        });
+    </script>
 </body>
 </html>
+
