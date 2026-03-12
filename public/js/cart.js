@@ -81,39 +81,7 @@ function updateCartCount() {
     }
 }
 
-document.getElementById('checkout-btn').addEventListener('click', function() {
-    if (cart.length === 0) {
-        showToast('Your cart is empty!');
-        return;
-    }
-
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const order = {
-        id: Date.now(),
-        items: [...cart],
-        total: total,
-        date: new Date().toLocaleDateString(),
-        status: 'Pending'
-    };
-
-    let orders = JSON.parse(localStorage.getItem('orders')) || [];
-    orders.unshift(order);
-    localStorage.setItem('orders', JSON.stringify(orders));
-
-    localStorage.removeItem('cart');
-    cart = [];
-    
-    showToast('Order placed successfully!');
-    renderCart();
-    updateCartCount();
-    
-    setTimeout(() => {
-        window.location.href = 'orders.html';
-    }, 1500);
-});
-
 function showToast(message) {
-    // Same toast function as menu.js
     const toast = document.createElement('div');
     toast.className = 'toast-notification position-fixed top-0 end-0 m-3 bg-success text-white p-3 rounded shadow-lg';
     toast.style.zIndex = '9999';
@@ -126,9 +94,44 @@ function showToast(message) {
     }, 3000);
 }
 
+// Checkout functionality
 document.addEventListener('DOMContentLoaded', function() {
+    const checkoutBtn = document.getElementById('checkout-btn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function() {
+            if (cart.length === 0) {
+                showToast('Your cart is empty!');
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const order = {
+                id: Date.now(),
+                items: [...cart],
+                total: total,
+                date: new Date().toLocaleDateString(),
+                status: 'Pending'
+            };
+
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.unshift(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            localStorage.removeItem('cart');
+            cart = [];
+            
+            showToast('Order placed successfully!');
+            renderCart();
+            updateCartCount();
+            
+            setTimeout(() => {
+                window.location.href = 'orders.html';
+            }, 1500);
+        });
+    }
+
+    // Load cart and render
     cart = JSON.parse(localStorage.getItem('cart')) || [];
     renderCart();
     updateCartCount();
 });
-
