@@ -135,7 +135,7 @@ if (!isLoggedIn() && window.location.pathname.includes('orders.html') || window.
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    let cart = JSON.parse(localStorage.getItem('belleful-cart')) || [];
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const emptyCartDiv = document.querySelector('.empty-cart') || document.querySelector('.empty-cart');
     const cartModal = document.querySelector('.cart-modal');
     // AOS Init

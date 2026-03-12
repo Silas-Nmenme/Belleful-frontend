@@ -609,7 +609,7 @@
             ];
 
             // Load cart and update badge
-            let cart = JSON.parse(localStorage.getItem('belleful-cart')) || [];
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
             function updateCartCount() {
                 const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
                 document.getElementById('cart-count').textContent = totalItems;
@@ -643,7 +643,7 @@
                     } else {
                         cart.push({ ...dish, quantity: 1 });
                     }
-                    localStorage.setItem('belleful-cart', JSON.stringify(cart));
+localStorage.setItem('cart', JSON.stringify(cart));
                     updateCartCount();
                     showToast(`${dish.name} added to cart! (${existingItem ? existingItem.quantity : 1})`);
                     
