@@ -46,10 +46,12 @@ function renderCart() {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     totalEl.textContent = `₦${total.toLocaleString()}`;
 
-    // Add event listeners
-    document.querySelectorAll('.increment').forEach(btn => btn.addEventListener('click', handleQuantityChange));
-    document.querySelectorAll('.decrement').forEach(btn => btn.addEventListener('click', handleQuantityChange));
-    document.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', removeItem));
+    // Add event listeners only if on cart page
+    if (document.getElementById('cart-items')) {
+        document.querySelectorAll('.increment').forEach(btn => btn.addEventListener('click', handleQuantityChange));
+        document.querySelectorAll('.decrement').forEach(btn => btn.addEventListener('click', handleQuantityChange));
+        document.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', removeItem));
+    }
 }
 
 function handleQuantityChange(e) {
@@ -96,9 +98,9 @@ function showToast(message) {
 
 // Checkout functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const checkoutBtn = document.getElementById('checkout-btn');
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', function() {
+    const checkoutBtnEl = document.getElementById('checkout-btn');
+    if (checkoutBtnEl) {
+        checkoutBtnEl.addEventListener('click', function() {
             if (cart.length === 0) {
                 showToast('Your cart is empty!');
                 return;

@@ -58,34 +58,13 @@ function addToCart(e) {
     showToast('Item added to cart!');
 }
 
-// Update cart count in navbar (if exists)
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const cartCountEl = document.getElementById('cart-count');
-    if (cartCountEl) {
-        cartCountEl.textContent = totalItems;
-    }
-}
-
-// Toast notification
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification position-fixed top-0 end-0 m-3 bg-success text-white p-3 rounded shadow-lg';
-    toast.style.zIndex = '9999';
-    toast.style.cssText = 'animation: slideIn 0.3s ease-out;';
-    toast.innerHTML = `${message} <i class="fas fa-check ms-2"></i>`;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
-}
-
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     renderMenuItems();
-    updateCartCount();
+    // updateCartCount() called from cart.js if loaded
+    if (typeof updateCartCount === 'function') {
+        updateCartCount();
+    }
 });
 
 // Add CSS for toast animation (inline)
