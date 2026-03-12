@@ -4,85 +4,220 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Belleful</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --wine: #B91C52;
+            --wine-light: #EC4899;
+            --wine-dark: #BE185D;
+            --gold: #F59E0B;
+            --gold-light: #FBBF24;
+            --cream: #FDF4F0;
+        }
+        /* Bootstrap overrides for theme */
+        :root {
+            --bs-primary: var(--wine);
+            --bs-primary-rgb: 185, 28, 82;
+            --bs-warning: var(--gold);
+            --bs-warning-rgb: 245, 158, 11;
+        }
+        .btn-primary {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+        .btn-primary:hover {
+            background-color: var(--wine-light);
+            border-color: var(--wine-light);
+        }
+        .btn-warning {
+            background-color: var(--bs-warning);
+            border-color: var(--bs-warning);
+            color: #000;
+        }
+        .btn-warning:hover {
+            background-color: var(--gold-light);
+            border-color: var(--gold-light);
+            color: #000;
+        }
+.navbar-enhanced {
+    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(253,244,240,0.95));
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-bottom: 2px solid rgba(185,28,82,0.15);
+    box-shadow: 0 8px 32px rgba(185,28,82,0.1);
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.navbar-enhanced.scrolled {
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    border-bottom-color: rgba(185,28,82,0.2);
+}
+.navbar-wine { /* fallback */
+    background: rgba(255,255,255,0.95) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--wine);
+}
+        .bg-cream-gradient {
+            background: linear-gradient(135deg, var(--cream) 0%, #f8f3ee 100%);
+        }
+        .card-auth {
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 16px 16px 0 0;
+            border-bottom: 3px solid transparent;
+            color: var(--wine);
+            font-weight: 600;
+            margin-right: 2px;
+        }
+        .nav-tabs .nav-link.active {
+            background: transparent;
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .nav-tabs {
+            border: none;
+            margin-bottom: 2rem;
+        }
+        .btn-auth {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border: none;
+            color: var(--wine-dark) !important;
+            font-weight: 700;
+            box-shadow: 0 8px 32px rgba(245,158,11,0.3);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+        }
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 48px rgba(245,158,11,0.4);
+        }
+        .form-control-auth {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid rgba(185,28,82,0.1);
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .form-control-auth:focus {
+            border-color: var(--wine);
+            box-shadow: 0 0 0 0.25rem rgba(185,28,82,0.15);
+            transform: translateY(-1px);
+        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .text-gold { color: var(--gold) !important; }
+        .navbar-brand { color: var(--wine) !important; }
+        .nav-link { color: var(--wine) !important; }
+        .nav-link:hover { color: var(--gold) !important; }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-wine via-wine-dark to-gold/20 font-opensans text-white min-h-screen">
-    <!-- Header (same as index) -->
-    <nav class="fixed top-0 w-full bg-wine/95 backdrop-blur-md z-50 shadow-lg transition-all duration-500" id="nav">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-utensils text-gold text-3xl"></i>
-                    <a href="index.html" class="text-2xl font-playfair text-gold font-bold hover:text-amber-500 transition-colors">Belleful</a>
-                </div>
-<div class="hidden md:flex items-center space-x-4">
-                    <a href="menu.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20" title="View Menu">Menu</a>
-                    <a href="cart.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20" title="Shopping Cart">Cart</a>
-                    <a href="orders.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20" title="Your Orders">Orders</a>
-                    <button id="search-toggle" class="text-white hover:text-gold p-2 rounded-lg hover:bg-gold/20 transition-all text-xl" title="Search dishes" aria-label="Search dishes">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <div id="user-nav" class="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hidden">
-                        <i class="fas fa-user-check"></i>
-                        <span id="user-name">User</span>
-                        <button id="logout-btn" class="ml-2 text-white hover:text-yellow-200" title="Logout" aria-label="Logout">
-                            <i class="fas fa-sign-out-alt"></i>
+<body class="bg-cream-gradient">
+
+    <!-- Navbar from index.html adapted -->
+    <nav class="navbar navbar-expand-lg navbar-enhanced navbar-wine fixed-top shadow-lg" id="main-navbar">
+        <div class="container">
+            <a class="navbar-brand text-wine fs-2 fw-bold" href="index.html">
+<img src="../asset/logo.jpeg" alt="Belleful Logo" style="height: 50px; width: auto;">
+                <span>Belleful</span>
+            </a>
+            <button class="navbar-toggler border-0 p-2 rounded shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="background: rgba(245,158,11,0.1);">
+                <i class="fas fa-bars text-warning fs-3"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="menu.html"><i class="fas fa-utensils me-1"></i>Menu</a></li>
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" href="cart.html">
+                            <i class="fas fa-shopping-cart me-1"></i>Cart
+                            <span class="cart-badge d-none" id="cart-count">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="orders.html"><i class="fas fa-box me-1"></i>Orders</a></li>
+                    <li class="nav-item mx-2">
+                        <button class="btn btn-outline-warning btn-sm px-3 rounded-pill shadow-sm" id="search-toggle" title="Search dishes">
+                            <i class="fas fa-search"></i>
                         </button>
-                    </div>
-                    <a href="login.html" id="login-link" class="bg-gold text-wine px-6 py-2 rounded-lg font-semibold hover:bg-amber-400 transition-all flex items-center space-x-2 shadow-lg">Login</a>
-                </div>
-                <div class="md:hidden">
-                    <button id="mobile-menu-btn" class="text-white text-2xl" aria-label="Toggle mobile menu" title="Toggle menu">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-            </div>
-            <!-- Mobile menu -->
-            <div id="mobile-menu" class="md:hidden hidden bg-wine/95 pb-4">
-                <a href="menu.html" class="block px-6 py-2 text-white hover:text-gold">Menu</a>
-                <a href="cart.html" class="block px-6 py-2 text-white hover:text-gold">Cart</a>
-                <a href="orders.html" class="block px-6 py-2 text-white hover:text-gold">Orders</a>
-                <a href="login.html" id="mobile-login-link" class="block px-6 py-2 text-white hover:text-gold flex items-center space-x-3 bg-gold text-wine px-4 py-2 rounded-lg mx-4 mb-2">
-                    <i class="fas fa-user"></i> <span>Login</span>
-                </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-warning fw-semibold ms-1 px-4 rounded-pill shadow-sm d-flex align-items-center" href="signup.html">
+                            <i class="fas fa-user-plus me-2"></i>Sign Up
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Hero/Auth Section - Balanced lighter gradient for "solar" -->
-    <section class="min-h-screen flex items-center justify-center pt-24 px-4 bg-gradient-to-br from-wine/30 via-gold/20 to-wine/50">
-        <div class="max-w-md w-full bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-gold/30">
-            <!-- Tabs -->
-            <div class="flex border-b border-gray-200 mb-8">
-                <button class="flex-1 py-4 px-6 font-semibold text-wine border-b-2 border-gold tab-active" id="login-tab">Login</button>
-                <button class="flex-1 py-4 px-6 font-semibold text-gray-500 hover:text-wine tab" id="signup-tab">Sign Up</button>
-            </div>
-
-            <!-- Login Form -->
-            <form id="login-form" class="space-y-6">
-                <div>
-                    <label class="block text-wine font-semibold mb-2">Email</label>
-                    <input type="email" id="login-email" required class="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold transition-all" placeholder="your@email.com">
+    <!-- Auth Section -->
+    <section class="min-vh-100 d-flex align-items-center pt-5 pt-lg-0">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="card card-auth p-5">
+                        <div class="text-center mb-5">
+                            <i class="fas fa-sign-in-alt text-gold fs-1 mb-4"></i>
+                            <h1 class="h2 fw-bold text-primary mb-2">Welcome Back</h1>
+                            <p class="text-muted mb-0">Sign in to your Belleful account</p>
+                        </div>
+                        <!-- Tabs -->
+                        <ul class="nav nav-tabs nav-justified mb-4" id="authTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-form" type="button" role="tab">Login</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup-placeholder" type="button" role="tab">Sign Up</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <!-- Login Form -->
+                            <form id="login-tab-content" class="tab-pane fade show active" role="tabpanel">
+                                <div class="mb-4">
+                                    <label for="login-email" class="form-label fw-semibold text-primary">Email</label>
+                                    <input type="email" class="form-control form-control-lg form-control-auth" id="login-email" required placeholder="your@email.com">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="login-password" class="form-label fw-semibold text-primary">Password</label>
+                                    <input type="password" class="form-control form-control-lg form-control-auth" id="login-password" required placeholder="••••••••">
+                                </div>
+                                <button type="submit" class="btn btn-auth w-100 mb-4 fs-5 py-3">Login</button>
+                            </form>
+                            <!-- Signup Placeholder (links to signup.html) -->
+                            <div id="signup-placeholder" class="tab-pane fade" role="tabpanel">
+                                <div class="text-center py-5">
+                                    <i class="fas fa-user-plus text-gold fs-2 mb-4"></i>
+                                    <h3 class="text-primary mb-3">Create New Account</h3>
+                                    <p class="text-muted mb-4">Ready to join Belleful?</p>
+                                    <a href="signup.html" class="btn btn-warning btn-lg w-100 py-3 fs-5 fw-bold shadow-lg">
+                                        Sign Up Now <i class="fas fa-arrow-right ms-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-wine font-semibold mb-2">Password</label>
-                    <input type="password" id="login-password" required class="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold transition-all" placeholder="••••••••">
-                </div>
-                <button type="submit" class="w-full bg-gold text-wine py-4 px-6 rounded-2xl font-bold text-lg shadow-xl hover:bg-amber-400 hover:shadow-2xl transition-all transform hover:scale-[1.02]">Login</button>
-            </form>
-
-            <!-- Signup CTA - Prominent gold, always visible -->
-            <div class="mt-8 pt-8 border-t border-gray-200 text-center">
-                <p class="text-gray-600 mb-4">New to Belleful?</p>
-                <a href="signup.html" class="block w-full bg-gradient-to-r from-gold to-amber-500 text-wine py-4 px-6 rounded-2xl font-bold text-xl shadow-2xl hover:from-amber-400 hover:shadow-3xl transition-all transform hover:scale-[1.02] animate-pulse">Create Account Now ✨</a>
             </div>
         </div>
     </section>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
-
