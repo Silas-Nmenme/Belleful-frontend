@@ -14,6 +14,7 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    padding-top: env(safe-area-inset-top); /* iOS notch */
 }
 
 /* ===== Color Palette - Wine as accent ===== */
@@ -459,16 +460,45 @@ footer a:hover {
         margin-bottom: 1.5rem;
         border-radius: 20px;
     }
+    
+    /* Tablet grid adjustments */
+    .row-cols-lg-3 > * {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .btn { width: 100%; margin-bottom: 1rem; }
+    
+    /* Hide hover effects on touch */
+    @media (hover: none) and (pointer: coarse) {
+        .dish-card:hover, button:hover {
+            transform: none;
+            box-shadow: none;
+        }
+    }
 }
 
 @media (max-width: 480px) {
     .hero-section h1 { font-size: 2.5rem; }
-    button, .hero-section a { 
-        padding: 1rem 2rem; 
-        font-size: 1rem;
+    button, .hero-section a, .btn { 
+        padding: 1rem 1.5rem; 
+        font-size: 0.95rem;
         width: 100%;
         margin: 0.25rem 0;
     }
+    
+    /* iPhone SE/320px */
+    nav { padding: 0.75rem; }
+    section { padding: 3rem 1rem; }
+    .hero-section { padding: 5rem 1rem 2rem; padding-top: env(safe-area-inset-top); }
+    
+    /* Navbar collapse early */
+    .navbar-nav { flex-direction: column; text-align: center; }
+    .cart-badge { top: -5px; right: -5px; font-size: 0.7rem; }
+    
+    /* Typography */
+    h1 { font-size: 2rem !important; }
+    h2 { font-size: 1.75rem !important; }
 }
 
 /* ===== Accessibility ===== */
@@ -478,6 +508,38 @@ footer a:hover {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* ===== Tablet (481px - 1024px) ===== */
+@media (min-width: 481px) and (max-width: 1024px) {
+    .hero-section { padding: 7rem 2rem 4rem; }
+    .dish-card .bg-cover { height: 260px; }
+    section { padding: 5rem 2rem; }
+    
+    /* 2-column default */
+    .container { max-width: 90%; }
+}
+
+/* ===== Desktop (1025px+) ===== */
+@media (min-width: 1025px) {
+    .container, .container-fluid { max-width: 1200px; margin: 0 auto; }
+    .hero-section h1 { font-size: 5rem; }
+}
+
+/* ===== Wide Desktop (1440px+) ===== */
+@media (min-width: 1441px) {
+    .container, .container-fluid { max-width: 1400px; }
+    nav { padding: 1.5rem 4rem; }
+    section { padding: 8rem 4rem; }
+    
+    /* Stretch hero */
+    .hero-section { padding-left: 4rem; padding-right: 4rem; }
+}
+
+/* ===== Print Styles ===== */
+@media print {
+    nav, .cart-modal { display: none; }
+    body { background: white; }
 }
 
 /* Custom scrollbar */
