@@ -234,6 +234,160 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    console.log('Belleful enhanced! ✨');
+// ===== Search Functionality =====
+const searchPanel = document.getElementById('search-panel');
+const loginModal = document.getElementById('login-modal');
+const searchToggle = document.getElementById('search-toggle');
+const loginToggle = document.getElementById('login-toggle');
+const mobileSearchToggle = document.getElementById('mobile-search-toggle');
+const mobileLoginToggle = document.getElementById('mobile-login-toggle');
+const searchInput = document.getElementById('search-input');
+const searchClear = document.getElementById('search-clear');
+const searchResults = document.getElementById('search-results');
+const noResults = document.getElementById('no-results');
+const featuredDishes = document.querySelectorAll('.dish-card');
+const dishesGrid = document.querySelector('#featured .grid');
+
+// Toggle search panel
+function toggleSearch() {
+    searchPanel.classList.toggle('active');
+    if (searchPanel.classList.contains('active')) {
+        searchInput.focus();
+    }
+}
+
+// Toggle login modal
+function toggleLogin() {
+    loginModal.classList.toggle('active');
+}
+
+// Search dishes live filter
+function performSearch(query) {
+    const lowerQuery = query.toLowerCase().trim();
+    
+    // Filter featured dishes
+    let visibleCount = 0;
+    featuredDishes.forEach(dish => {
+        const name = dish.dataset.name.toLowerCase();
+        const desc = dish.querySelector('p').textContent.toLowerCase();
+        if (name.includes(lowerQuery) || desc.includes(lowerQuery) || lowerQuery === '') {
+            dish.style.display = 'block';
+            dish.classList.add('search-highlight-anim');
+            setTimeout(() => dish.classList.remove('search-highlight-anim'), 500);
+            visibleCount++;
+        } else {
+            dish.style.display = 'none';
+        }
+    });
+    
+    // Update results count
+    if (lowerQuery === '') {
+        noResults.classList.add('hidden');
+        searchResults.innerHTML = '';
+    } else if (visibleCount === 0) {
+        noResults.classList.remove('hidden');
+        searchResults.innerHTML = '';
+    } else {
+        noResults.classList.add('hidden');
+    }
+    
+    // Scroll to featured if results
+    if (visibleCount > 0 && lowerQuery !== '') {
+        featuredDishes[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Event listeners
+if (searchToggle) searchToggle.addEventListener('click', toggleSearch);
+if (mobileSearchToggle) mobileSearchToggle.addEventListener('click', (e) => { e.preventDefault(); toggleSearch(); });
+if (loginToggle) loginToggle.addEventListener('click', toggleLogin);
+if (mobileLoginToggle) mobileLoginToggle.addEventListener('click', (e) => { e.preventDefault(); toggleLogin(); });
+
+// Search input
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        performSearch(e.target.value);
+        if (e.target.value) {
+            searchClear.classList.remove('hidden');
+        } else {
+            searchClear.classList.add('hidden');
+        }
+    });
+    
+    // Clear search
+    if (searchClear) {
+        searchClear.addEventListener('click', () => {
+            searchInput.value = '';
+            searchClear.classList.add('hidden');
+            performSearch('');
+            searchInput.focus();
+        });
+    }
+}
+
+// Close on escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        searchPanel.classList.remove('active');
+        loginModal.classList.remove('active');
+        cartModal?.classList.remove('active');
+    }
 });
+
+// Close search/login modals on outside click
+document.addEventListener('click', (e) => {
+    if (e.target === searchPanel) toggleSearch();
+    if (e.target === loginModal) toggleLogin();
+});
+
+// Close buttons
+document.querySelector('.close-search')?.addEventListener('click', toggleSearch);
+document.querySelector('.close-login')?.addEventListener('click', toggleLogin);
+
+// Login form (demo)
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        // Mock auth with localStorage
+        localStorage.setItem('belleful-user', JSON.stringify({ email, loggedIn: true }));
+        
+        alert(`Welcome back, ${email.split('@')[0]}! 🎉`);
+        toggleLogin();
+        // Update login button
+        const loginBtn = document.getElementById('login-toggle');
+        if (loginBtn) {
+            loginBtn.innerHTML = `<i class="fas fa-user-check text-xl"></i><span>Hi, User</span>`;
+            loginBtn.classList.remove('bg-gold', 'text-wine');
+            loginBtn.classList.add('bg-green-500', 'text-white');
+        }
+    });
+}
+
+if (document.getElementById('google-login')) {
+    document.getElementById('google-login').addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Google login demo - integrated with Firebase Auth in production!');
+        toggleLogin();
+    });
+}
+
+// Check existing login state
+const user = JSON.parse(localStorage.getItem('belleful-user'));
+if (user && user.loggedIn) {
+    const loginBtn = document.getElementById('login-toggle');
+    if (loginBtn) {
+        loginBtn.innerHTML = `<i class="fas fa-user-check text-xl"></i><span>Hi, ${user.email.split('@')[0]}</span>`;
+        loginBtn.classList.remove('bg-gold', 'text-wine');
+        loginBtn.classList.add('bg-green-500', 'text-white');
+    }
+}
+
+console.log('Belleful enhanced with Search & Login! ✨');
+});
+
+
 

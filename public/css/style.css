@@ -395,6 +395,157 @@ h1, h2, h3, h4, p, span, a {
     text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 
+/* ===== Search Panel ===== */
+.search-panel {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-blur-sm;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.search-panel.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.search-panel .search-content {
+    background: linear-gradient(135deg, rgba(90, 15, 15, 0.98), rgba(61, 8, 8, 0.98));
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 1rem;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    transform: translateY(-2rem) scale(0.95);
+    transition: all 0.3s ease;
+    backdrop-blur: 20px;
+}
+
+.search-panel.active .search-content {
+    transform: translateY(0) scale(1);
+}
+
+.search-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.close-search {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.search-results .dish-preview {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.search-results .dish-preview:hover {
+    background: rgba(255, 215, 0, 0.2);
+    transform: translateX(8px);
+}
+
+.dish-preview-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 0.75rem;
+    background-size: cover;
+    background-position: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.dish-preview h4 {
+    color: #ffd700;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 0.25rem;
+}
+
+/* ===== Login Modal ===== */
+.login-modal {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-blur-sm;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.login-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.login-modal .modal-content {
+    background: white;
+    border-radius: 1rem;
+    max-width: 450px;
+    width: 100%;
+    transform: translateY(2rem) scale(0.95);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+}
+
+.login-modal.active .modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.login-modal .divider {
+    position: relative;
+    text-align: center;
+}
+
+.login-modal .divider::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-bottom: 1px solid #e5e7eb;
+    z-index: 1;
+}
+
+.login-modal input:focus {
+    ring-color: #ffd700;
+}
+
+#google-login i {
+    color: #4285f4;
+}
+
+/* ===== Search Highlight ===== */
+.search-highlight {
+    background: rgba(255, 215, 0, 0.3);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
 /* ===== Responsive Tweaks ===== */
 @media (max-width: 768px) {
     .hero-section h1 {
@@ -405,5 +556,11 @@ h1, h2, h3, h4, p, span, a {
     }
     .dish-card {
         margin-bottom: 2rem;
+    }
+    
+    .search-panel .search-content,
+    .login-modal .modal-content {
+        margin: 1rem;
+        max-height: 90vh;
     }
 }

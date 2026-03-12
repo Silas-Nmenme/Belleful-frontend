@@ -25,11 +25,20 @@
                     <i class="fas fa-utensils text-gold text-3xl"></i>
                     <a href="index.html" class="text-2xl font-playfair text-gold font-bold hover:text-amber-500 transition-colors">Belleful</a>
                 </div>
-                <div class="hidden md:flex space-x-8">
+<div class="hidden md:flex items-center space-x-4">
                 <a href="menu.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20">Menu</a>
-                    <a href="cart.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20">Cart</a>
-                    <a href="orders.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20">Orders</a>
-                </div>
+                <a href="cart.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20">Cart</a>
+                <a href="orders.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20">Orders</a>
+                <!-- Search -->
+                <button id="search-toggle" class="text-white hover:text-gold p-2 rounded-lg hover:bg-gold/20 transition-all text-xl" title="Search dishes" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+                <!-- Login -->
+                <button id="login-toggle" class="bg-gold text-wine px-6 py-2 rounded-lg font-semibold hover:bg-amber-400 transition-all flex items-center space-x-2 shadow-lg" title="Login / Signup">
+                    <i class="fas fa-user-circle text-xl"></i>
+                    <span>Login</span>
+                </button>
+            </div>
                 <div class="md:hidden">
     <button id="mobile-menu-btn" class="text-white text-2xl" aria-label="Toggle mobile menu">
                         <i class="fas fa-bars"></i>
@@ -42,8 +51,16 @@
         <div id="mobile-menu" class="md:hidden hidden bg-wine/95 pb-4">
             <a href="menu.html" class="block px-6 py-2 text-white hover:text-gold">Menu</a>
             <a href="cart.html" class="block px-6 py-2 text-white hover:text-gold">Cart</a>
-            <a href="orders.html" class="block px-6 py-2 text-white hover:text-gold">Orders</a>
-        </div>
+<a href="orders.html" class="block px-6 py-2 text-white hover:text-gold">Orders</a>
+                <a href="#" id="mobile-search-toggle" class="block px-6 py-2 text-white hover:text-gold flex items-center space-x-3">
+                    <i class="fas fa-search text-lg"></i>
+                    <span>Search</span>
+                </a>
+                <a href="#" id="mobile-login-toggle" class="block px-6 py-2 text-white hover:text-gold flex items-center space-x-3">
+                    <i class="fas fa-user text-lg"></i>
+                    <span>Login</span>
+                </a>
+            </div>
     </nav>
 
     <!-- Hero Section -->
@@ -247,8 +264,54 @@
     </section>
 
     <!-- Footer -->
+    <!-- Search Panel -->
+    <div class="search-panel" id="search-panel">
+        <div class="search-content">
+            <div class="search-header">
+                <h3 class="text-xl font-playfair font-bold text-white">Search Dishes</h3>
+                <button class="close-search text-white hover:text-gold text-2xl" aria-label="Close search">&times;</button>
+            </div>
+            <div class="search-body">
+                <div class="relative mb-4">
+                    <input type="text" id="search-input" class="w-full bg-white/10 backdrop-blur border border-gold/50 text-white placeholder-yellow-200 px-12 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent text-lg" placeholder="Search for Jollof, Egusi, Pounded Yam...">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gold text-xl"></i>
+                    <button id="search-clear" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-yellow-300 hover:text-white text-xl hidden">&times;</button>
+                </div>
+                <div id="search-results" class="max-h-64 overflow-y-auto space-y-3"></div>
+                <div id="no-results" class="text-center py-8 text-yellow-200 hidden">
+                    <i class="fas fa-search text-4xl mb-4 opacity-50"></i>
+                    <p>No dishes match your search</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="login-modal hidden" id="login-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-2xl font-playfair font-bold text-wine">Login / Sign Up</h3>
+                <button class="close-login text-gray-500 hover:text-wine text-2xl" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="login-form" class="space-y-4">
+                    <input type="email" id="login-email" class="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold" placeholder="Email" required>
+                    <input type="password" id="login-password" class="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold" placeholder="Password" required>
+                    <button type="submit" class="w-full bg-gold text-wine py-3 px-6 rounded-xl font-semibold hover:bg-yellow-400 transition-all text-lg shadow-lg">Login</button>
+                </form>
+                <div class="divider my-4 flex items-center">
+                    <span class="bg-gray-200 px-4 py-1 text-sm text-gray-500 rounded-full">or</span>
+                </div>
+                <button id="google-login" class="w-full bg-white border-2 border-gray-300 text-gray-800 py-3 px-6 rounded-xl font-semibold hover:bg-gray-50 transition-all flex items-center justify-center space-x-3 shadow-lg">
+                    <i class="fab fa-google text-xl"></i>
+                    <span>Continue with Google</span>
+                </button>
+                <p class="text-center text-sm text-gray-600 mt-4">Don't have account? <a href="#" class="text-gold font-semibold hover:underline">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+
     <!-- Cart Modal -->
-    <div class="cart-modal" id="cart-modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="text-2xl font-playfair font-bold text-wine">Your Cart</h3>
