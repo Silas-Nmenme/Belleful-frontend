@@ -75,10 +75,10 @@ function removeItem(e) {
 
 function updateCartCount() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const cartLinks = document.querySelectorAll('.nav-link[href="cart.html"]');
-    cartLinks.forEach(link => {
-        link.innerHTML = `Cart ${totalItems > 0 ? `<span class="badge bg-warning">${totalItems}</span>` : ''}`;
-    });
+    const cartCountEl = document.getElementById('cart-count');
+    if (cartCountEl) {
+        cartCountEl.textContent = totalItems;
+    }
 }
 
 document.getElementById('checkout-btn').addEventListener('click', function() {

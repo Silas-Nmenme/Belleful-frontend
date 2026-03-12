@@ -10,7 +10,7 @@ const menuItems = [
 
 // Render menu items
 function renderMenuItems() {
-    const container = document.querySelector('.row-cols-1');
+    const container = document.querySelector('#menu-container');
     container.innerHTML = '';
 
     menuItems.forEach(item => {
@@ -62,10 +62,10 @@ function addToCart(e) {
 function updateCartCount() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const cartLinks = document.querySelectorAll('.nav-link[href="cart.html"]');
-    cartLinks.forEach(link => {
-        link.innerHTML = `Cart ${totalItems > 0 ? `<span class="badge bg-warning">${totalItems}</span>` : ''}`;
-    });
+    const cartCountEl = document.getElementById('cart-count');
+    if (cartCountEl) {
+        cartCountEl.textContent = totalItems;
+    }
 }
 
 // Toast notification
