@@ -88,6 +88,7 @@
         .text-gold {
             color: var(--gold) !important;
         }
+
         .navbar-brand {
             font-family: 'Playfair Display', serif;
             font-weight: 700;
@@ -140,11 +141,6 @@
                         <a href="login.html" id="login-link" class="btn btn-warning fw-semibold ms-2">
                             <i class="fas fa-user-circle me-1"></i>Login
                         </a>
-                        <div id="user-nav" class="user-nav fw-semibold ms-2 hidden">
-                            <i class="fas fa-user-check me-1"></i>
-                            <span id="user-name">User</span>
-                            <button id="logout-btn" class="btn-close ms-2" title="Logout"></button>
-                        </div>
                     </li>
                 </ul>
             </div>
@@ -178,15 +174,15 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 <!-- Dish 1 -->
                 <div class="col">
-                    <div class="card card-dish h-100 text-center text-white" data-name="Jollof Rice & Fried Chicken" data-price="2500">
-                        <div class="card-img-top" style="background-image: url('https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover;"></div>
-                        <div class="card-body d-flex flex-column p-4">
-                            <h3 class="card-title fs-3 fw-bold mb-3">Jollof Rice & Fried Chicken</h3>
-                            <p class="card-text flex-grow-1">Perfectly spiced jollof rice paired with crispy fried chicken.</p>
-                            <div class="d-flex justify-content-between align-items-end mt-auto">
+                    <div class="card card-dish h-100 bg-white text-dark border-0">
+                        <div class="card-img-top" style="background-image: url('https://images.unsplash.com/photo-1635545169500-1dd4721e7019?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover;"></div>
+                        <div class="card-body p-4">
+                            <h3 class="card-title fs-3 fw-bold mb-3 text-primary">Jollof Rice & Fried Chicken</h3>
+                            <p class="card-text">Perfectly spiced jollof rice paired with crispy fried chicken.</p>
+                            <div class="d-flex justify-content-between align-items-center">
                                 <span class="fs-2 fw-bold text-warning">₦2,500</span>
-                                <button class="btn btn-outline-warning add-cart-btn p-3 rounded-circle shadow" title="Add to cart" aria-label="Add Jollof Rice & Fried Chicken to cart">
-                                    <i class="fas fa-plus fs-4"></i>
+                                <button class="btn btn-outline-warning add-cart-btn rounded-circle shadow" title="Add to cart" aria-label="Add to cart">
+                                    <i class="fas fa-plus fs-3"></i>
                                 </button>
                             </div>
                         </div>
@@ -449,7 +445,7 @@
             </div>
             <hr class="my-4 opacity-25">
             <div class="text-center">
-                <p>&copy; 2024 Belleful. All rights reserved. Made with <i class="fas fa-heart text-danger"></i> in Nigeria.</p>
+                <p>&copy; 2026 Belleful. All rights reserved. Made with <i class="fas fa-heart text-danger"></i> in Nigeria.</p>
             </div>
         </div>
     </footer>
