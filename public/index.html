@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belleful - Authentic Nigerian Delights</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+    <!-- Additional Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+</head>
+    <body class="bg-gradient-to-br from-wine via-wine-dark to-gray-900 font-opensans text-white">
+    <!-- Header -->
+    <nav class="fixed top-0 w-full bg-wine/95 backdrop-blur-md z-50 shadow-lg transition-all duration-500" id="nav">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-utensils text-gold text-3xl"></i>
+                    <a href="index.html" class="text-2xl font-playfair text-gold font-bold hover:text-amber-500 transition-colors">Belleful</a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                <a href="menu.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20">Menu</a>
+                    <a href="cart.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20">Cart</a>
+                    <a href="orders.html" class="text-white hover:text-gold transition-colors px-3 py-2 rounded-lg hover:bg-gold/20">Orders</a>
+                </div>
+                <div class="md:hidden">
+    <button id="mobile-menu-btn" class="text-white text-2xl" aria-label="Toggle mobile menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-wine/95 pb-4">
+            <a href="menu.html" class="block px-6 py-2 text-white hover:text-gold">Menu</a>
+            <a href="cart.html" class="block px-6 py-2 text-white hover:text-gold">Cart</a>
+            <a href="orders.html" class="block px-6 py-2 text-white hover:text-gold">Orders</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen hero-section bg-cover bg-center bg-no-repeat flex items-center justify-center text-center text-white pt-20 hero-bg parallax-bg" style="background-image: url('https://images.unsplash.com/photo-1571589195875-eab4b8ed50bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');" data-aos="fade-down">
+        <div id="particles-js"></div>
+
+        <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60"></div>
+        <div class="relative z-10 max-w-4xl mx-4 animate__animated animate__fadeInUp">
+<h1 class="text-5xl md:text-7xl font-playfair font-bold mb-6 drop-shadow-[0_8px_20px_rgba(0,0,0,0.8)] typing-text">Authentic Nigerian Delights</h1>
+
+            <p class="text-xl md:text-2xl mb-8 font-opensans drop-shadow-xl">Authentic Nigerian Flavors Crafted with Love at Belleful</p>
+            <div class="space-x-4">
+                <a href="menu.html" class="bg-gold text-wine px-10 py-4 rounded-full font-semibold text-lg hover:bg-amber-400 transform hover:scale-105 transition-all duration-300 shadow-2xl">Explore Menu</a>
+                <a href="cart.html" class="border-2 border-gold text-gold px-10 py-4 rounded-full font-semibold text-lg hover:bg-gold hover:text-wine transition-all duration-300">Order Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Dishes -->
+    <section id="featured" class="py-24 bg-wine/95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-20" data-aos="fade-up">
+                <h2 class="text-4xl md:text-5xl font-playfair font-bold text-gold mb-6">Featured Delicacies</h2>
+                <p class="text-xl text-yellow-100 max-w-2xl mx-auto">Our signature dishes prepared with fresh ingredients and traditional recipes.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Dish 1 -->
+                <div class="group dish-card image-container bg-wine/20 backdrop-blur border border-gold/30 rounded-2xl shadow-xl overflow-hidden hover:shadow-3xl transform hover:-translate-y-4 transition-all duration-500 cursor-pointer" data-aos="fade-up" data-aos-delay="100" data-name="Jollof Rice & Fried Chicken" data-price="2500">
+                    <div class="h-64 bg-cover bg-center group-hover:scale-110 transition-transform duration-500" style="background-image: url('https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80')"></div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-playfair font-bold text-white mb-2 group-hover:text-gold transition-colors">Jollof Rice & Fried Chicken</h3>
+                        <p class="text-yellow-100 mb-4">Perfectly spiced jollof rice paired with crispy fried chicken.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-gold pulse-price animate-pulse">₦2,500</span>
+                            <button class="add-cart-btn text-gold hover:text-yellow-300 transition-all duration-300" title="Add to cart">
+                                <i class="fas fa-plus-circle text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dish 2 -->
+                <div class="group dish-card image-container bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-3xl transform hover:-translate-y-4 transition-all duration-500 cursor-pointer" data-aos="fade-up" data-aos-delay="200" data-name="White Rice & Beans Stew" data-price="1800">
+                    <div class="h-64 bg-cover bg-center group-hover:scale-110 transition-transform duration-500" style="background-image: url('https://images.unsplash.com/photo-1635545169500-1dd4721e7019?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80')"></div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-playfair font-bold text-wine mb-2 group-hover:text-gold transition-colors">White Rice & Beans Stew</h3>
+                        <p class="text-gray-600 mb-4">Fluffy white rice with hearty beans and rich stew.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-gold pulse-price animate-pulse">₦1,800</span>
+                            <button class="add-cart-btn text-gold hover:text-yellow-500 transition-all duration-300" title="Add to cart">
+                                <i class="fas fa-plus-circle text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dish 3 -->
+                <div class="group dish-card image-container bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-3xl transform hover:-translate-y-4 transition-all duration-500 cursor-pointer" data-aos="fade-up" data-aos-delay="300" data-name="Grilled Catfish & Fried Yam" data-price="3500">
+                    <div class="h-64 bg-cover bg-center group-hover:scale-110 transition-transform duration-500" style="background-image: url('https://images.unsplash.com/photo-1626074423560-696e6f397474?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80')"></div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-playfair font-bold text-wine mb-2 group-hover:text-gold transition-colors">Grilled Catfish & Fried Yam</h3>
+                        <p class="text-gray-600 mb-4">Smoky grilled catfish with golden fried yam and sauce.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-gold pulse-price animate-pulse">₦3,500</span>
+                            <button class="add-cart-btn text-gold hover:text-yellow-500 transition-all duration-300" title="Add to cart">
+                                <i class="fas fa-plus-circle text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dish 4 -->
+                <div class="group dish-card image-container bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-3xl transform hover:-translate-y-4 transition-all duration-500 cursor-pointer lg:col-span-2 md:col-span-2" data-aos="fade-up" data-aos-delay="400" data-name="Ofe Owerri Soup with Pounded Yam" data-price="4000">
+                    <div class="h-64 bg-cover bg-center group-hover:scale-110 transition-transform duration-500 lg:h-96" style="background-image: url('https://images.unsplash.com/photo-1632411832725-7888b038a141?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80')"></div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-playfair font-bold text-wine mb-2 group-hover:text-gold transition-colors">Ofe Owerri Soup with Pounded Yam</h3>
+                        <p class="text-gray-600 mb-4">Rich Ofe Owerri soup featuring fresh proteins, served with smooth pounded yam.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-gold pulse-price animate-pulse">₦4,000</span>
+                            <button class="add-cart-btn text-gold hover:text-yellow-500 transition-all duration-300" title="Add to cart">
+                                <i class="fas fa-plus-circle text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="py-24 bg-gradient-to-r from-wine to-gold/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div data-aos="fade-right">
+                    <h2 class="text-4xl md:text-5xl font-playfair font-bold text-white mb-6">About Belleful</h2>
+                    <p class="text-xl text-yellow-50 mb-8 leading-relaxed">Belleful brings the soul of Nigerian cuisine to your table. From smoky grilled meats to aromatic soups like Egusi, Ogbono, and Bitterleaf, paired with fufu, eba, semo, wheat, or pounded yam. Every dish tells a story of tradition and passion.</p>
+                    <a href="menu.html" class="bg-white text-wine px-8 py-4 rounded-full font-semibold hover:bg-yellow-400 transition-all duration-300 shadow-xl">View Full Menu</a>
+                </div>
+                <div data-aos="zoom-in" class="relative">
+                    <div class="bg-yellow-100/50 backdrop-blur-sm rounded-3xl p-12 shadow-2xl animate-pulse">
+                        <i class="fas fa-heart text-gold text-6xl mb-6"></i>
+                        <h3 class="text-2xl font-bold text-white mb-4">Made with Love</h3>
+                        <div class="space-y-2 text-yellow-50">
+                            <div class="flex items-center"><i class="fas fa-check-circle text-gold mr-3"></i> Fresh Ingredients</div>
+                            <div class="flex items-center"><i class="fas fa-check-circle text-gold mr-3"></i> Traditional Recipes</div>
+                            <div class="flex items-center"><i class="fas fa-check-circle text-gold mr-3"></i> Fast Delivery</div>
+                        </div>
+                    </div>
+                    <div class="stats-grid grid grid-cols-2 gap-8 mt-8 text-center">
+                        <div>
+                            <div class="stats-counter" data-target="500">0</div>
+                            <div class="text-yellow-50 font-semibold">Happy Customers</div>
+                        </div>
+                        <div>
+                            <div class="stats-counter" data-target="1000">0</div>
+                            <div class="text-yellow-50 font-semibold">Dishes Served</div>
+                        </div>
+                        <div>
+                            <div class="stats-counter" data-target="50">0</div>
+                            <div class="text-yellow-50 font-semibold">Daily Orders</div>
+                        </div>
+                        <div>
+                            <div class="stats-counter" data-target="98">0</div>
+                            <div class="text-yellow-50 font-semibold">% Satisfaction</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-24 bg-wine/95">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl font-playfair font-bold text-gold mb-16" data-aos="fade-up">What Our Customers Say</h2>
+            <div class="testimonial-carousel">
+                <div class="carousel-slide active">
+                    <div class="bg-gradient-to-br from-wine/20 to-wine/50 backdrop-blur p-10 rounded-2xl shadow-xl border border-gold/30">
+                        <i class="fas fa-quote-left text-gold text-4xl mb-4"></i>
+                        <p class="text-yellow-100 italic mb-6 font-medium text-xl">"Best Jollof rice in town! The grilled catfish is divine."</p>
+                        <div class="flex items-center justify-center">
+                            <div class="w-12 h-12 bg-gold rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white">Ada Chi</h4>
+                                <div class="text-yellow-300 text-2xl">★★★★★</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <div class="bg-gradient-to-br from-yellow-50 to-amber-100 p-10 rounded-2xl shadow-xl">
+                        <i class="fas fa-quote-left text-gold text-4xl mb-4"></i>
+                        <p class="text-gray-700 italic mb-6 font-medium text-xl">"Ofe Owerri with pounded yam was perfection. Highly recommend!"</p>
+                        <div class="flex items-center justify-center">
+                            <div class="w-12 h-12 bg-gold rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-wine">Emeka N.</h4>
+                                <div class="text-yellow-500 text-2xl">★★★★★</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <div class="bg-gradient-to-br from-yellow-50 to-amber-100 p-10 rounded-2xl shadow-xl">
+                        <i class="fas fa-quote-left text-gold text-4xl mb-4"></i>
+                        <p class="text-gray-700 italic mb-6 font-medium text-xl">"Fried yam and sauce hit the spot every time. Belleful is my go-to!"</p>
+                        <div class="flex items-center justify-center">
+                            <div class="w-12 h-12 bg-gold rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-wine">Funmi A.</h4>
+                                <div class="text-yellow-500 text-2xl">★★★★★</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center space-x-2 mt-8">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 bg-wine text-white text-center">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" data-aos="zoom-in">
+            <h2 class="text-4xl md:text-5xl font-playfair font-bold mb-6">Ready to Indulge?</h2>
+            <p class="text-xl mb-8 opacity-90">Order your favorites from roasted plantain, egusi soup, fufu, and more today!</p>
+            <a href="cart.html" class="bg-gold text-wine px-12 py-5 rounded-full font-semibold text-xl hover:bg-yellow-400 transform hover:scale-105 transition-all duration-300 shadow-2xl inline-block">Start Ordering</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cart-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-2xl font-playfair font-bold text-wine">Your Cart</h3>
+                <button class="close-cart text-gray-500 hover:text-wine text-2xl" aria-label="Close cart">&times;</button>
+            </div>
+            <div class="modal-body">
+<div id="cart-items"></div>
+                <div id="cart-total-section" class="mt-6 hidden p-4 bg-wine/30 backdrop-blur rounded-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-semibold text-yellow-100">Total:</span>
+                        <span id="cart-total" class="text-2xl font-bold text-gold">₦0</span>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="cart.html" class="flex-1 bg-wine text-white py-3 px-6 rounded-xl text-center font-semibold hover:bg-wine/90 transition-all text-lg shadow-lg">View Cart</a>
+                        <button id="checkout-btn" class="flex-1 bg-gold text-wine py-3 px-6 rounded-xl text-center font-semibold hover:bg-yellow-400 transition-all text-lg shadow-lg">Checkout</button>
+                    </div>
+                </div>
+                <div class="empty-cart mt-8 text-center py-8 hidden">
+                    <i class="fas fa-shopping-cart text-4xl text-yellow-300 mb-4"></i>
+                    <p class="text-yellow-100 text-lg">Your cart is empty</p>
+                    <a href="menu.html" class="mt-4 inline-block bg-gold text-wine px-6 py-2 rounded-xl font-semibold hover:bg-yellow-400">Browse Menu</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-wine text-white py-12">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-utensils text-gold text-2xl"></i>
+                        <h3 class="text-2xl font-playfair font-bold text-gold">Belleful</h3>
+                    </div>
+                    <p class="text-yellow-200 mb-4">Bringing authentic Nigerian tastes to you with passion and quality.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-gold transition-colors"><i class="fab fa-facebook text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-gold transition-colors"><i class="fab fa-instagram text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-gold transition-colors"><i class="fab fa-twitter text-xl"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="menu.html" class="text-gray-400 hover:text-gold transition-colors">Menu</a></li>
+                        <li><a href="cart.html" class="text-gray-400 hover:text-gold transition-colors">Cart</a></li>
+                        <li><a href="orders.html" class="text-gray-400 hover:text-gold transition-colors">Orders</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Dishes</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li>Jollof Rice</li>
+                        <li>Fried Yam</li>
+                        <li>Grilled Chicken</li>
+                        <li>Ogbono Soup</li>
+                        <li>Pounded Yam</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Contact</h4>
+                    <p class="text-gray-400 mb-2">info@belleful.com</p>
+                    <p class="text-gray-400">+234 800 BELLEFUL</p>
+                </div>
+            </div>
+            <div class="border-t border-wine/50 mt-12 pt-8 text-center text-yellow-200">
+                <p>&copy; 2026 Belleful. All rights reserved. Made with <i class="fas fa-heart text-gold"></i> in Nigeria.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>
