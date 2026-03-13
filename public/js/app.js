@@ -1,6 +1,6 @@
 // App.js - Central script for Belleful with real auth support
 // Shared auth state & nav management
-const API_BASE = 'http://localhost:3000/api'; // Update later
+const API_BASE = 'https://belleful-fphf.vercel.app/api'; // Update later
 
 function getUser() {
   try {
@@ -56,7 +56,7 @@ function updateNav() {
 
 async function loginUser(email, password) {
   try {
-    const response = await fetch(`${API_BASE}/login`, {
+    const response = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -79,7 +79,7 @@ async function loginUser(email, password) {
 
 async function registerUser(name, email, password) {
   try {
-    const response = await fetch(`${API_BASE}/registerUser`, {
+    const response = await fetch(`${API_BASE}/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password })
@@ -101,7 +101,7 @@ async function registerUser(name, email, password) {
 
 async function verifyOTP(email, otp) {
   try {
-    const response = await fetch(`${API_BASE}/verifyOTP`, {
+    const response = await fetch(`${API_BASE}/auth/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otp })
