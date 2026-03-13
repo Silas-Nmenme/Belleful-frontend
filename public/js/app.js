@@ -146,8 +146,7 @@ function logout() {
   window.location.href = 'login.html';
 }
 
-// Universal auth guard
-universalAuthGuard();
+// Universal auth guard moved to DOMContentLoaded only to prevent load race condition
 
 // Move DOMContentLoaded inside initApp
 window.initApp = initApp;
