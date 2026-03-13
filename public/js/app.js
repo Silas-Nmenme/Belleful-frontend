@@ -1,6 +1,5 @@
-// App.js - Central script for Belleful with real auth support
-// Shared auth state & nav management
-const API_BASE = 'https://belleful-fphf.vercel.app/api'; // Update later
+
+const API_BASE = '/api'; // Use relative path to avoid CORS
 
 function getUser() {
   try {
@@ -378,14 +377,15 @@ let cart = JSON.parse(localStorage.getItem('cart')) || [];
     // Auto rotate carousel
     setInterval(() => {
         const current = document.querySelector('.carousel-slide.active');
+        if (!current) return;
         const next = current.nextElementSibling || document.querySelector('.carousel-slide');
         const currentDot = document.querySelector('.dot.active');
-        const nextDot = currentDot.nextElementSibling || document.querySelector('.dot');
+        const nextDot = currentDot ? currentDot.nextElementSibling || document.querySelector('.dot') : document.querySelector('.dot');
         
-        current.classList.remove('active');
-        currentDot.classList.remove('active');
-        next.classList.add('active');
-        nextDot.classList.add('active');
+        if (current) current.classList.remove('active');
+        if (currentDot) currentDot.classList.remove('active');
+        if (next) next.classList.add('active');
+        if (nextDot) nextDot.classList.add('active');
     }, 5000);
 
     // Stats counters
