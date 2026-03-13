@@ -1,5 +1,5 @@
 // Belleful Shared Utils - API, Socket, UI Helpers
-const API_BASE = '/api';
+const API_BASE = 'https://belleful-fphf.vercel.app/api';
 const SOCKET_URL = window.location.origin;
 
 // Get JWT from localStorage
