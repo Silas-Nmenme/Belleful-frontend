@@ -5,11 +5,18 @@ const API_BASE = 'https://belleful-fphf.vercel.app/api';
 
 // Init app
 function initApp() {
-  if (typeof getAuthToken === 'undefined') {
+  if (typeof universalAuthGuard === 'undefined') {
     const script = document.createElement('script');
     script.src = './js/auth-shared.js';
     document.head.appendChild(script);
-    script.onload = initApp;
+    script.onload = function() {
+      if (typeof universalAuthGuard === 'undefined') {
+        console.error('Failed to load auth-shared.js');
+        return;
+      }
+      universalAuthGuard();
+      attachFormHandlers();
+    };
     return;
   }
   universalAuthGuard();
