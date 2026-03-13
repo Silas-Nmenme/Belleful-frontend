@@ -25,8 +25,31 @@ const addMenuBtn = document.getElementById('addMenuBtn');
 const addMenuModal = document.getElementById('addMenuModal');
 const addMenuForm = document.getElementById('addMenuForm');
 
-// Init
-document.addEventListener('DOMContentLoaded', initAdminDashboard);
+// FIXED: Robust admin init - loader hides FIRST  
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('🚀 Admin Dashboard init START');
+  
+  // SAFETY: Hide loader IMMEDIATELY
+  hideLoading();
+  
+  try {
+    const auth = safeAuthCheck(true); // Admin required
+    if (!auth.valid) {
+      console.warn('🔒 Admin auth failed:', auth.reason);
+      showToast('Admin access required', 'error');
+      setTimeout(() => window.location.href = 'user-dashboard.html', 2000);
+      return;
+    }
+
+    console.log('✅ Admin dashboard auth OK:', auth.user.name);
+    
+    // Setup & load  
+    await initAdminDashboard();
+  } catch (error) {
+    console.error('💥 Admin dashboard init error:', error);
+    showToast('Admin dashboard loaded with limited functionality', 'warning');
+  }
+});
 
 async function initAdminDashboard() {
   hideLoading();

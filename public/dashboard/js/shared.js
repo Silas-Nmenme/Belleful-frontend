@@ -106,51 +106,64 @@ function statusProgress(status) {
   return `<div class="status-progress"><div style="background: ${config.color}; width: ${widths[status] || '14%'}"></div></div>`;
 }
 
-// Toast notifications
-function showToast(message, type = 'info') {
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.textContent = message;
-  document.body.appendChild(toast);
+// Dashboard critical utils - SINGLE SOURCE OF TRUTH
 
-  setTimeout(() => toast.classList.add('show'), 100);
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
-}
-
-// Logout
-function logout() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  showToast('Logged out successfully', 'info');
-  setTimeout(() => {
-    if (window.location.pathname.includes('admin')) {
-      window.location.href = 'dashboard/user-dashboard.html';
-    } else {
-      window.location.reload();
-    }
-  }, 1500);
-}
-
-// Load user info from token
-function getUserInfo() {
-  const token = getAuthToken();
-  if (!token) return null;
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload;
-  } catch {
-    logout();
-    return null;
+// Robust loader hide - SAFE
+function hideLoading() {
+  console.log('🟢 Hiding loader...');
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+    console.log('✅ Loader hidden');
   }
 }
 
-// Check admin role
-function isAdmin() {
-  const user = getUserInfo();
-  return user?.role === 'admin';
+// Safe auth check
+function safeAuthCheck(isAdminRequired = false) {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      console.warn('❌ No token');
+      return { valid: false, reason: 'no-token' };
+    }
+    
+    const user = getUserInfo();
+    if (!user) {
+      console.warn('❌ Invalid token payload');
+      return { valid: false, reason: 'invalid-token' };
+    }
+    
+    if (isAdminRequired && user.role !== 'admin') {
+      console.warn('❌ Admin required, got:', user.role);
+      return { valid: false, reason: 'admin-required' };
+    }
+    
+    console.log('✅ Auth OK:', user.role || 'user');
+    return { valid: true, user };
+  } catch (error) {
+    console.error('❌ Auth check error:', error);
+    return { valid: false, reason: 'error', error };
+  }
 }
+
+// Global error handler
+window.addEventListener('error', (event) => {
+  console.error('💥 Global JS Error:', event.error);
+  hideLoading();
+  const toastMsg = 'Dashboard error occurred. Page still functional.';
+  // Reuse showToast if available, else simple alert
+  if (typeof showToast === 'function') {
+    showToast(toastMsg, 'error');
+  } else {
+    alert(toastMsg);
+  }
+});
+
+// DOM ready safety net
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🎯 DOM ready - safety net');
+  // Hide loader even if scripts fail
+  setTimeout(hideLoading, 100);
+});
 
 console.log('✅ Shared utils loaded');

@@ -22,8 +22,31 @@ const refreshBtn = document.getElementById('refreshBtn');
 const ordersStatusFilter = document.getElementById('ordersStatusFilter');
 const ordersRefreshBtn = document.getElementById('ordersRefreshBtn');
 
-// Init
-document.addEventListener('DOMContentLoaded', initProfessionalDashboard);
+// FIXED: Robust init - loader hides FIRST
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('🚀 User Dashboard init START');
+  
+  // SAFETY: Hide loader IMMEDIATELY
+  hideLoading();
+  
+  try {
+    const auth = safeAuthCheck(false);
+    if (!auth.valid) {
+      console.warn('🔒 User auth failed:', auth.reason);
+      showToast('Please login to access dashboard', 'error');
+      setTimeout(() => window.location.href = '../login.html', 2000);
+      return;
+    }
+
+    console.log('✅ User dashboard auth OK:', auth.user.name);
+    
+    // Setup & load
+    await initProfessionalDashboard();
+  } catch (error) {
+    console.error('💥 User dashboard init error:', error);
+    showToast('Dashboard loaded with limited functionality', 'warning');
+  }
+});
 
 async function initProfessionalDashboard() {
   hideLoading();
