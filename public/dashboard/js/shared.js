@@ -7,6 +7,27 @@ function getAuthToken() {
   return localStorage.getItem('token');
 }
 
+// Get user info from JWT payload - CRITICAL FIX
+function getUserInfo() {
+  try {
+    const token = getAuthToken();
+    if (!token) return null;
+    
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return {
+      id: payload.sub || payload.userId,
+      email: payload.email,
+      name: payload.name,
+      role: payload.role || 'user'
+    };
+  } catch (error) {
+    console.warn('Invalid token payload:', error);
+    localStorage.removeItem('token');
+    return null;
+  }
+}
+
+
 // API call wrapper with auth
 async function apiCall(endpoint, options = {}) {
   const token = getAuthToken();
@@ -116,6 +137,35 @@ function hideLoading() {
     overlay.style.display = 'none';
     console.log('✅ Loader hidden');
   }
+}
+
+// Toast notification system - CRITICAL FIX
+function showToast(message, type = 'info') {
+  // Remove existing toasts
+  document.querySelectorAll('.toast').forEach(toast => toast.remove());
+  
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <div class="toast-content">
+      <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
+      <span>${message}</span>
+    </div>
+    <button class="toast-close">&times;</button>
+  `;
+  
+  document.body.appendChild(toast);
+  
+  // Auto remove
+  const timer = setTimeout(() => {
+    if (toast.parentNode) toast.remove();
+    clearTimeout(timer);
+  }, 4000);
+  
+  // Close button
+  toast.querySelector('.toast-close').onclick = () => {
+    if (toast.parentNode) toast.remove();
+  };
 }
 
 // Safe auth check
