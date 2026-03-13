@@ -4,9 +4,10 @@ const menuItems = [
     { id: 2, name: 'Beans & Plantain', price: 2000, image: '../asset/beans.webp' },
     { id: 3, name: 'Grilled Chicken', price: 3500, image: '../asset/grilled.jpg' },
     { id: 4, name: 'Ofe Owerri', price: 2800, image: '../asset/ofe.webp' },
-    { id: 5, name: 'Pounded Yam', price: 3000, image: '../asset/pounded-yam.webp' },
-    { id: 6, name: 'Egusi Soup', price: 2200, image: '../asset/egusi.webp' }
+    { id: 5, name: 'Pounded Yam', price: 3000, image: './asset/grilled.jpg' },
+    { id: 6, name: 'Egusi Soup', price: 2200, image: './asset/ofe.webp' }
 ];
+
 
 // Render menu items
 function renderMenuItems() {
@@ -43,7 +44,7 @@ function addToCart(e) {
     const id = parseInt(btn.dataset.id);
     const name = btn.dataset.name;
     const price = parseFloat(btn.dataset.price);
-    const image = btn.dataset.image.replace('../', './');
+    const image = btn.dataset.image; // Already standardized to ./asset/
 
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 

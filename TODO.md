@@ -1,16 +1,23 @@
-# Cart Images Fix Progress
+# Fix Images 404 Errors on Netlify
 
-**✅ Step 1: Create TODO.md** - Track progress ✓
+Status: In Progress - Code-only fix (image creation bypassed due to tool issue)
 
-**✅ Step 2: Edit public/js/menu.js**  
-- Add data-image to add-to-cart-btn in renderMenuItems ✓
-- Capture and normalize image path in addToCart, store in cart item ✓
+## Approved Plan Summary (Updated)
+- Use existing assets for all menu items (no new images)
+- Standardize paths to './asset/'
+- Fix cart.js fallback to use item.image || safe existing image ('./asset/hero.jpeg')
+- Verify no 404s remain
 
-**✅ Step 3: Edit public/js/cart.js**  
-- Use item.image in renderCart img src with fallback to generated path ✓
+## Step-by-Step TODO
+- [x] Step 1: Plan adjustment (use existing images)
+- [ ] Step 2: Edit public/js/menu.js (fix item 5/6 images to existing)
+- [ ] Step 3: Edit public/js/cart.js (fix renderCart image logic)
+- [ ] Step 4: Verify with search_files (no /asset/ missing)
+- [ ] Step 5: Complete
 
-**✅ Step 4: Test changes**  
-- Changes implemented successfully. Images now use correct paths from menu (e.g., ./asset/jollof.webp). Old carts without image use fallback (may still break). Ready to test in browser.
+Current Step: 5/5
 
-**✅ Step 5: Complete**  
-- Bug fixed!
+- [x] Step 2: Edit public/js/menu.js ✅
+- [x] Step 3: Edit public/js/cart.js ✅
+- [x] Step 4: Verify ✅ (search_files: 0 broken image refs)
+

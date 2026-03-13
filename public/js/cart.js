@@ -22,9 +22,10 @@ function renderCart() {
     tbody.innerHTML = cart.map((item, index) => `
         <tr>
             <td>
-                <img src="${item.image || `./asset/${item.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}.webp`}" alt="${item.name}" 
+                <img src="${item.image || './asset/hero.jpeg'}" alt="${item.name}" 
                      class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
                 ${item.name}
+
             </td>
             <td>₦${item.price.toLocaleString()}</td>
             <td>
