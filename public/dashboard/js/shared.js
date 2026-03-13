@@ -196,6 +196,17 @@ function safeAuthCheck(isAdminRequired = false) {
   }
 }
 
+// Logout function - fixes ReferenceError in user.js/admin.js
+function logout() {
+  clearAuth();
+  if (typeof showToast === 'function') {
+    showToast('Logged out successfully', 'info');
+  }
+  setTimeout(() => {
+    window.location.href = '../login.html';
+  }, 1000);
+}
+
 // Global error handler
 window.addEventListener('error', (event) => {
   console.error('💥 Global JS Error:', event.error);
