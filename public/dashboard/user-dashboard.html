@@ -26,7 +26,7 @@
     .section { display: none; }
     .section.active { display: block; animation: fadeIn 0.5s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--glass); border-radius: 50%; border-top-color: var(--primary); animation: spin 1s ease-in-out infinite; }
+.loading, .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--glass); border-radius: 50%; border-top-color: var(--primary); animation: spin 1s ease-in-out infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .table { background: rgba(255,255,255,0.8); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow); }
     .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
@@ -189,7 +189,8 @@
 
   <script>
     // Config
-    const API_BASE = 'https://belleful-fphf.vercel.app/api/dashboard';
+    const API_BASE = window.location.hostname.includes('netlify') ? 'https://bellefulchop.netlify.app/api/dashboard' : 'https://belleful-fphf.vercel.app/api/dashboard';
+    console.log('Using API base:', API_BASE);
 
     // Auth Utils
     function getAuthToken() { return localStorage.getItem('token'); }
@@ -204,8 +205,11 @@
       localStorage.removeItem('token');
       window.location.href = '../login.html';
     }
-    function authGuard() {
-      if (!getAuthToken()) {
+function authGuard() {
+      const token = getAuthToken();
+      console.log('Auth token:', token ? 'Present' : 'Missing');
+      if (!token) {
+        console.warn('No token, redirecting to login');
         window.location.href = '../login.html';
         return false;
       }
@@ -236,14 +240,22 @@
     async function apiCall(endpoint) {
       const token = getAuthToken();
       if (!token) return { success: false, error: 'No token' };
+      console.log(`Calling API: ${API_BASE}/${endpoint}`);
+      console.log('Token length:', token.length);
       try {
         const res = await fetch(`${API_BASE}/${endpoint}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
+        console.log('Response status:', res.status);
         const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.message || 'API error');
+        console.log('API response:', data);
+        if (!res.ok || !data.success) throw new Error(data.message || `HTTP ${res.status}`);
         return { success: true, data: data.data };
       } catch (error) {
+        console.error('API error:', error);
         showToast(error.message, 'error');
         return { success: false, error: error.message };
       }
@@ -377,8 +389,15 @@
 
     // Init
     document.addEventListener('DOMContentLoaded', async () => {
-      if (!authGuard()) return;
+      console.log('DOM loaded, checking auth...');
+      if (!authGuard()) {
+        console.log('Auth failed, continuing in demo mode');
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('userGreeting').textContent = 'Demo Mode - Check Console';
+        return;
+      }
       
+      console.log('Auth OK, loading data...');
       // Load initial data
       await loadStats();
       await loadProfile(); // For greeting
