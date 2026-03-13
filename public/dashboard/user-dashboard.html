@@ -189,7 +189,7 @@
 
   <script>
     // Config
-    const API_BASE = window.location.hostname.includes('netlify') ? 'https://bellefulchop.netlify.app/api/dashboard' : 'https://belleful-fphf.vercel.app/api/dashboard';
+const API_BASE = 'https://belleful-fphf.vercel.app/api/dashboard';
     console.log('Using API base:', API_BASE);
 
     // Auth Utils
@@ -271,7 +271,7 @@ function authGuard() {
       document.getElementById('cartTotal').innerHTML = `₦${(data.cartTotal || 0).toLocaleString()}`;
     }
 
-    async function loadOrders() {
+async function loadOrders() {
       const container = document.getElementById('ordersContent');
       setLoading(container, true);
       const { success, data } = await apiCall('user/orders?page=1&limit=10');
