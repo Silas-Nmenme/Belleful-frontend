@@ -3,7 +3,7 @@
 
 let stats = {}, profile = {}, cart = {}, orders = [], payments = [];
 let currentOrderPage = 1, totalOrderPages = 1;
-let socket = null;
+// socket provided by shared.js
 
 // DOM Elements
 const loadingOverlay = document.getElementById('loadingOverlay');
