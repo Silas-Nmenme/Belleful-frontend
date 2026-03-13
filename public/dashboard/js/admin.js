@@ -28,7 +28,7 @@ async function initAdminDashboard() {
   
   if (!user || user.role !== 'admin') {
     showToast('Admin access required', 'error');
-    setTimeout(() => window.location.href = '/user-dashboard.html', 2000);
+    setTimeout(() => window.location.href = 'user-dashboard.html', 2000);
     return;
   }
 

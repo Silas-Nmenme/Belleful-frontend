@@ -65,7 +65,9 @@ async function loginUser(email, password) {
     if (data.success) {
       saveUser({ ...data.user, loggedIn: true });
       updateNav();
-      window.location.href = 'dashboard/user-dashboard.html';
+      const role = data.user.role;
+      const redirectPath = role === 'admin' ? 'dashboard/admin-dashboard.html' : 'dashboard/user-dashboard.html';
+      window.location.href = redirectPath;
       return true;
 
     } else {
