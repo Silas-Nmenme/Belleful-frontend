@@ -1,12 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Belleful - User Dashboard</title>
+  <title>Belleful - User Menu &amp; Cart</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    :root { --primary: #B91C52; --gold: #F59E0B; --cream: #FDF4F0; }
+    .navbar { background: linear-gradient(135deg, white, var(--cream)); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .sidebar { background: var(--cream); border-right: 1px solid rgba(0,0,0,0.1); height: 100vh; transition: transform 0.3s; }
+    .sidebar.collapsed { transform: translateX(-100%); }
+    .menu-card img { height: 200px; object-fit: cover; }
+    .cart-summary { background: #f8f9fa; border-radius: 10px; }
+    .btn-checkout { background: linear-gradient(135deg, var(--gold), #FBBF24); border: none; font-weight: 600; }
+    .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.show { transform: translateX(0); } }
+  </style>
 </head>
 <body>
   <!-- Loading Overlay -->
@@ -16,185 +26,236 @@
     </div>
   </div>
 
-  <div class="dashboard-app">
-    <!-- Top Navbar -->
-    <header class="top-navbar">
-      <div class="navbar-container">
-        <div class="nav-brand">
-          <i class="fas fa-utensils me-2"></i>
-          Belleful Dashboard
+  <div class="d-flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar col-md-3 col-lg-2 p-3 d-md-block">
+      <button class="btn btn-link d-md-none mb-3" id="closeSidebar"><i class="fas fa-times"></i></button>
+      <nav class="nav flex-column">
+        <a href="#" class="nav-link active" data-section="menu"><i class="fas fa-utensils me-2"></i>Menu</a>
+        <a href="#" class="nav-link" data-section="cart"><i class="fas fa-shopping-cart me-2"></i>Cart (<span id="cartCount">0</span>)</a>
+        <a href="orders.html" class="nav-link"><i class="fas fa-box me-2"></i>Orders</a>
+        <a href="#" class="nav-link" data-section="profile"><i class="fas fa-user me-2"></i>Profile</a>
+        <a href="#" class="nav-link text-danger" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">
+            <img src="../asset/logo.jpeg" alt="Belleful" style="height: 40px;">
+            <span class="ms-2">Belleful</span>
+          </a>
+          <div class="navbar-nav ms-auto">
+            <span id="userGreeting" class="nav-link">Loading...</span>
+<button class="btn btn-link me-2 d-none d-md-block" id="menuToggle" aria-label="Toggle menu" title="Toggle sidebar menu"><i class="fas fa-bars"></i></button>
+<button class="btn btn-link" onclick="toggleCartSection()" aria-label="View cart" title="View shopping cart"><i class="fas fa-shopping-cart"></i> <span id="topCartCount">0</span></button>
+            <button class="btn btn-outline-danger ms-2" onclick="logout()">Logout</button>
+          </div>
         </div>
-        <div class="nav-actions">
-          <button id="notificationBtn" class="notification-btn" aria-label="Notifications" title="Notifications">
-            <i class="fas fa-bell" aria-hidden="true"></i>
-            <span id="notifBadge" class="badge">3</span>
-          </button>
-          <div class="user-profile" id="userProfile">
-            <img src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff&size=32" alt="User" class="avatar">
-            <span id="userName">Loading...</span>
-            <i class="fas fa-chevron-down ms-1"></i>
-          </div>
-          <button id="logoutBtn" class="btn-logout">
-            <i class="fas fa-sign-out-alt"></i>
-          </button>
-          <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-            <i class="fas fa-moon" aria-hidden="true"></i>
-          </button>
-          <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open sidebar menu" title="Open menu">
-            <i class="fas fa-bars" aria-hidden="true"></i>
-          </button>
-        </div>
-      </div>
-    </header>
+      </nav>
 
-    <div class="dashboard-content">
-      <!-- Sidebar -->
-      <aside id="sidebar" class="sidebar">
-        <nav class="sidebar-nav">
-          <a href="#" data-tab="overview" class="nav-link active">
-            <i class="fas fa-chart-line me-2"></i> Overview
-          </a>
-          <a href="#" data-tab="orders" class="nav-link">
-            <i class="fas fa-shopping-bag me-2"></i> Orders
-          </a>
-          <a href="#" data-tab="profile" class="nav-link">
-            <i class="fas fa-user me-2"></i> Profile
-          </a>
-          <a href="#" data-tab="cart" class="nav-link">
-            <i class="fas fa-shopping-cart me-2"></i> Cart
-          </a>
-          <a href="#" data-tab="payments" class="nav-link">
-            <i class="fas fa-credit-card me-2"></i> Payments
-          </a>
-        </nav>
-      </aside>
+      <main class="container-fluid p-4">
+        <!-- Menu Section -->
+        <section id="menuSection" class="section active">
+          <h1 class="mb-4"><i class="fas fa-utensils me-2 text-warning"></i>Our Menu</h1>
+          <div id="menuGrid" class="row g-4"></div>
+        </section>
 
-      <!-- Main Content -->
-      <main class="main-content">
-        <!-- Overview Tab -->
-        <section id="overview" class="tab-content active">
-          <header class="section-header">
-            <h1><i class="fas fa-tachometer-alt me-2"></i>Dashboard Overview</h1>
-            <div class="header-actions">
-              <button id="refreshBtn" class="btn btn-outline-primary">
-                <i class="fas fa-sync-alt me-1"></i>Refresh
-              </button>
-            </div>
-          </header>
-          
-          <!-- Stats Cards -->
-          <div class="stats-grid" id="statsGrid">
-            <!-- Dynamic stats cards -->
-          </div>
-
-          <!-- Quick Actions -->
-          <div class="quick-actions-grid">
-            <div class="quick-action-card">
-              <i class="fas fa-shopping-bag icon"></i>
-              <h3>View Orders</h3>
-              <p>Track all your recent orders</p>
-              <button class="btn-primary" onclick="switchTab('orders')">View Orders</button>
-            </div>
-            <div class="quick-action-card">
-              <i class="fas fa-shopping-cart icon"></i>
-              <h3>Manage Cart</h3>
-              <p>Review and checkout</p>
-              <button class="btn-primary" onclick="switchTab('cart')">View Cart</button>
-            </div>
-            <div class="quick-action-card">
-              <i class="fas fa-user-edit icon"></i>
-              <h3>Update Profile</h3>
-              <p>Edit your information</p>
-              <button class="btn-primary" onclick="switchTab('profile')">Edit Profile</button>
-            </div>
+        <!-- Cart Section -->
+        <section id="cartSection" class="section d-none">
+          <h1 class="mb-4"><i class="fas fa-shopping-cart me-2 text-warning"></i>Your Cart</h1>
+          <div id="cartSummary" class="cart-summary p-4 mb-4"></div>
+          <button id="checkoutBtn" class="btn btn-warning btn-lg w-100 btn-checkout d-none">
+            <i class="fas fa-credit-card me-2"></i>Checkout <span id="cartTotal">₦0</span>
+          </button>
+          <div class="text-center mt-3">
+            <a href="#" class="btn btn-outline-secondary" onclick="toggleCartSection()">Continue Shopping</a>
           </div>
         </section>
 
-        <!-- Orders Tab -->
-        <section id="orders" class="tab-content">
-          <header class="section-header">
-            <h1><i class="fas fa-shopping-bag me-2"></i>My Orders</h1>
-            <div class="header-actions">
-              <label for="ordersStatusFilter" class="visually-hidden">Filter orders by status</label>
-              <select id="ordersStatusFilter" class="form-select" aria-label="Filter orders by status">
-                <option>All Orders</option>
-                <option>Pending</option>
-                <option>Delivered</option>
-              </select>
-              <button id="ordersRefreshBtn" class="btn btn-outline-primary">Refresh</button>
+        <!-- Profile Section (simple) -->
+        <section id="profileSection" class="section d-none">
+          <h1 class="mb-4"><i class="fas fa-user me-2"></i>Profile</h1>
+          <div id="profileContent" class="card">
+            <div class="card-body">
+              <p>User info loaded from token.</p>
             </div>
-          </header>
-          <div id="ordersSkeleton" class="skeleton-grid">
-            <!-- Skeleton loader -->
-          </div>
-          <div id="ordersContent" class="orders-table-container">
-            <!-- Dynamic orders table -->
-          </div>
-          <div id="ordersPagination" class="pagination-container">
-            <!-- Dynamic pagination -->
-          </div>
-        </section>
-
-        <!-- Profile Tab -->
-        <section id="profile" class="tab-content">
-          <header class="section-header">
-            <h1><i class="fas fa-user me-2"></i>Profile</h1>
-          </header>
-          <div class="profile-card" id="profileContent">
-            <!-- Dynamic profile -->
-          </div>
-        </section>
-
-        <!-- Cart Tab -->
-        <section id="cart" class="tab-content">
-          <header class="section-header">
-            <h1><i class="fas fa-shopping-cart me-2"></i>Shopping Cart</h1>
-          </header>
-          <div id="cartContent" class="cart-section">
-            <!-- Dynamic cart summary + checkout link -->
-          </div>
-        </section>
-
-        <!-- Payments Tab -->
-        <section id="payments" class="tab-content">
-          <header class="section-header">
-            <h1><i class="fas fa-credit-card me-2"></i>Payment History</h1>
-          </header>
-          <div id="paymentsContent">
-            <!-- Dynamic payments list -->
           </div>
         </section>
       </main>
     </div>
   </div>
 
-  <!-- Notifications Dropdown -->
-  <div id="notificationsDropdown" class="notifications-dropdown">
-    <div class="notifications-header">
-      <h6>Notifications</h6>
-      <button id="clearNotifs">Clear All</button>
-    </div>
-    <div id="notificationsList" class="notifications-list">
-      <!-- Dynamic notifications -->
-    </div>
-  </div>
+  <!-- Auth Utils (inline from auth-shared.js simplified) -->
+  <script>
+    // Auth Utils
+    function getAuthToken() { return localStorage.getItem('token'); }
+    function getUserInfo() {
+      const token = getAuthToken();
+      if (!token) return null;
+      try {
+        return JSON.parse(atob(token.split('.')[1]));
+      } catch { return null; }
+    }
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '../login.html';
+    }
+    function universalAuthGuard() {
+      if (!getAuthToken()) {
+        window.location.href = '../login.html';
+        return false;
+      }
+      return true;
+    }
+    function showToast(msg, type='info') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `position:fixed;top:20px;right:20px;z-index:10000;padding:1rem;background:${type==='error'?'#dc3545':'#28a745'};color:white;border-radius:5px;`;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
 
-  <!-- Order Detail Modal -->
-  <div id="orderModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modalOrderId"></h3>
-        <button class="close-btn">&times;</button>
-      </div>
-      <div id="modalOrderContent" class="modal-body">
-        <!-- Dynamic order details -->
-      </div>
-    </div>
-  </div>
+    // Menu Data & Functions (from menu.js)
+    const menuItems = [
+      { id: 1, name: 'Jollof Rice', price: 2500, image: '../asset/jollof.webp' },
+      { id: 2, name: 'Beans & Plantain', price: 2000, image: '../asset/beans.webp' },
+      { id: 3, name: 'Grilled Chicken', price: 3500, image: '../asset/grilled.jpg' },
+      { id: 4, name: 'Ofe Owerri', price: 2800, image: '../asset/ofe.webp' },
+      { id: 5, name: 'Pounded Yam', price: 3000, image: '../asset/pounded-yam.webp' },
+      { id: 6, name: 'Egusi Soup', price: 2200, image: '../asset/egusi.webp' }
+    ];
 
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/user.js"></script>
+    function renderMenuItems() {
+      const container = document.getElementById('menuGrid');
+      container.innerHTML = menuItems.map(item => `
+        <div class="col-md-6 col-lg-4">
+          <div class="card menu-card h-100 shadow-sm">
+            <img src="${item.image}" class="card-img-top" alt="${item.name}">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">${item.name}</h5>
+              <p class="card-text fs-3 text-warning mb-3">₦${item.price.toLocaleString()}</p>
+              <button class="btn btn-warning w-100 mt-auto add-to-cart-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}">
+                <i class="fas fa-cart-plus me-2"></i>Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      // Event listeners
+      document.querySelectorAll('.add-to-cart-btn').forEach(btn => btn.addEventListener('click', addToCart));
+    }
+
+    function addToCart(e) {
+      const btn = e.target.closest('.add-to-cart-btn');
+      const id = parseInt(btn.dataset.id);
+      const name = btn.dataset.name;
+      const price = parseFloat(btn.dataset.price);
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existing = cart.find(item => item.id === id);
+      if (existing) existing.quantity++;
+      else cart.push({id, name, price, quantity: 1});
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartCount();
+      showToast('Added to cart!');
+      btn.textContent = 'Added!';
+      setTimeout(() => btn.textContent = '<i class="fas fa-cart-plus me-2"></i>Add to Cart', 1000);
+    }
+
+    // Cart Functions
+    let cart = [];
+    function loadCart() {
+      cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      updateCartCount();
+      renderCartSummary();
+    }
+    function updateCartCount() {
+      const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cartCount').textContent = total;
+      document.getElementById('topCartCount').textContent = total;
+      const checkoutBtn = document.getElementById('checkoutBtn');
+      if (total > 0) {
+        checkoutBtn.classList.remove('d-none');
+      } else {
+        checkoutBtn.classList.add('d-none');
+      }
+    }
+    function renderCartSummary() {
+      const container = document.getElementById('cartSummary');
+      if (cart.length === 0) {
+        container.innerHTML = '<p class="text-center text-muted py-4">Your cart is empty. <a href="#" onclick="toggleCartSection()">Browse menu</a></p>';
+        document.getElementById('cartTotal').textContent = '0';
+        return;
+      }
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      container.innerHTML = `
+        <table class="table">
+          <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+          <tbody>${cart.map(item => `<tr><td>${item.name}</td><td>${item.quantity}</td><td>₦${(item.price * item.quantity).toLocaleString()}</td></tr>`).join('')}</tbody>
+        </table>
+        <h4>Total: ₦${total.toLocaleString()}</h4>
+      `;
+      document.getElementById('cartTotal').textContent = total.toLocaleString();
+    }
+    function toggleCartSection() {
+      document.getElementById('menuSection').classList.toggle('d-none');
+      document.getElementById('cartSection').classList.toggle('d-none');
+      document.querySelector('[data-section="menu"]').classList.toggle('active');
+      document.querySelector('[data-section="cart"]').classList.toggle('active');
+      if (!document.getElementById('cartSection').classList.contains('d-none')) renderCartSummary();
+    }
+
+    // Checkout
+    document.getElementById('checkoutBtn').addEventListener('click', function() {
+      if (cart.length === 0) return showToast('Cart empty', 'error');
+      const order = {
+        id: Date.now(),
+        items: [...cart],
+        total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        date: new Date().toLocaleDateString(),
+        status: 'Pending'
+      };
+      let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      orders.unshift(order);
+      localStorage.setItem('orders', JSON.stringify(orders));
+      localStorage.removeItem('cart');
+      cart = [];
+      showToast('Order placed! Redirecting to orders...');
+      setTimeout(() => window.location.href = '../orders.html', 1500);
+    });
+
+    // UI Helpers
+    function switchSection(section) {
+      document.querySelectorAll('.section').forEach(s => s.classList.add('d-none'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      document.getElementById(section + 'Section').classList.remove('d-none');
+      event.target.classList.add('active');
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!universalAuthGuard()) return;
+      const user = getUserInfo();
+      document.getElementById('userGreeting').textContent = `Hi, ${user?.name || 'User'}!`;
+      renderMenuItems();
+      loadCart();
+      document.getElementById('loadingOverlay').style.display = 'none';
+      // Sidebar mobile
+      document.getElementById('menuToggle').onclick = () => document.getElementById('sidebar').classList.toggle('show');
+      document.getElementById('closeSidebar').onclick = () => document.getElementById('sidebar').classList.remove('show');
+      // Nav clicks
+      document.querySelectorAll('[data-section]').forEach(link => {
+        link.onclick = (e) => {
+          e.preventDefault();
+          const section = link.dataset.section;
+          if (section === 'cart') toggleCartSection();
+          else switchSection(section);
+        };
+      });
+    });
+  </script>
 </body>
 </html>
-
