@@ -112,7 +112,7 @@ async function loginUser(email, password) {
     if (data.success && data.token) {
       saveAuthToken(data.token);
       const user = getUserInfo();
-      const redirectPath = user.role === 'admin' ? 'dashboard/admin-dashboard.html' : 'dashboard/user-dashboard.html';
+      const redirectPath = user.role === 'admin' ? '../dashboard/admin-dashboard.html' : '../dashboard/user-dashboard-new.html';
       window.location.href = redirectPath;
       return true;
     } else {
