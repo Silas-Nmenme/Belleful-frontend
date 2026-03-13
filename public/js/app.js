@@ -65,8 +65,9 @@ async function loginUser(email, password) {
     if (data.success) {
       saveUser({ ...data.user, loggedIn: true });
       updateNav();
-      window.location.href = 'index.html';
+      window.location.href = 'dashboard/user-dashboard.html';
       return true;
+
     } else {
       alert(data.message || 'Login failed');
       return false;
@@ -138,12 +139,15 @@ document.addEventListener('DOMContentLoaded', function() {
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const emptyCartDiv = document.querySelector('.empty-cart') || document.querySelector('.empty-cart');
     const cartModal = document.querySelector('.cart-modal');
-    // AOS Init
-    AOS.init({
-        duration: 1000,
-        once: true,
-        offset: 100
-    });
+    // AOS Init (safe)
+    if (typeof AOS !== 'undefined') {
+      AOS.init({
+          duration: 1000,
+          once: true,
+          offset: 100
+      });
+    }
+
 
     // Navbar scroll effect
     window.addEventListener('scroll', () => {
