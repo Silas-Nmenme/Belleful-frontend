@@ -262,58 +262,76 @@ function authGuard() {
     }
 
     // Loaders
-    async function loadStats() {
-      const { success, data } = await apiCall('user/stats');
-      if (!success) return;
-      document.getElementById('totalOrders').textContent = data.totalOrders || 0;
-      document.getElementById('totalSpent').innerHTML = `₦${(data.totalSpent || 0).toLocaleString()}`;
-      document.getElementById('completedOrders').textContent = data.completedOrders || 0;
-      document.getElementById('cartTotal').innerHTML = `₦${(data.cartTotal || 0).toLocaleString()}`;
+async function loadStats() {
+      try {
+        const { success, data } = await apiCall('user/stats');
+        if (!success) return;
+        document.getElementById('totalOrders').textContent = data.totalOrders || 0;
+        document.getElementById('totalSpent').innerHTML = `₦${(data.totalSpent || 0).toLocaleString()}`;
+        document.getElementById('completedOrders').textContent = data.completedOrders || 0;
+        document.getElementById('cartTotal').innerHTML = `₦${(data.cartTotal || 0).toLocaleString()}`;
+        console.log('Stats loaded');
+      } catch (error) {
+        console.error('loadStats error:', error);
+      }
     }
 
 async function loadOrders() {
       const container = document.getElementById('ordersContent');
-      setLoading(container, true);
-      const { success, data } = await apiCall('user/orders?page=1&limit=10');
-      if (!success) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><h5>No orders found</h5><p class="text-muted">Your orders will appear here.</p></div>';
-        return;
+      try {
+        setLoading(container, true);
+        const { success, data, count, total } = await apiCall('user/orders?page=1&limit=10');
+        console.log('Orders data:', { success, count, total, dataLength: data?.length });
+        if (!success || !data) {
+          container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><h5>No orders found</h5><p class="text-muted">Your orders will appear here.</p></div>';
+          return;
+        }
+        if (!data.length) {
+          container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><h5>No orders yet</h5><p>Your first order will appear here!</p></div>';
+          return;
+        }
+        container.innerHTML = `
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr><th>ID</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                ${data.map(order => `
+                  <tr>
+                    <td><strong>#${order._id?.slice(-6) || 'N/A'}</strong></td>
+                    <td>${order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
+                    <td>${(order.items || []).map(i => i.menuItem?.name || 'Item').join(', ') || 'N/A'}</td>
+                    <td><strong>₦${(order.totalAmount || 0)?.toLocaleString()}</strong></td>
+                    <td><span class="status-badge bg-${(order.orderStatus === 'delivered' ? 'success' : order.orderStatus === 'pending' ? 'warning' : 'secondary')} text-white">${(order.orderStatus || 'unknown')?.toUpperCase()}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        console.log('Orders render complete');
+      } catch (error) {
+        console.error('loadOrders error:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i><h5>Failed to load orders</h5><p>Error: ' + error.message + '</p><button class="btn btn-primary" onclick="loadOrders()">Retry</button></div>';
       }
-      if (!data.length) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><h5>No orders yet</h5><p>Your first order will appear here!</p></div>';
-        return;
-      }
-      container.innerHTML = `
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="table-light">
-              <tr><th>ID</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-              ${data.map(order => `
-                <tr>
-                  <td><strong>#${order._id.slice(-6)}</strong></td>
-                  <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td>${order.items.map(i => i.menuItem?.name || 'Item').join(', ')}</td>
-                  <td><strong>₦${order.totalAmount?.toLocaleString()}</strong></td>
-                  <td><span class="status-badge bg-${order.orderStatus === 'delivered' ? 'success' : order.orderStatus === 'pending' ? 'warning' : 'secondary'} text-white">${order.orderStatus?.toUpperCase()}</span></td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
     }
 
-    async function loadProfile() {
-      const { success, data } = await apiCall('user/profile');
-      if (!success) return;
-      document.getElementById('profileName').textContent = data.name || 'User';
-      document.getElementById('profileEmail').textContent = data.email || '-';
-      document.getElementById('profilePhone').textContent = data.phone || '-';
-      document.getElementById('profileAddress').textContent = data.address || '-';
-      document.getElementById('profileJoined').textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : '-';
-      document.getElementById('userGreeting').textContent = `Welcome back, ${data.name}!`;
+async function loadProfile() {
+      try {
+        const { success, data } = await apiCall('user/profile');
+        if (!success) return;
+        document.getElementById('profileName').textContent = data.name || 'User';
+        document.getElementById('profileEmail').textContent = data.email || '-';
+        document.getElementById('profilePhone').textContent = data.phone || '-';
+        document.getElementById('profileAddress').textContent = data.address || '-';
+        document.getElementById('profileJoined').textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : '-';
+        document.getElementById('userGreeting').textContent = `Welcome back, ${data.name}!`;
+        console.log('Profile loaded');
+      } catch (error) {
+        console.error('loadProfile error:', error);
+        document.getElementById('userGreeting').textContent = 'Welcome back!';
+      }
     }
 
     async function loadCart() {
@@ -387,7 +405,7 @@ async function loadOrders() {
       }
     }
 
-    // Init
+// Init
     document.addEventListener('DOMContentLoaded', async () => {
       console.log('DOM loaded, checking auth...');
       if (!authGuard()) {
@@ -397,15 +415,13 @@ async function loadOrders() {
         return;
       }
       
-      console.log('Auth OK, loading data...');
-      // Load initial data
-      await loadStats();
-      await loadProfile(); // For greeting
+      console.log('Auth OK');
       
-      // Hide loading
+      // Hide loading immediately
       document.getElementById('loadingOverlay').style.display = 'none';
+      console.log('Loading hidden, UI ready');
       
-      // Event listeners
+      // Bind events first
       document.querySelectorAll('[data-section]').forEach(link => {
         link.addEventListener('click', (e) => {
           e.preventDefault();
@@ -416,8 +432,18 @@ async function loadOrders() {
       document.getElementById('toggleSidebar').onclick = () => document.getElementById('sidebar').classList.toggle('show');
       document.getElementById('closeSidebar').onclick = () => document.getElementById('sidebar').classList.remove('show');
       
-      // Load first non-stats section demo
-      setTimeout(() => loadOrders(), 500);
+      // Load initial data in parallel
+      try {
+        await Promise.allSettled([loadStats(), loadProfile()]);
+        console.log('Initial loads complete');
+      } catch (error) {
+        console.error('Initial load error:', error);
+      }
+      
+      // Load orders after short delay
+      setTimeout(() => {
+        loadOrders();
+      }, 500);
     });
 
     // Placeholder
