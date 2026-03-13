@@ -3,94 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Belleful - User Menu &amp; Cart</title>
+  <title>Belleful - User Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-  <style>
-    :root { --primary: #B91C52; --gold: #F59E0B; --cream: #FDF4F0; }
-    .navbar { background: linear-gradient(135deg, white, var(--cream)); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .sidebar { background: var(--cream); border-right: 1px solid rgba(0,0,0,0.1); height: 100vh; transition: transform 0.3s; }
-    .sidebar.collapsed { transform: translateX(-100%); }
-    .menu-card img { height: 200px; object-fit: cover; }
-    .cart-summary { background: #f8f9fa; border-radius: 10px; }
-    .btn-checkout { background: linear-gradient(135deg, var(--gold), #FBBF24); border: none; font-weight: 600; }
-    .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.show { transform: translateX(0); } }
+<style>
+    :root { 
+      --primary: #B91C52; 
+      --gold: #F59E0B; 
+      --cream: #FDF4F0; 
+      --dark: #1f2937;
+      --glass: rgba(255,255,255,0.25);
+      --shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    body { background: linear-gradient(135deg, var(--cream), #f5f5f5); min-height: 100vh; }
+    .navbar { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: var(--shadow); }
+    .sidebar { background: linear-gradient(180deg, rgba(253,244,240,0.95), rgba(255,255,255,0.9)); border-right: 1px solid rgba(0,0,0,0.05); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); height: 100vh; }
+    .nav-link { border-radius: 12px; margin-bottom: 8px; transition: all 0.3s; }
+    .nav-link:hover, .nav-link.active { background: linear-gradient(135deg, var(--primary), #e21e62); color: white !important; transform: translateX(5px); box-shadow: var(--shadow); }
+    .stats-card { background: rgba(255,255,255,0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid var(--glass); box-shadow: var(--shadow); transition: transform 0.3s; }
+    .stats-card:hover { transform: translateY(-5px); }
+    .stats-icon { font-size: 2.5rem; opacity: 0.8; }
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.5s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--glass); border-radius: 50%; border-top-color: var(--primary); animation: spin 1s ease-in-out infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .table { background: rgba(255,255,255,0.8); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow); }
+    .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .empty-state { text-align: center; color: #6b7280; padding: 4rem 2rem; }
+    .toast { position: fixed; top: 20px; right: 20px; z-index: 9999; border-radius: 12px; padding: 1rem 1.5rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: var(--shadow); }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); transition: transform 0.3s; } .sidebar.show { transform: translateX(0); } }
   </style>
 </head>
 <body>
   <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="loading-overlay">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
+  <div id="loadingOverlay" class="d-flex justify-content-center align-items-center position-fixed w-100 h-100 bg-white" style="z-index: 9999; top:0; left:0;">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
   </div>
 
   <div class="d-flex">
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar col-md-3 col-lg-2 p-3 d-md-block">
-      <button class="btn btn-link d-md-none mb-3" id="closeSidebar"><i class="fas fa-times"></i></button>
+    <div id="sidebar" class="sidebar col-md-2 col-lg-1 p-4 overflow-auto">
+      <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+        <img src="../asset/logo.jpeg" alt="Belleful" style="height: 35px; width: 35px; border-radius: 50%;">
+        <span class="ms-2 fw-bold fs-5 text-dark d-none d-md-inline">Dashboard</span>
+      </div>
       <nav class="nav flex-column">
-        <a href="#" class="nav-link active" data-section="menu"><i class="fas fa-utensils me-2"></i>Menu</a>
-        <a href="#" class="nav-link" data-section="cart"><i class="fas fa-shopping-cart me-2"></i>Cart (<span id="cartCount">0</span>)</a>
-        <a href="orders.html" class="nav-link"><i class="fas fa-box me-2"></i>Orders</a>
+        <a href="#" class="nav-link active" data-section="stats"><i class="fas fa-chart-line me-2"></i>Stats</a>
+        <a href="#" class="nav-link" data-section="orders"><i class="fas fa-box me-2"></i>Orders</a>
         <a href="#" class="nav-link" data-section="profile"><i class="fas fa-user me-2"></i>Profile</a>
+        <a href="#" class="nav-link" data-section="cart"><i class="fas fa-shopping-cart me-2"></i>Cart</a>
+        <a href="#" class="nav-link" data-section="payments"><i class="fas fa-credit-card me-2"></i>Payments</a>
         <a href="#" class="nav-link text-danger" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
       </nav>
-    </aside>
+<button class="btn btn-link d-md-none position-absolute top-0 end-0 m-3" id="closeSidebar" aria-label="Close sidebar" title="Close navigation menu"><i class="fas fa-times fs-4"></i></button>
+    </div>
 
     <!-- Main Content -->
-    <div class="flex-grow-1">
+    <div class="flex-grow-1 p-0">
       <!-- Navbar -->
-      <nav class="navbar navbar-expand">
+      <nav class="navbar navbar-expand-lg px-4 py-3">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">
-            <img src="../asset/logo.jpeg" alt="Belleful" style="height: 40px;">
-            <span class="ms-2">Belleful</span>
-          </a>
-          <div class="navbar-nav ms-auto">
-            <span id="userGreeting" class="nav-link">Loading...</span>
-<button class="btn btn-link me-2 d-none d-md-block" id="menuToggle" aria-label="Toggle menu" title="Toggle sidebar menu"><i class="fas fa-bars"></i></button>
-<button class="btn btn-link" onclick="toggleCartSection()" aria-label="View cart" title="View shopping cart"><i class="fas fa-shopping-cart"></i> <span id="topCartCount">0</span></button>
-            <button class="btn btn-outline-danger ms-2" onclick="logout()">Logout</button>
+<button class="btn btn-link d-md-none me-2" id="toggleSidebar" aria-label="Toggle sidebar" title="Toggle navigation menu"><i class="fas fa-bars fs-4"></i></button>
+          <span class="navbar-brand mb-0 h1 fw-bold text-dark">
+            <i class="fas fa-tachometer-alt me-2 text-primary"></i>User Dashboard
+          </span>
+          <div class="ms-auto d-flex align-items-center">
+            <span id="userGreeting" class="me-3 fw-semibold text-dark d-none d-lg-inline">Welcome back!</span>
+            <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
           </div>
         </div>
       </nav>
 
-      <main class="container-fluid p-4">
-        <!-- Menu Section -->
-        <section id="menuSection" class="section active">
-          <h1 class="mb-4"><i class="fas fa-utensils me-2 text-warning"></i>Our Menu</h1>
-          <div id="menuGrid" class="row g-4"></div>
-        </section>
-
-        <!-- Cart Section -->
-        <section id="cartSection" class="section d-none">
-          <h1 class="mb-4"><i class="fas fa-shopping-cart me-2 text-warning"></i>Your Cart</h1>
-          <div id="cartSummary" class="cart-summary p-4 mb-4"></div>
-          <button id="checkoutBtn" class="btn btn-warning btn-lg w-100 btn-checkout d-none">
-            <i class="fas fa-credit-card me-2"></i>Checkout <span id="cartTotal">₦0</span>
-          </button>
-          <div class="text-center mt-3">
-            <a href="#" class="btn btn-outline-secondary" onclick="toggleCartSection()">Continue Shopping</a>
+      <!-- Main Content Area -->
+      <main class="container-fluid p-4 p-lg-5">
+        <!-- Stats Section -->
+        <section id="statsSection" class="section active">
+          <div class="row g-4 mb-5">
+            <div class="col-lg-3 col-md-6">
+              <div class="stats-card p-4 text-center h-100">
+                <i class="fas fa-shopping-bag stats-icon text-warning mb-3"></i>
+                <h3 id="totalOrders" class="mb-1">0</h3>
+                <p class="text-muted mb-0">Total Orders</p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+              <div class="stats-card p-4 text-center h-100">
+                <i class="fas fa-coins stats-icon text-success mb-3"></i>
+                <h3 id="totalSpent" class="mb-1">₦0</h3>
+                <p class="text-muted mb-0">Total Spent</p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+              <div class="stats-card p-4 text-center h-100">
+                <i class="fas fa-check-circle stats-icon text-primary mb-3"></i>
+                <h3 id="completedOrders" class="mb-1">0</h3>
+                <p class="text-muted mb-0">Completed</p>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+              <div class="stats-card p-4 text-center h-100">
+                <i class="fas fa-shopping-cart stats-icon text-info mb-3"></i>
+                <h3 id="cartTotal" class="mb-1">₦0</h3>
+                <p class="text-muted mb-0">Cart Total</p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="card stats-card p-4">
+                <h5 class="mb-3">Quick Actions</h5>
+                <div class="d-flex flex-wrap gap-2">
+                  <a href="#" class="btn btn-primary px-4 py-2" onclick="switchSection('cart')"><i class="fas fa-shopping-cart me-2"></i>View Cart</a>
+                  <a href="#" class="btn btn-outline-primary px-4 py-2" onclick="switchSection('orders')"><i class="fas fa-box me-2"></i>View Orders</a>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <!-- Profile Section (simple) -->
-        <section id="profileSection" class="section d-none">
-          <h1 class="mb-4"><i class="fas fa-user me-2"></i>Profile</h1>
-          <div id="profileContent" class="card">
-            <div class="card-body">
-              <p>User info loaded from token.</p>
+        <!-- Orders Section -->
+        <section id="ordersSection" class="section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0"><i class="fas fa-box me-2 text-warning"></i>Recent Orders</h2>
+            <button class="btn btn-outline-primary" onclick="loadSectionData('orders')"><i class="fas fa-refresh me-1"></i>Refresh</button>
+          </div>
+          <div id="ordersContent">
+            <div class="loading-spinner mx-auto py-5 d-block"></div>
+          </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profileSection" class="section">
+          <div class="row justify-content-center">
+            <div class="col-lg-8">
+              <div class="card stats-card p-5 text-center">
+                <div class="mb-4">
+                  <div class="avatar mx-auto mb-3" style="width: 120px; height: 120px; background: linear-gradient(135deg, var(--primary), var(--gold)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; margin-bottom: 1rem;">
+                    <i class="fas fa-user"></i>
+                  </div>
+                </div>
+                <h3 id="profileName" class="mb-2">Loading...</h3>
+                <p class="text-muted mb-1" id="profileEmail"></p>
+                <p class="text-muted mb-4" id="profilePhone"></p>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Address</label>
+                    <p class="mb-0" id="profileAddress">-</p>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Member Since</label>
+                    <p class="mb-0" id="profileJoined">-</p>
+                  </div>
+                </div>
+                <button class="btn btn-primary px-4" onclick="editProfile()">Edit Profile</button>
+              </div>
             </div>
+          </div>
+        </section>
+
+        <!-- Cart Section -->
+        <section id="cartSection" class="section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0"><i class="fas fa-shopping-cart me-2 text-info"></i>Your Cart</h2>
+            <button class="btn btn-outline-primary" onclick="loadSectionData('cart')"><i class="fas fa-refresh me-1"></i>Refresh</button>
+          </div>
+          <div id="cartContent">
+            <div class="loading-spinner mx-auto py-5 d-block"></div>
+          </div>
+        </section>
+
+        <!-- Payments Section -->
+        <section id="paymentsSection" class="section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0"><i class="fas fa-credit-card me-2 text-success"></i>Payment History</h2>
+            <button class="btn btn-outline-primary" onclick="loadSectionData('payments')"><i class="fas fa-refresh me-1"></i>Refresh</button>
+          </div>
+          <div id="paymentsContent">
+            <div class="loading-spinner mx-auto py-5 d-block"></div>
           </div>
         </section>
       </main>
     </div>
   </div>
 
-  <!-- Auth Utils (inline from auth-shared.js simplified) -->
   <script>
+    // Config
+    const API_BASE = 'https://belleful-fphf.vercel.app/api/dashboard';
+
     // Auth Utils
     function getAuthToken() { return localStorage.getItem('token'); }
     function getUserInfo() {
@@ -104,158 +204,206 @@
       localStorage.removeItem('token');
       window.location.href = '../login.html';
     }
-    function universalAuthGuard() {
+    function authGuard() {
       if (!getAuthToken()) {
         window.location.href = '../login.html';
         return false;
       }
       return true;
     }
-    function showToast(msg, type='info') {
+
+    // UI Utils
+    function showToast(message, type = 'success') {
       const toast = document.createElement('div');
-      toast.style.cssText = `position:fixed;top:20px;right:20px;z-index:10000;padding:1rem;background:${type==='error'?'#dc3545':'#28a745'};color:white;border-radius:5px;`;
-      toast.textContent = msg;
+      toast.className = `toast alert alert-${type === 'success' ? 'success' : 'danger'} shadow-lg`;
+      toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}`;
       document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
+      setTimeout(() => toast.remove(), 4000);
+    }
+    function setLoading(container, show = true) {
+      const spinner = '<div class="loading mx-auto py-5 d-block" style="width: 40px; height: 40px;"></div>';
+      container.innerHTML = show ? spinner : '';
+    }
+    function switchSection(section) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      document.getElementById(`${section}Section`).classList.add('active');
+      event.target.closest('.nav-link')?.classList.add('active');
+      if (section !== 'stats') loadSectionData(section);
     }
 
-    // Menu Data & Functions (from menu.js)
-    const menuItems = [
-      { id: 1, name: 'Jollof Rice', price: 2500, image: '../asset/jollof.webp' },
-      { id: 2, name: 'Beans & Plantain', price: 2000, image: '../asset/beans.webp' },
-      { id: 3, name: 'Grilled Chicken', price: 3500, image: '../asset/grilled.jpg' },
-      { id: 4, name: 'Ofe Owerri', price: 2800, image: '../asset/ofe.webp' },
-      { id: 5, name: 'Pounded Yam', price: 3000, image: '../asset/pounded-yam.webp' },
-      { id: 6, name: 'Egusi Soup', price: 2200, image: '../asset/egusi.webp' }
-    ];
-
-    function renderMenuItems() {
-      const container = document.getElementById('menuGrid');
-      container.innerHTML = menuItems.map(item => `
-        <div class="col-md-6 col-lg-4">
-          <div class="card menu-card h-100 shadow-sm">
-            <img src="${item.image}" class="card-img-top" alt="${item.name}">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">${item.name}</h5>
-              <p class="card-text fs-3 text-warning mb-3">₦${item.price.toLocaleString()}</p>
-              <button class="btn btn-warning w-100 mt-auto add-to-cart-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}">
-                <i class="fas fa-cart-plus me-2"></i>Add to Cart
-              </button>
-            </div>
-          </div>
-        </div>
-      `).join('');
-      // Event listeners
-      document.querySelectorAll('.add-to-cart-btn').forEach(btn => btn.addEventListener('click', addToCart));
-    }
-
-    function addToCart(e) {
-      const btn = e.target.closest('.add-to-cart-btn');
-      const id = parseInt(btn.dataset.id);
-      const name = btn.dataset.name;
-      const price = parseFloat(btn.dataset.price);
-      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const existing = cart.find(item => item.id === id);
-      if (existing) existing.quantity++;
-      else cart.push({id, name, price, quantity: 1});
-      localStorage.setItem('cart', JSON.stringify(cart));
-      updateCartCount();
-      showToast('Added to cart!');
-      btn.textContent = 'Added!';
-      setTimeout(() => btn.textContent = '<i class="fas fa-cart-plus me-2"></i>Add to Cart', 1000);
-    }
-
-    // Cart Functions
-    let cart = [];
-    function loadCart() {
-      cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      updateCartCount();
-      renderCartSummary();
-    }
-    function updateCartCount() {
-      const total = cart.reduce((sum, item) => sum + item.quantity, 0);
-      document.getElementById('cartCount').textContent = total;
-      document.getElementById('topCartCount').textContent = total;
-      const checkoutBtn = document.getElementById('checkoutBtn');
-      if (total > 0) {
-        checkoutBtn.classList.remove('d-none');
-      } else {
-        checkoutBtn.classList.add('d-none');
+    // API Calls
+    async function apiCall(endpoint) {
+      const token = getAuthToken();
+      if (!token) return { success: false, error: 'No token' };
+      try {
+        const res = await fetch(`${API_BASE}/${endpoint}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'API error');
+        return { success: true, data: data.data };
+      } catch (error) {
+        showToast(error.message, 'error');
+        return { success: false, error: error.message };
       }
     }
-    function renderCartSummary() {
-      const container = document.getElementById('cartSummary');
-      if (cart.length === 0) {
-        container.innerHTML = '<p class="text-center text-muted py-4">Your cart is empty. <a href="#" onclick="toggleCartSection()">Browse menu</a></p>';
-        document.getElementById('cartTotal').textContent = '0';
+
+    // Loaders
+    async function loadStats() {
+      const { success, data } = await apiCall('user/stats');
+      if (!success) return;
+      document.getElementById('totalOrders').textContent = data.totalOrders || 0;
+      document.getElementById('totalSpent').innerHTML = `₦${(data.totalSpent || 0).toLocaleString()}`;
+      document.getElementById('completedOrders').textContent = data.completedOrders || 0;
+      document.getElementById('cartTotal').innerHTML = `₦${(data.cartTotal || 0).toLocaleString()}`;
+    }
+
+    async function loadOrders() {
+      const container = document.getElementById('ordersContent');
+      setLoading(container, true);
+      const { success, data } = await apiCall('user/orders?page=1&limit=10');
+      if (!success) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><h5>No orders found</h5><p class="text-muted">Your orders will appear here.</p></div>';
         return;
       }
-      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      if (!data.length) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><h5>No orders yet</h5><p>Your first order will appear here!</p></div>';
+        return;
+      }
       container.innerHTML = `
-        <table class="table">
-          <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
-          <tbody>${cart.map(item => `<tr><td>${item.name}</td><td>${item.quantity}</td><td>₦${(item.price * item.quantity).toLocaleString()}</td></tr>`).join('')}</tbody>
-        </table>
-        <h4>Total: ₦${total.toLocaleString()}</h4>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr><th>ID</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              ${data.map(order => `
+                <tr>
+                  <td><strong>#${order._id.slice(-6)}</strong></td>
+                  <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td>${order.items.map(i => i.menuItem?.name || 'Item').join(', ')}</td>
+                  <td><strong>₦${order.totalAmount?.toLocaleString()}</strong></td>
+                  <td><span class="status-badge bg-${order.orderStatus === 'delivered' ? 'success' : order.orderStatus === 'pending' ? 'warning' : 'secondary'} text-white">${order.orderStatus?.toUpperCase()}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       `;
-      document.getElementById('cartTotal').textContent = total.toLocaleString();
-    }
-    function toggleCartSection() {
-      document.getElementById('menuSection').classList.toggle('d-none');
-      document.getElementById('cartSection').classList.toggle('d-none');
-      document.querySelector('[data-section="menu"]').classList.toggle('active');
-      document.querySelector('[data-section="cart"]').classList.toggle('active');
-      if (!document.getElementById('cartSection').classList.contains('d-none')) renderCartSummary();
     }
 
-    // Checkout
-    document.getElementById('checkoutBtn').addEventListener('click', function() {
-      if (cart.length === 0) return showToast('Cart empty', 'error');
-      const order = {
-        id: Date.now(),
-        items: [...cart],
-        total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        date: new Date().toLocaleDateString(),
-        status: 'Pending'
-      };
-      let orders = JSON.parse(localStorage.getItem('orders') || '[]');
-      orders.unshift(order);
-      localStorage.setItem('orders', JSON.stringify(orders));
-      localStorage.removeItem('cart');
-      cart = [];
-      showToast('Order placed! Redirecting to orders...');
-      setTimeout(() => window.location.href = '../orders.html', 1500);
-    });
+    async function loadProfile() {
+      const { success, data } = await apiCall('user/profile');
+      if (!success) return;
+      document.getElementById('profileName').textContent = data.name || 'User';
+      document.getElementById('profileEmail').textContent = data.email || '-';
+      document.getElementById('profilePhone').textContent = data.phone || '-';
+      document.getElementById('profileAddress').textContent = data.address || '-';
+      document.getElementById('profileJoined').textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : '-';
+      document.getElementById('userGreeting').textContent = `Welcome back, ${data.name}!`;
+    }
 
-    // UI Helpers
-    function switchSection(section) {
-      document.querySelectorAll('.section').forEach(s => s.classList.add('d-none'));
-      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-      document.getElementById(section + 'Section').classList.remove('d-none');
-      event.target.classList.add('active');
+    async function loadCart() {
+      const container = document.getElementById('cartContent');
+      setLoading(container, true);
+      const { success, data } = await apiCall('user/cart');
+      if (!success || !data.items?.length) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i><h5>Cart is empty</h5><p>Add items from the menu!</p><a href="../menu.html" class="btn btn-primary mt-3">Shop Now</a></div>';
+        return;
+      }
+      container.innerHTML = `
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light"><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+            <tbody>
+              ${data.items.map(item => `
+                <tr>
+                  <td>${item.menuItem?.name}</td>
+                  <td>${item.quantity}</td>
+                  <td>₦${(item.menuItem?.price || 0).toLocaleString()}</td>
+                  <td>₦${(item.menuItem?.price * item.quantity || 0).toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div class="card stats-card p-4 mt-3">
+          <h4 class="text-end mb-0">Total: <strong>₦${data.totalAmount?.toLocaleString() || 0}</strong></h4>
+          <div class="text-end mt-3">
+            <a href="#" class="btn btn-success btn-lg px-5">Proceed to Checkout</a>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadPayments() {
+      const container = document.getElementById('paymentsContent');
+      setLoading(container, true);
+      const { success, data } = await apiCall('user/payments');
+      if (!success || !data?.length) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-credit-card fa-3x text-muted mb-3"></i><h5>No payments yet</h5><p>Your payment history will appear here.</p></div>';
+        return;
+      }
+      container.innerHTML = `
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr><th>Reference</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              ${data.map(p => `
+                <tr>
+                  <td>${p.paymentReference?.slice(-8) || 'N/A'}</td>
+                  <td><strong>₦${p.totalAmount?.toLocaleString()}</strong></td>
+                  <td>${new Date(p.createdAt).toLocaleDateString()}</td>
+                  <td><span class="status-badge bg-${p.paymentStatus === 'success' ? 'success' : 'warning'} text-white">${p.paymentStatus?.toUpperCase()}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    async function loadSectionData(section) {
+      switch(section) {
+        case 'orders': await loadOrders(); break;
+        case 'profile': await loadProfile(); break;
+        case 'cart': await loadCart(); break;
+        case 'payments': await loadPayments(); break;
+      }
     }
 
     // Init
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!universalAuthGuard()) return;
-      const user = getUserInfo();
-      document.getElementById('userGreeting').textContent = `Hi, ${user?.name || 'User'}!`;
-      renderMenuItems();
-      loadCart();
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!authGuard()) return;
+      
+      // Load initial data
+      await loadStats();
+      await loadProfile(); // For greeting
+      
+      // Hide loading
       document.getElementById('loadingOverlay').style.display = 'none';
-      // Sidebar mobile
-      document.getElementById('menuToggle').onclick = () => document.getElementById('sidebar').classList.toggle('show');
-      document.getElementById('closeSidebar').onclick = () => document.getElementById('sidebar').classList.remove('show');
-      // Nav clicks
+      
+      // Event listeners
       document.querySelectorAll('[data-section]').forEach(link => {
-        link.onclick = (e) => {
+        link.addEventListener('click', (e) => {
           e.preventDefault();
           const section = link.dataset.section;
-          if (section === 'cart') toggleCartSection();
-          else switchSection(section);
-        };
+          switchSection(section);
+        });
       });
+      document.getElementById('toggleSidebar').onclick = () => document.getElementById('sidebar').classList.toggle('show');
+      document.getElementById('closeSidebar').onclick = () => document.getElementById('sidebar').classList.remove('show');
+      
+      // Load first non-stats section demo
+      setTimeout(() => loadOrders(), 500);
     });
+
+    // Placeholder
+    function editProfile() {
+      showToast('Profile editing coming soon!', 'info');
+    }
   </script>
-</body>
-</html>
+
