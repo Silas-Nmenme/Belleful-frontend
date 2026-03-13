@@ -83,49 +83,9 @@ async function uploadReceipt(orderId, file) {
 
 // Socket connection - RECURSION-PROOF w/ retry guard
 function connectSocket() {
-  // CRITICAL: Singleton + retry limit
-  if (window.socketInstance) {
-    console.log('🔄 Using existing socket instance');
-    return window.socketInstance;
-  }
-  
-  if (connectAttempts++ > MAX_CONNECT_ATTEMPTS) {
-    console.error('🚫 Socket: Max retries (5) exceeded - preventing recursion');
-    return null;
-  }
-
-  const token = getAuthToken();
-  if (!token) {
-    console.warn('❌ No token for socket');
-    return null;
-  }
-
-  const socket = io(SOCKET_URL, {
-    auth: { token },
-    reconnectionAttempts: 3,  // Limit retries
-    timeout: 20000
-  });
-
-  window.socketInstance = socket; // Singleton
-
-  socket.on('connect', () => {
-    console.log('✅ Socket connected');
-    showToast('Connected to live updates', 'success');
-    connectAttempts = 0; // Reset on success
-  });
-
-  socket.on('connect_error', (err) => {
-    console.error('Socket error:', err);
-    showToast('Connection lost. Retrying...', 'warning');
-    window.socketInstance = null; // Allow retry
-  });
-
-  socket.on('disconnect', () => {
-    console.log('❌ Socket disconnected');
-    window.socketInstance = null;
-  });
-
-  return socket;
+  console.log('🔌 Socket disabled for local development - no spam');
+  showToast('Live updates disabled (local mode)', 'info');
+  return null;
 }
 
 // Status helpers
