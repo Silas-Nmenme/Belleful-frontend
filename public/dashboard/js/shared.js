@@ -127,7 +127,7 @@ function logout() {
   showToast('Logged out successfully', 'info');
   setTimeout(() => {
     if (window.location.pathname.includes('admin')) {
-      window.location.href = '/user-dashboard.html';
+      window.location.href = 'dashboard/user-dashboard.html';
     } else {
       window.location.reload();
     }
