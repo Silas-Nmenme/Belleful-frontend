@@ -1,21 +1,18 @@
 
-const API_BASE = '/api'; // Use relative path to avoid CORS
-
-function getUser() {
-  try {
-    return JSON.parse(localStorage.getItem('belleful-user')) || null;
-  } catch {
-    return null;
-  }
+// Load shared auth utils first
+if (typeof getAuthToken === 'undefined') {
+  // Dynamically load if not present (for pages not including dashboard/shared.js)
+  const script = document.createElement('script');
+  script.src = 'js/auth-shared.js';
+  document.head.appendChild(script);
+  // Wait for load
+  script.onload = () => initApp();
+} else {
+  initApp();
 }
 
-function saveUser(user) {
-  localStorage.setItem('belleful-user', JSON.stringify(user));
-}
-
-function isLoggedIn() {
-  const user = getUser();
-  return user && user.loggedIn && user.name && user.token;
+function initApp() {
+  // Auth utils now available
 }
 
 function updateNav() {
@@ -26,20 +23,20 @@ function updateNav() {
   const mobileLoginToggle = document.getElementById('mobile-login-toggle');
 
   if (isLoggedIn()) {
-    const user = getUser();
-    if (userNav) {
+    const user = getUserInfo();
+    if (userNav && user?.name) {
       document.getElementById('user-name').textContent = user.name;
       userNav.classList.remove('hidden');
     }
     if (loginLink) loginLink.style.display = 'none';
     if (mobileLoginLink) mobileLoginLink.style.display = 'none';
-    if (loginToggle) {
+    if (loginToggle && user?.name) {
       loginToggle.innerHTML = `<i class="fas fa-user-check text-xl"></i><span>Hi, ${user.name}</span>`;
       loginToggle.classList.remove('bg-gold', 'text-wine');
       loginToggle.classList.add('bg-green-500', 'text-white');
       loginToggle.href = '';
     }
-    if (mobileLoginToggle) mobileLoginToggle.innerHTML = `<i class="fas fa-user-check text-lg"></i><span>${user.name}</span>`;
+    if (mobileLoginToggle && user?.name) mobileLoginToggle.innerHTML = `<i class="fas fa-user-check text-lg"></i><span>${user.name}</span>`;
   } else {
     if (userNav) userNav.classList.add('hidden');
     if (loginLink) loginLink.style.display = 'block';
@@ -54,6 +51,16 @@ function updateNav() {
 }
 
 async function loginUser(email, password) {
+  const btnText = document.getElementById('login-btn-text');
+  const spinner = document.getElementById('login-spinner');
+  const errorDiv = document.getElementById('login-error');
+  const submitBtn = document.getElementById('login-submit-btn');
+  
+  btnText.classList.add('d-none');
+  spinner.classList.remove('d-none');
+  submitBtn.disabled = true;
+  errorDiv.classList.add('d-none');
+
   try {
     const response = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
@@ -61,21 +68,28 @@ async function loginUser(email, password) {
       body: JSON.stringify({ email, password })
     });
     const data = await response.json();
-    if (data.success) {
-      saveUser({ ...data.user, loggedIn: true });
-      updateNav();
-      const role = data.user.role;
-      const redirectPath = role === 'admin' ? 'dashboard/admin-dashboard.html' : 'dashboard/user-dashboard.html';
+    
+    if (data.success && data.token) {
+      saveAuthToken(data.token);
+      const user = getUserInfo();
+      const redirectPath = user.role === 'admin' ? 'dashboard/admin-dashboard.html' : 'dashboard/user-dashboard.html';
       window.location.href = redirectPath;
       return true;
-
     } else {
-      alert(data.message || 'Login failed');
+      errorDiv.textContent = data.message || 'Login failed';
+      errorDiv.classList.remove('d-none');
+      showToast(data.message || 'Login failed', 'error');
       return false;
     }
   } catch (error) {
-    alert('Network error: ' + error.message);
+    errorDiv.textContent = 'Network error: ' + error.message;
+    errorDiv.classList.remove('d-none');
+    showToast('Network error: ' + error.message, 'error');
     return false;
+  } finally {
+    btnText.classList.remove('d-none');
+    spinner.classList.add('d-none');
+    submitBtn.disabled = false;
   }
 }
 
@@ -109,18 +123,19 @@ async function verifyOTP(email, otp) {
       body: JSON.stringify({ email, otp })
     });
     const data = await response.json();
-    if (data.success) {
-      saveUser({ ...data.user, loggedIn: true });
-      updateNav();
-      alert('Account verified! Redirecting to home...');
-      window.location.href = 'index.html';
+    if (data.success && data.token) {
+      saveAuthToken(data.token);
+      const user = getUserInfo();
+      const redirectPath = user.role === 'admin' ? 'dashboard/admin-dashboard.html' : 'dashboard/user-dashboard.html';
+      showToast('Account verified! Redirecting...', 'success');
+      window.location.href = redirectPath;
       return true;
     } else {
-      alert(data.message || 'Verification failed');
+      showToast(data.message || 'Verification failed', 'error');
       return false;
     }
   } catch (error) {
-    alert('Network error: ' + error.message);
+    showToast('Network error: ' + error.message, 'error');
     return false;
   }
 }
@@ -131,12 +146,17 @@ function logout() {
   window.location.href = 'login.html';
 }
 
-// Page guard - redirect unauth users
-if (!isLoggedIn() && window.location.pathname.includes('orders.html') || window.location.pathname.includes('admin.html')) {
-  window.location.href = 'login.html';
-}
+// Universal auth guard
+universalAuthGuard();
+
+// Move DOMContentLoaded inside initApp
+window.initApp = initApp;
 
 document.addEventListener('DOMContentLoaded', function() {
+  universalAuthGuard();
+  updateNav();
+  // Rest of DOM ready code...
+
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const emptyCartDiv = document.querySelector('.empty-cart') || document.querySelector('.empty-cart');
     const cartModal = document.querySelector('.cart-modal');

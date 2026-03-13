@@ -198,7 +198,13 @@
                                     <label for="login-password" class="form-label fw-semibold text-primary">Password</label>
                                     <input type="password" class="form-control form-control-lg form-control-auth" id="login-password" required placeholder="••••••••">
                                 </div>
-                                <button type="submit" class="btn btn-auth w-100 mb-4 fs-5 py-3">Login</button>
+<div class="d-flex gap-3 align-items-center">
+                                <button type="submit" class="btn btn-auth flex-fill fs-5 py-3" id="login-submit-btn">
+                                    <span id="login-btn-text">Login</span>
+                                    <span id="login-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                </button>
+                            </div>
+                            <div id="login-error" class="alert alert-danger mt-3 d-none" role="alert"></div>
                             </form>
                             <!-- Signup Placeholder (links to signup.html) -->
                             <div id="signup-placeholder" class="tab-pane fade" role="tabpanel">
