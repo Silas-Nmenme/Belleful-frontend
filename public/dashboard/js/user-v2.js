@@ -104,9 +104,9 @@ function setupEventListeners() {
   const toggleSidebar = document.getElementById('toggleSidebar');
   const closeSidebar = document.getElementById('closeSidebar');
   if (mobileMenuBtn || toggleSidebar) {
-    (mobileMenuBtn || toggleSidebar).onclick = () => sidebar.classList.toggle('show');
+    (mobileMenuBtn || toggleSidebar).onclick = () => sidebar?.classList.toggle('show');
   }
-  if (closeSidebar) closeSidebar.onclick = () => sidebar.classList.remove('show');
+  if (closeSidebar) closeSidebar.onclick = () => sidebar?.classList.remove('show');
   
   // Auth
   const logoutButtons = document.querySelectorAll('[onclick="logout()"], #logoutBtn');
