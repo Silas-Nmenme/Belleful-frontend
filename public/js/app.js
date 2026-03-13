@@ -1,8 +1,6 @@
 // Cleaned Belleful App - Auth/Login Flow Only
 // Uses auth-shared.js utils
 
-const API_BASE = 'https://belleful-fphf.vercel.app/api';
-
 // Init app
 function initApp() {
   if (typeof universalAuthGuard === 'undefined') {
@@ -104,7 +102,7 @@ async function loginUser(email, password) {
   if (errorDiv) errorDiv.classList.add('d-none');
 
   try {
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const response = await fetch('https://belleful-fphf.vercel.app/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -141,7 +139,7 @@ async function loginUser(email, password) {
 
 async function registerUser(name, email, password) {
   try {
-    const response = await fetch(`${API_BASE}/auth/signup`, {
+    const response = await fetch('https://belleful-fphf.vercel.app/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password })
@@ -163,7 +161,7 @@ async function registerUser(name, email, password) {
 
 async function verifyOTP(email, otp) {
   try {
-    const response = await fetch(`${API_BASE}/auth/verify-otp`, {
+    const response = await fetch('https://belleful-fphf.vercel.app/api/auth/verify-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otp })
