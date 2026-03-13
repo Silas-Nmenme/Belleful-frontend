@@ -22,7 +22,7 @@ function renderMenuItems() {
                 <div class="card-body d-flex flex-column">
                     <h3 class="card-title">${item.name}</h3>
                     <p class="card-text text-warning fs-4 mb-3">₦${item.price.toLocaleString()}</p>
-                    <button class="btn btn-warning w-100 add-to-cart-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}">
+                    <button class="btn btn-warning w-100 add-to-cart-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-image="${item.image}">
                         <i class="fas fa-cart-plus me-2"></i>Add to Cart
                     </button>
                 </div>
@@ -43,6 +43,7 @@ function addToCart(e) {
     const id = parseInt(btn.dataset.id);
     const name = btn.dataset.name;
     const price = parseFloat(btn.dataset.price);
+    const image = btn.dataset.image.replace('../', './');
 
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
@@ -50,7 +51,7 @@ function addToCart(e) {
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        cart.push({ id, name, price, quantity: 1 });
+        cart.push({ id, name, price, image, quantity: 1 });
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
