@@ -197,6 +197,10 @@ function safeAuthCheck(isAdminRequired = false) {
 }
 
 // Logout function - fixes ReferenceError in user.js/admin.js
+function clearAuth() {
+  localStorage.removeItem('token');
+}
+
 function logout() {
   clearAuth();
   if (typeof showToast === 'function') {

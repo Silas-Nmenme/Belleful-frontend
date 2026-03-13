@@ -469,19 +469,29 @@ function hideLoading() {
 }
 
 // Socket
+// Socket Integration - FIXED: prevent infinite recursion
+let unreadNotifs = 0;
 function connectSocket() {
-  socket = connectSocket(); // From shared.js
-  if (socket) {
-    socket.on('new-order', (order) => {
+  const notifBadge = document.getElementById('notifBadge');
+  if (typeof window.connectSocket === 'undefined') {
+    console.warn('Shared connectSocket not available');
+    return null;
+  }
+  const sharedSocket = window.connectSocket();
+  if (sharedSocket) {
+    sharedSocket.on('new-order', (order) => {
       showToast(`New order #${order._id.slice(-6)}`, 'success');
       unreadNotifs++;
-      notifBadge.textContent = unreadNotifs;
-      notifBadge.style.display = 'inline';
-      if (document.getElementById('orders').classList.contains('active')) {
+      if (notifBadge) {
+        notifBadge.textContent = unreadNotifs;
+        notifBadge.style.display = 'inline';
+      }
+      if (document.getElementById('orders')?.classList.contains('active')) {
         loadOrders(currentOrderPage);
       }
     });
   }
+  return sharedSocket;
 }
 
 // Global functions

@@ -467,17 +467,24 @@ function toggleNotifications() {
 }
 
 // Socket Integration
+// Socket Integration - FIXED: prevent infinite recursion
 function connectSocket() {
-  socket = connectSocket();
-  if (socket) {
-    socket.on('order-update', (data) => {
+  // Use shared.js connectSocket()
+  if (typeof window.connectSocket === 'undefined') {
+    console.warn('Shared connectSocket not available');
+    return null;
+  }
+  const sharedSocket = window.connectSocket();
+  if (sharedSocket) {
+    sharedSocket.on('order-update', (data) => {
       showToast(`Order #${data.orderId.slice(-6)}: ${data.status.replace('_', ' ')}`, 'info');
-      if (document.getElementById('orders').classList.contains('active')) {
+      if (document.getElementById('orders')?.classList.contains('active')) {
         loadOrders(currentOrderPage);
       }
-      loadStats(); // Update stats
+      loadStats();
     });
   }
+  return sharedSocket;
 }
 
 function hideLoading() {
