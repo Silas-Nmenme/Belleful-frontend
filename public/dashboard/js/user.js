@@ -61,7 +61,7 @@ async function initProfessionalDashboard() {
   // Setup UI
   userName.textContent = user.name || user.email;
   setupEventListeners();
-  connectSocket();
+  // Socket connection moved to shared.js - recursion fixed
   
   // Load all data
   await Promise.all([
@@ -466,26 +466,8 @@ function toggleNotifications() {
   dropdown.classList.toggle('show');
 }
 
-// Socket Integration
-// Socket Integration - FIXED: prevent infinite recursion
-function connectSocket() {
-  // Use shared.js connectSocket()
-  if (typeof window.connectSocket === 'undefined') {
-    console.warn('Shared connectSocket not available');
-    return null;
-  }
-  const sharedSocket = window.connectSocket();
-  if (sharedSocket) {
-    sharedSocket.on('order-update', (data) => {
-      showToast(`Order #${data.orderId.slice(-6)}: ${data.status.replace('_', ' ')}`, 'info');
-      if (document.getElementById('orders')?.classList.contains('active')) {
-        loadOrders(currentOrderPage);
-      }
-      loadStats();
-    });
-  }
-  return sharedSocket;
-}
+// Socket: Use shared singleton (recursion fixed)
+window.connectSocket?.();
 
 function hideLoading() {
   loadingOverlay.style.display = 'none';

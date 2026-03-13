@@ -232,3 +232,40 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('✅ Shared utils loaded');
+
+// Expose global socket connection - FIX recursion
+window.connectSocket = function() {
+  if (window.socketInstance) {
+    console.log('🔄 Using existing socket instance');
+    return window.socketInstance;
+  }
+  
+  const token = getAuthToken();
+  if (!token) {
+    console.warn('❌ No token for socket');
+    return null;
+  }
+
+  const socket = io(SOCKET_URL, {
+    auth: { token }
+  });
+
+  window.socketInstance = socket; // Singleton
+
+  socket.on('connect', () => {
+    console.log('✅ Socket connected');
+    showToast('Connected to live updates', 'success');
+  });
+
+  socket.on('connect_error', (err) => {
+    console.error('Socket error:', err);
+    showToast('Connection lost. Retrying...', 'warning');
+  });
+
+  socket.on('disconnect', () => {
+    console.log('❌ Socket disconnected');
+    window.socketInstance = null;
+  });
+
+  return socket;
+};

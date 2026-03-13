@@ -64,7 +64,7 @@ async function initAdminDashboard() {
   adminName.textContent = admin.name || 'Admin';
   
   setupEventListeners();
-  connectSocket();
+  // Socket connection handled by shared.js
   
   // Load initial data
   await Promise.all([
@@ -468,31 +468,8 @@ function hideLoading() {
   if (loadingOverlay) loadingOverlay.style.display = 'none';
 }
 
-// Socket
-// Socket Integration - FIXED: prevent infinite recursion
-let unreadNotifs = 0;
-function connectSocket() {
-  const notifBadge = document.getElementById('notifBadge');
-  if (typeof window.connectSocket === 'undefined') {
-    console.warn('Shared connectSocket not available');
-    return null;
-  }
-  const sharedSocket = window.connectSocket();
-  if (sharedSocket) {
-    sharedSocket.on('new-order', (order) => {
-      showToast(`New order #${order._id.slice(-6)}`, 'success');
-      unreadNotifs++;
-      if (notifBadge) {
-        notifBadge.textContent = unreadNotifs;
-        notifBadge.style.display = 'inline';
-      }
-      if (document.getElementById('orders')?.classList.contains('active')) {
-        loadOrders(currentOrderPage);
-      }
-    });
-  }
-  return sharedSocket;
-}
+// Socket: Use shared singleton (recursion fixed)
+window.connectSocket?.();
 
 // Global functions
 window.switchTab = switchTab;
