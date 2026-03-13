@@ -12,6 +12,8 @@ if (typeof getAuthToken === 'undefined') {
 }
 
 function initApp() {
+  universalAuthGuard();
+  updateNav();
   // Auth utils now available
 }
 
@@ -152,8 +154,11 @@ function logout() {
 window.initApp = initApp;
 
 document.addEventListener('DOMContentLoaded', function() {
-  universalAuthGuard();
-  updateNav();
+  if (typeof initApp === 'undefined') {
+    updateNav(); // fallback
+  } else {
+    initApp();
+  }
   // Rest of DOM ready code...
 
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
