@@ -158,7 +158,8 @@
                             e.stopPropagation();
                         } else {
                             // Call AuthManager after validation passes
-AuthManager.login(e);
+                            const submitBtn = document.getElementById('loginSubmitBtn');
+                            AuthManager.login(e, submitBtn);
                         }
                         this.classList.add('was-validated');
                     }, false);

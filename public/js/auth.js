@@ -328,7 +328,10 @@ function logout() {
 
 // Utility functions
 function showLoading(selector, text) {
-  const btn = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  let btn = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  if (btn && btn.tagName === 'FORM') {
+    btn = btn.querySelector('button[type="submit"], #loginSubmitBtn');
+  }
   if (!btn) {
     console.warn(`showLoading: Element not found for selector "${selector}"`);
     return;
@@ -338,13 +341,16 @@ function showLoading(selector, text) {
 }
 
 function hideLoading(selector) {
-  const btn = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  let btn = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  if (btn && btn.tagName === 'FORM') {
+    btn = btn.querySelector('button[type="submit"], #loginSubmitBtn');
+  }
   if (!btn) {
     console.warn(`hideLoading: Element not found for selector "${selector}"`);
     return;
   }
   btn.disabled = false;
-  // Reset original text would be set by caller
+  btn.innerHTML = btn.dataset.originalText || 'Login'; // Restore or default
 }
 
 // Toast notifications
