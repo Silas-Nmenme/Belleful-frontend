@@ -1,7 +1,4 @@
-// Menu functionality + API integration
-const API_BASE = 'https://belleful-fphf.vercel.app/api';
-
-// DOM Elements
+const API_BASE = window.API_BASE;\n\n// Menu functionality + API integration\n\n// DOM Elements
 const menuGrid = document.getElementById('menuGrid');
 const menuLoading = document.querySelector('.menu-loading');
 const menuLink = document.getElementById('menuLink');

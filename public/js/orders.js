@@ -1,7 +1,4 @@
-// Orders & Checkout functionality
-const API_BASE = 'https://belleful-fphf.vercel.app/api';
-
-async function getUserOrders() {
+const API_BASE = window.API_BASE;\n\n// Orders & Checkout functionality\nasync function getUserOrders() {
   try {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_BASE}/orders/myorders`, {

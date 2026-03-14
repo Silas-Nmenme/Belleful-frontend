@@ -1,7 +1,4 @@
-// Authentication system - complete flow
-const API_BASE = 'https://belleful-fphf.vercel.app/api';
-
-let currentUser = null;
+const API_BASE = window.API_BASE;\n\n// Authentication system - complete flow\nlet currentUser = null;
 let authMode = 'user'; // 'user' or 'admin'
 
 // DOM Elements

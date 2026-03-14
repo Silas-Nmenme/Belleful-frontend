@@ -1,7 +1,4 @@
-// Dashboard functionality for User & Admin
-const API_BASE = 'https://belleful-fphf.vercel.app/api';
-
-async function loadUserStats() {
+const API_BASE = window.API_BASE;\n\n// Dashboard functionality for User & Admin\nasync function loadUserStats() {
   const token = localStorage.getItem('token');
   const response = await fetch(`${API_BASE}/dashboard/user/stats`, {
     headers: { 'Authorization': `Bearer ${token}` }

@@ -1,7 +1,4 @@
-// Cart management - shared across pages
-const API_BASE = 'https://belleful-fphf.vercel.app/api';
-
-let currentCart = [];
+const API_BASE = window.API_BASE;\n\n// Cart management - shared across pages\nlet currentCart = [];
 
 // Initialize cart system
 document.addEventListener('DOMContentLoaded', initCartSystem);
