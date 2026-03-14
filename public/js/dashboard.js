@@ -410,39 +410,60 @@ function renderMenuPagination(pages, currentPage, search, category) {
 window.prepareMenuForm = async function() {
   const form = document.getElementById('menuForm');
   form.reset();
-  document.getElementById('menuId').value = '';
+  document.getElementById('menuId').value = ''; // Explicitly clear ID
   document.getElementById('menuModalTitle').textContent = 'Add New Menu Item';
   document.getElementById('menuSubmitText').textContent = 'Create Item';
   document.getElementById('imagePreview').style.display = 'none';
 };
 
 window.editMenuItem = async function(id) {
+  if (!id || typeof id !== 'string' || id.length < 10) {
+    showToast('Invalid menu item ID', 'error');
+    return;
+  }
+
+  showLoading('editMenuBtn-' + id.slice(-8)); // Optional per-row loading
+  
   try {
     const token = localStorage.getItem('token');
     const response = await fetch(`${window.API_BASE}/menu/${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!response.ok) throw new Error('Item not found');
+    
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Item not found: ${response.status} ${errText}`);
+    }
     
     const item = await response.json();
+    if (!item._id) {
+      throw new Error('Invalid item data received');
+    }
+    
+    // Populate form
     document.getElementById('menuId').value = item._id;
     document.getElementById('menuName').value = item.name || '';
     document.getElementById('menuPrice').value = item.price || '';
     document.getElementById('menuCategory').value = item.category || 'food';
     document.getElementById('menuDescription').value = item.description || '';
     document.getElementById('menuAvailable').checked = item.available !== false;
-    document.getElementById('menuModalTitle').textContent = 'Edit Menu Item';
+    document.getElementById('menuModalTitle').textContent = `Edit: ${item.name}`;
     document.getElementById('menuSubmitText').textContent = 'Update Item';
     
     // Image preview
     if (item.image) {
       document.getElementById('imagePreview').src = item.image;
       document.getElementById('imagePreview').style.display = 'block';
+    } else {
+      document.getElementById('imagePreview').style.display = 'none';
     }
     
     new bootstrap.Modal(document.getElementById('menuModal')).show();
   } catch (error) {
+    console.error('Edit menu fetch error:', error);
     showToast('Failed to load item: ' + error.message, 'error');
+  } finally {
+    hideLoading('editMenuBtn-' + id.slice(-8));
   }
 };
 
@@ -475,6 +496,8 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
   const name = document.getElementById('menuName').value.trim();
   const priceStr = document.getElementById('menuPrice').value.trim();
   const category = document.getElementById('menuCategory').value;
+  const rawId = document.getElementById('menuId').value;
+  const id = rawId ? rawId.trim() : null;
   
   if (!name) {
     showToast('Name is required', 'error');
@@ -494,10 +517,15 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
     return;
   }
   
+  // UPDATE-SPECIFIC VALIDATION
+  if (id && (!id || id === 'undefined' || id.length < 10)) {
+    showToast('Invalid menu item ID. Please refresh and try editing again.', 'error');
+    return;
+  }
+  
   const submitBtn = document.getElementById('menuSubmitBtn');
   showLoading(submitBtn);
   
-  const id = document.getElementById('menuId').value;
   const commonData = {
     name: name,
     price: parseFloat(priceStr),
@@ -509,6 +537,8 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
   const token = localStorage.getItem('token');
   const method = id ? 'PUT' : 'POST';
   const url = id ? `${window.API_BASE}/menu/${id}` : `${window.API_BASE}/menu`;
+  
+  console.log(`[${method}] ${url.slice(-50)}`, { id, hasImage: !!document.getElementById('menuImage').files[0] }); // Debug
   
   try {
     let res;
@@ -537,14 +567,18 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
     }
     
     if (res.ok) {
-      showToast(id ? 'Item updated!' : 'Item created!', 'success');
+      showToast(id ? 'Item updated successfully!' : 'Item created successfully!', 'success');
       bootstrap.Modal.getInstance(document.getElementById('menuModal')).hide();
+      document.getElementById('menuForm').reset(); // Clear form
+      document.getElementById('imagePreview').style.display = 'none';
       await loadAdminMenu(1);
     } else {
       const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.message || (await res.text()) || 'Operation failed');
+      const errMsg = errData.message || errData.error || (await res.text()) || 'Operation failed';
+      throw new Error(errMsg);
     }
   } catch (error) {
+    console.error('Menu form submit error:', error);
     showToast('Error: ' + error.message, 'error');
   } finally {
     hideLoading(submitBtn);
