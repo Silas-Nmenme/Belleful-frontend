@@ -103,26 +103,70 @@
         
         // Cart page specific logic
         async function loadCartPage() {
-            await checkAuthStatus(); // from auth.js if available
-            
-            const isAuth = localStorage.getItem('token');
-            const cartData = isAuth ? await loadAuthCart() : getLocalCart();
-            
-            if (cartData.items.length === 0) {
+            try {
+                await window.checkAuthStatus?.() || Promise.resolve(); // Safe auth check
+                
+                const isAuth = !!localStorage.getItem('token');
+                let cartData;
+                
+                if (isAuth) {
+                    cartData = await loadAuthCart();
+                    // If auth cart empty, try merge/ fallback to guest
+                    if (cartData.items.length === 0) {
+                        cartData = getLocalCart();
+                    }
+                } else {
+                    cartData = getLocalCart();
+                }
+                
+                // Safe length check
+                if ((cartData.items?.length ?? 0) === 0) {
+                    document.querySelector('.empty-cart').style.display = 'block';
+                    document.getElementById('checkoutBtn').disabled = true;
+                    return;
+                }
+                
+                renderCartItems(cartData.items);
+                renderSummary(cartData);
+                window.CartManager?.updateCartUI?.();
+                
+            } catch (error) {
+                console.error('Cart load error:', error);
                 document.querySelector('.empty-cart').style.display = 'block';
-                return;
             }
-            
-            renderCartItems(cartData.items);
-            renderSummary(cartData);
         }
         
         async function loadAuthCart() {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${window.API_BASE}/cart`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            return response.json();
+            try {
+                const response = await fetch(`${window.API_BASE}/cart`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    throw new Error('API response not ok');
+                }
+                const data = await response.json();
+                return {
+                    items: data.data?.items || data.items || [],
+                    totalAmount: data.totalAmount || data.total || 0
+                };
+            } catch (error) {
+                console.warn('Auth cart load failed, using fallback:', error);
+                return { items: [], totalAmount: 0 };
+            }
+        }
+        
+        function getLocalCart() {
+            try {
+                const guestCart = JSON.parse(localStorage.getItem('guestCart') || '{\"items\":[]}')
+                return {
+                    items: guestCart.items || [],
+                    totalAmount: guestCart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+                };
+            } catch (e) {
+                console.warn('Local cart parse failed:', e);
+                return { items: [], totalAmount: 0 };
+            }
         }
         
         function renderCartItems(items) {
@@ -159,14 +203,15 @@
         }
         
         function renderSummary(cartData) {
-            document.getElementById('cartTotal').textContent = `₦${cartData.totalAmount?.toLocaleString() || '0'}`;
-            document.getElementById('checkoutBtn').disabled = cartData.items.length === 0;
+            const total = cartData.totalAmount || 0;
+            document.getElementById('cartTotal').textContent = `₦${total.toLocaleString()}`;
+            document.getElementById('checkoutBtn').disabled = (cartData.items?.length ?? 0) === 0;
             
             const summaryItems = document.getElementById('summaryItems');
-            summaryItems.innerHTML = cartData.items.map(item => `
+            summaryItems.innerHTML = (cartData.items || []).map(item => `
                 <div class="d-flex justify-content-between small mb-2">
-                    <span>${item.name} × ${item.quantity}</span>
-                    <span>₦${(item.price * item.quantity).toLocaleString()}</span>
+                    <span>${item.name || 'Unknown'} × ${item.quantity || 1}</span>
+                    <span>₦${((item.price || 0) * (item.quantity || 1)).toLocaleString()}</span>
                 </div>
             `).join('');
         }
