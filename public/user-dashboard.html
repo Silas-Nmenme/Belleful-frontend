@@ -98,30 +98,13 @@
         // Enhanced auth check + dashboard load
         document.addEventListener('DOMContentLoaded', async function() {
             // Simple auth check - no checkAuthStatus to avoid redirect loop
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'login.html';
-                return;
-            }
+
 
             
-            // Load dashboard content
-            async function loadUserDashboard() {
-                try {
-                    const stats = await loadUserStats();
-                    if (stats.data) renderStats(stats.data);
-                    
-                    const orders = await OrderManager.getUserOrders();
-                    if (orders.data) renderOrders(orders.data);
-                } catch (e) {
-                    // Mock data for demo
-                    document.getElementById('statsCards').innerHTML = 
-                        '<div class="col-12 text-center py-5"><h5>No data available (demo mode)</h5></div>';
-                    document.getElementById('ordersTableBody').innerHTML = 
-                        '<tr><td colspan="6" class="text-center py-5 text-muted">No orders yet. Place some from home!</td></tr>';
-                }
-            }
-            loadUserDashboard();
+            // Use new local DB dashboard system
+            AuthManager.checkAuthStatus();
+            DashboardManager.loadUserDashboard();
+            DashboardManager.renderUserOrders();
         });
 
     </script>

@@ -188,31 +188,11 @@
         // Enhanced auth check + dashboard load
         document.addEventListener('DOMContentLoaded', async function() {
             // Simple auth check - no checkAuthStatus to avoid redirect loop
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'admin-login.html';
-                return;
-            }
+
 
             
-            // Load dashboard only if still here
-            async function loadAdminDashboard() {
-                try {
-                    await DashboardManager.loadAdminDashboard(1, '');
-                    AOS.refresh();
-                } catch (e) {
-                    // Mock data for demo
-                    document.getElementById('adminStats').innerHTML = 
-                        '<div class="col-12 text-center py-5"><h5>Admin Dashboard (Demo Mode)</h5><p class="text-muted">Mock data loaded.</p></div>';
-                    document.getElementById('pendingOrdersTable').innerHTML = 
-                        '<tr><td colspan="6" class="text-center py-5 text-muted">No pending orders in demo.</td></tr>';
-                    document.getElementById('usersTable').innerHTML = 
-                        '<tr><td colspan="5" class="text-center py-5 text-muted">Demo users would load here.</td></tr>';
-                }
-            }
-            loadAdminDashboard();
-            
-            window.loadAdminDashboard = loadAdminDashboard;
+            AuthManager.checkAuthStatus();
+            DashboardManager.loadAdminDashboard();
         });
 
     </script>
