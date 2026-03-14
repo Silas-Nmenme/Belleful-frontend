@@ -497,35 +497,52 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
   const submitBtn = document.getElementById('menuSubmitBtn');
   showLoading(submitBtn);
   
-  const formData = new FormData();
   const id = document.getElementById('menuId').value;
-  formData.append('name', name);
-  formData.append('price', parseFloat(priceStr));
-  formData.append('category', category);
-  formData.append('description', document.getElementById('menuDescription').value.trim());
-  formData.append('available', document.getElementById('menuAvailable').checked);
-  
-  const imageFile = document.getElementById('menuImage').files[0];
-  if (imageFile) formData.append('image', imageFile);
+  const commonData = {
+    name: name,
+    price: parseFloat(priceStr),
+    category: category,
+    description: document.getElementById('menuDescription').value.trim(),
+    available: document.getElementById('menuAvailable').checked
+  };
   
   const token = localStorage.getItem('token');
   const method = id ? 'PUT' : 'POST';
   const url = id ? `${window.API_BASE}/menu/${id}` : `${window.API_BASE}/menu`;
   
   try {
-    const res = await fetch(url, {
-      method,
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    });
+    let res;
+    if (id) {
+      // UPDATE: Send JSON (no image update to avoid multer issues)
+      res = await fetch(url, {
+        method,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(commonData)
+      });
+    } else {
+      // CREATE: FormData for image upload
+      const formData = new FormData();
+      Object.keys(commonData).forEach(key => formData.append(key, commonData[key]));
+      const imageFile = document.getElementById('menuImage').files[0];
+      if (imageFile) formData.append('image', imageFile);
+      
+      res = await fetch(url, {
+        method,
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+    }
     
     if (res.ok) {
       showToast(id ? 'Item updated!' : 'Item created!', 'success');
       bootstrap.Modal.getInstance(document.getElementById('menuModal')).hide();
-      loadAdminMenu(1);
+      await loadAdminMenu(1);
     } else {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || 'Operation failed');
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || (await res.text()) || 'Operation failed');
     }
   } catch (error) {
     showToast('Error: ' + error.message, 'error');
