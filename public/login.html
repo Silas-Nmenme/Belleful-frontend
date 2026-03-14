@@ -154,7 +154,7 @@
                         } else {
                             // Call AuthManager after validation passes
                             e.preventDefault();
-                            AuthManager.login(e);
+                            AuthManager.login();
                         }
                         this.classList.add('was-validated');
                     }, false);
@@ -162,8 +162,7 @@
             });
         });
         
-        // Auto-init auth
-        AuthManager.checkAuthStatus();
-    </script>
+</script>
 </body>
 </html>
+

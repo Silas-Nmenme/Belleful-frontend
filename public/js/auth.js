@@ -50,6 +50,11 @@ function setupEventListeners() {
 
 // Check authentication status
 async function checkAuthStatus() {
+  const currentPath = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
+  if (currentPath === 'login.html' || currentPath === 'admin-login.html') {
+    return; // Skip auth check on login pages
+  }
+  
   const token = localStorage.getItem('token');
   if (!token) {
     window.location.href = window.location.pathname.includes('admin') ? 'admin-login.html' : 'login.html';
@@ -57,7 +62,7 @@ async function checkAuthStatus() {
   }
 
   const role = localStorage.getItem('userRole');
-  const currentPath = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
+  const currentPathCheck = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
   const targetDash = role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
 
   // Skip API call & trust localStorage if already on correct dashboard

@@ -11,6 +11,11 @@ function initCartSystem() {
 
 // Auth check + cart sync
 async function checkAuthStatus() {
+  const currentPath = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
+  if (currentPath === 'login.html' || currentPath === 'admin-login.html') {
+    return; // Skip on login pages
+  }
+  
   if (typeof window?.API_BASE === 'undefined') {
     console.warn('API_BASE not loaded. Skipping auth cart sync.');
     return;
