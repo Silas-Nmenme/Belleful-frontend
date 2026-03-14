@@ -1,5 +1,5 @@
 // Authentication system - complete flow for Belleful frontend
-// Handles login, register, OTP, mock auth for demo (replace API calls with real backend)
+// Real backend authentication for Belleful (login via /login endpoint with RBAC)
 
 let currentUser = null;
 let authMode = 'user'; // 'user' or 'admin'
@@ -73,15 +73,7 @@ async function checkAuthStatus() {
     return;
   }
 
-  // FIXED: Skip API for mock tokens to prevent logout loop
-  const mToken = localStorage.getItem('token');
-  if (mToken && mToken.startsWith('mock-') && role) {
-    showToast(`Welcome ${role === 'admin' ? 'Admin' : 'back'}, ${localStorage.getItem('currentUserName') || 'User'}!`, 'success');
-    if (currentPathCheck !== targetDash) {
-      setTimeout(() => window.location.href = targetDash, 1000);
-    }
-    return;
-  }
+
 
   // Real API check
   try {
@@ -146,10 +138,7 @@ async function apiGet(endpoint) {
 }
 
 // Mock users for frontend demo (real users saved in DB later)
-const MOCK_USERS = {
-  'user@example.com': { name: 'John User', role: 'user', email: 'user@example.com' },
-  'admin@belleful.com': { name: 'Admin Belleful', role: 'admin', email: 'admin@belleful.com' }
-};
+
 
 // Login handler - FIXED mock logic
 async function handleLogin(e, submitBtn = null) {
@@ -173,32 +162,25 @@ async function handleLogin(e, submitBtn = null) {
 
   showLoading(submitBtn || 'loginFormSubmit', 'Signing in...');
   
-  // Mock credentials check for demo
-  const user = MOCK_USERS[email];
-  if (user && (password === 'password123' || (email === 'admin@belleful.com' && password === 'admin123'))) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-    
-    const mockResult = {
-      token: `mock-jwt-${Date.now()}`,
-      user: user
-    };
-    
-    saveAuth(mockResult);
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    showToast(`Login successful! Welcome ${user.name}`, 'success');
-    
+  try {
+    const response = await apiPost('/login', { email, password });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Login failed');
+    }
+    const result = await response.json();
+    saveAuth(result);
+    localStorage.setItem('currentUser', JSON.stringify(result.user));
+    showToast(`Welcome ${result.user.name || 'back'}!`, 'success');
     hideLoading(submitBtn || 'loginFormSubmit');
     
-    // FIXED redirect
-    const targetDash = user.role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
-    setTimeout(() => {
-      window.location.href = targetDash;
-    }, 800);
-    return;
+    const dash = result.user.role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
+    setTimeout(() => window.location.href = dash, 800);
+  } catch (error) {
+    hideLoading(submitBtn || 'loginFormSubmit');
+    showToast(error.message, 'error');
   }
 
-  hideLoading(submitBtn || 'loginFormSubmit');
-  showToast('Invalid credentials. Try: user@example.com/password123 or admin@belleful.com/admin123', 'error');
 }
 
 // Register handler
@@ -216,13 +198,7 @@ async function handleRegister(e) {
   }
   
   // Mock register (in real app, save to DB)
-  showLoading('registerFormSubmit', 'Creating account...');
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  localStorage.setItem('pendingEmail', email);
-  showOTPForm(email);
-  showToast('Check your email for OTP! (Demo: 123456)', 'success');
-  hideLoading('registerFormSubmit');
+  showToast('Registration temporarily disabled. Please login with existing account or contact admin@belleful.com', 'info');
 }
 
 // OTP Verification
@@ -240,30 +216,7 @@ async function handleOTP(e) {
     return;
   }
   
-  // Mock OTP (123456)
-  if (otp === '123456') {
-    showLoading('otpFormSubmit', 'Verifying...');
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    const pendingEmail = localStorage.getItem('pendingEmail');
-    const userData = MOCK_USERS[pendingEmail] || { name: 'New User', role: 'user', email: pendingEmail };
-    
-    const mockResult = {
-      token: `mock-jwt-${Date.now()}`,
-      user: userData
-    };
-    
-    saveAuth(mockResult);
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    showToast('Account verified! Welcome!', 'success');
-    hideLoading('otpFormSubmit');
-    
-    setTimeout(() => {
-      window.location.href = userData.role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
-    }, 1000);
-  } else {
-    showToast('Invalid OTP. Demo code: 123456', 'error');
-  }
+  showToast('Registration temporarily disabled. Please login with existing account.', 'info');
 }
 
 // Save auth data
