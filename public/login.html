@@ -3,144 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Belleful</title>
+    <title>Login - Belleful | Delicious Food Delivered</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- GSAP for professional animations -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <!-- Custom Styles -->
     <link rel="stylesheet" href="css/style.css">
     <style>
         :root {
-            --wine: #B91C52;
-            --wine-light: #EC4899;
-            --wine-dark: #BE185D;
-            --gold: #F59E0B;
-            --gold-light: #FBBF24;
-            --cream: #FDF4F0;
+            --appetite-gold: #D97706;
+            --spicy-rose: #B91C52;
+            --steam-cream: #FEF3C7;
+            --soup-green: #10B981;
         }
-        /* Bootstrap overrides for theme */
+        /* Override for food vending theme */
         :root {
-            --bs-primary: var(--wine);
-            --bs-primary-rgb: 185, 28, 82;
-            --bs-warning: var(--gold);
-            --bs-warning-rgb: 245, 158, 11;
+            --bs-primary: var(--appetite-gold);
+            --bs-primary-rgb: 217, 119, 6;
+            --bs-warning: #F59E0B;
         }
-        .btn-primary {
-            background-color: var(--bs-primary);
-            border-color: var(--bs-primary);
+        body { 
+            font-family: 'Open Sans', sans-serif; 
+            overflow-x: hidden;
         }
-        .btn-primary:hover {
-            background-color: var(--wine-light);
-            border-color: var(--wine-light);
+        .btn-primary, .btn-auth {
+            background: linear-gradient(135deg, var(--appetite-gold), #F59E0B) !important;
+            border: none !important;
+            color: var(--spicy-rose) !important;
         }
-        .btn-warning {
-            background-color: var(--bs-warning);
-            border-color: var(--bs-warning);
-            color: #000;
+        .navbar-brand span {
+            background: linear-gradient(135deg, var(--appetite-gold), var(--spicy-rose));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .btn-warning:hover {
-            background-color: var(--gold-light);
-            border-color: var(--gold-light);
-            color: #000;
-        }
-.navbar-enhanced {
-    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(253,244,240,0.95));
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-bottom: 2px solid rgba(185,28,82,0.15);
-    box-shadow: 0 8px 32px rgba(185,28,82,0.1);
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-.navbar-enhanced.scrolled {
-    background: rgba(255,255,255,0.95);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-    border-bottom-color: rgba(185,28,82,0.2);
-}
-.navbar-wine { /* fallback */
-    background: rgba(255,255,255,0.95) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--wine);
-}
-        .bg-cream-gradient {
-            background: linear-gradient(135deg, var(--cream) 0%, #f8f3ee 100%);
-        }
-        .card-auth {
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-        }
-        .nav-tabs .nav-link {
-            border: none;
-            border-radius: 16px 16px 0 0;
-            border-bottom: 3px solid transparent;
-            color: var(--wine);
-            font-weight: 600;
-            margin-right: 2px;
-        }
-        .nav-tabs .nav-link.active {
-            background: transparent;
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-        .nav-tabs {
-            border: none;
-            margin-bottom: 2rem;
-        }
-        .btn-auth {
-            background: linear-gradient(135deg, var(--gold), var(--gold-light));
-            border: none;
-            color: var(--wine-dark) !important;
-            font-weight: 700;
-            box-shadow: 0 8px 32px rgba(245,158,11,0.3);
-            padding: 1rem 2rem;
-            border-radius: 50px;
-        }
-        .btn-auth:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 16px 48px rgba(245,158,11,0.4);
-        }
-        .form-control-auth {
-            background: rgba(255,255,255,0.9);
-            border: 2px solid rgba(185,28,82,0.1);
-            border-radius: 16px;
-            padding: 1rem 1.25rem;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-        }
-        .form-control-auth:focus {
-            border-color: var(--wine);
-            box-shadow: 0 0 0 0.25rem rgba(185,28,82,0.15);
-            transform: translateY(-1px);
-        }
-        body {
-            font-family: 'Open Sans', sans-serif;
-            line-height: 1.6;
-        }
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-        }
-        .text-gold { color: var(--gold) !important; }
-        .navbar-brand { color: var(--wine) !important; }
-        .nav-link { color: var(--wine) !important; }
-        .nav-link:hover { color: var(--gold) !important; }
     </style>
 </head>
-<body class="bg-cream-gradient">
+<body class="kitchen-bg">
 
-    <!-- Navbar from index.html adapted -->
+    <!-- Food Particles Layer (z-index 1) -->
+    <div id="food-particles" class="food-particles">
+        <object type="image/svg+xml" data="asset/food-particles.svg"></object>
+    </div>
+
+    <!-- Steam Overlay (z-index 2) -->
+    <div class="steam-overlay"></div>
+
+    <!-- Navbar (z-index 1000) -->
     <nav class="navbar navbar-expand-lg navbar-enhanced navbar-wine fixed-top shadow-lg" id="main-navbar">
         <div class="container">
             <a class="navbar-brand text-wine fs-2 fw-bold" href="index.html">
-<img src="../asset/logo.jpeg" alt="Belleful Logo" style="height: 50px; width: auto;">
+                <img src="asset/logo.jpeg" alt="Belleful Logo" style="height: 50px; width: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(217,119,6,0.3);">
                 <span>Belleful</span>
             </a>
-            <button class="navbar-toggler border-0 p-2 rounded shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="background: rgba(245,158,11,0.1);">
-                <i class="fas fa-bars text-warning fs-3"></i>
+            <button class="navbar-toggler border-0 p-2 rounded shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="background: rgba(217,119,6,0.15); min-height: 52px;">
+                <i class="fas fa-bars text-warning fs-2"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
@@ -148,17 +70,17 @@
                     <li class="nav-item position-relative">
                         <a class="nav-link" href="cart.html">
                             <i class="fas fa-shopping-cart me-1"></i>Cart
-                            <span class="cart-badge d-none" id="cart-count">0</span>
+                            <span class="cart-badge d-none bg-danger rounded-circle px-1" id="cart-count" style="font-size: 0.75rem; min-width: 18px; height: 18px;">0</span>
                         </a>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="orders.html"><i class="fas fa-box me-1"></i>Orders</a></li>
                     <li class="nav-item mx-2">
-                        <button class="btn btn-outline-warning btn-sm px-3 rounded-pill shadow-sm" id="search-toggle" title="Search dishes">
+                        <button class="btn btn-outline-warning btn-sm px-3 rounded-pill shadow-sm" id="search-toggle" title="Search dishes" style="min-height: 44px;">
                             <i class="fas fa-search"></i>
                         </button>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-warning fw-semibold ms-1 px-4 rounded-pill shadow-sm d-flex align-items-center" href="signup.html">
+                        <a class="btn btn-warning fw-semibold ms-1 px-4 rounded-pill shadow-sm d-flex align-items-center" href="signup.html" style="min-height: 44px;">
                             <i class="fas fa-user-plus me-2"></i>Sign Up
                         </a>
                     </li>
@@ -167,54 +89,72 @@
         </div>
     </nav>
 
-    <!-- Auth Section -->
-    <section class="min-vh-100 d-flex align-items-center pt-5 pt-lg-0">
+    <!-- Professional Auth Hero Section -->
+    <section class="auth-hero">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-lg-6 col-md-8">
-                    <div class="card card-auth p-5">
-                        <div class="text-center mb-5">
-                            <i class="fas fa-sign-in-alt text-gold fs-1 mb-4"></i>
-                            <h1 class="h2 fw-bold text-primary mb-2">Welcome Back</h1>
-                            <p class="text-muted mb-0">Sign in to your Belleful account</p>
-                        </div>
-                        <!-- Tabs -->
-                        <ul class="nav nav-tabs nav-justified mb-4" id="authTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-form" type="button" role="tab">Login</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup-placeholder" type="button" role="tab">Sign Up</button>
-                            </li>
-                        </ul>
-                        <div class="tab-content">
-                            <!-- Login Form -->
-<form id="login-form" class="tab-pane fade show active" role="tabpanel">
-                                <div class="mb-4">
-                                    <label for="login-email" class="form-label fw-semibold text-primary">Email</label>
-                                    <input type="email" class="form-control form-control-lg form-control-auth" id="login-email" required placeholder="your@email.com">
+                <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+                    <!-- Animated Auth Card -->
+                    <div class="card card-auth p-0 p-md-5" data-aos="fade-up">
+                        <div class="card-body p-4 p-lg-5">
+                            <!-- Logo & Welcome -->
+                            <div class="text-center mb-5 pb-4">
+                                <div class="logo-container mb-4">
+                                    <img src="asset/logo.jpeg" alt="Belleful - Fresh Food Delivered" class="img-fluid rounded-4 shadow-lg" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
                                 </div>
-                                <div class="mb-4">
-                                    <label for="login-password" class="form-label fw-semibold text-primary">Password</label>
-                                    <input type="password" class="form-control form-control-lg form-control-auth" id="login-password" required placeholder="••••••••">
-                                </div>
-<div class="d-flex gap-3 align-items-center">
-                                <button type="submit" class="btn btn-auth flex-fill fs-5 py-3" id="login-submit-btn">
-                                    <span id="login-btn-text">Login</span>
-                                    <span id="login-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
-                                </button>
+                                <h1 class="h2 fw-bold mb-3" style="background: linear-gradient(135deg, #D97706, #B91C52); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Welcome Back</h1>
+                                <p class="lead text-muted mb-0 fs-6">Sign in to enjoy delicious meals from your favorite vendors</p>
                             </div>
-                            <div id="login-error" class="alert alert-danger mt-3 d-none" role="alert"></div>
-                            </form>
-                            <!-- Signup Placeholder (links to signup.html) -->
-                            <div id="signup-placeholder" class="tab-pane fade" role="tabpanel">
-                                <div class="text-center py-5">
-                                    <i class="fas fa-user-plus text-gold fs-2 mb-4"></i>
-                                    <h3 class="text-primary mb-3">Create New Account</h3>
-                                    <p class="text-muted mb-4">Ready to join Belleful?</p>
-                                    <a href="signup.html" class="btn btn-warning btn-lg w-100 py-3 fs-5 fw-bold shadow-lg">
-                                        Sign Up Now <i class="fas fa-arrow-right ms-2"></i>
+
+                            <!-- Auth Tabs -->
+                            <ul class="nav nav-tabs nav-justified nav-fill gap-2 mb-4 px-2" id="authTabs" role="tablist">
+                                <li class="nav-item flex-fill" role="presentation">
+                                    <button class="nav-link active w-100 rounded-3 border-0 py-3 px-4 shadow-sm" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-form" type="button" role="tab">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                                    </button>
+                                </li>
+                                <li class="nav-item flex-fill" role="presentation">
+                                    <button class="nav-link w-100 rounded-3 border-0 py-3 px-4 shadow-sm" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup-placeholder" type="button" role="tab">
+                                        <i class="fas fa-user-plus me-2"></i>Sign Up
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <!-- Tab Content -->
+                            <div class="tab-content">
+                                <!-- Login Form -->
+                                <form id="login-form" class="tab-pane fade show active p-3 p-md-0" role="tabpanel">
+                                    <div class="mb-4">
+                                        <label for="login-email" class="form-label fw-semibold fs-5 mb-3" style="color: #D97706;">Email Address</label>
+                                        <input type="email" class="form-control form-control-lg form-control-auth" id="login-email" required 
+                                            placeholder="john@example.com" autocomplete="email">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="login-password" class="form-label fw-semibold fs-5 mb-3" style="color: #D97706;">Password</label>
+                                        <input type="password" class="form-control form-control-lg form-control-auth" id="login-password" required 
+                                            placeholder="Enter your password" autocomplete="current-password">
+                                    </div>
+                                    <div class="d-grid gap-3">
+                                        <button type="submit" class="btn btn-auth fs-5 py-4 shadow-lg" id="login-submit-btn">
+                                            <span id="login-btn-text" class="fw-bold">Login to Belleful</span>
+                                            <span id="login-spinner" class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+                                        </button>
+                                    </div>
+                                    <div id="login-error" class="alert alert-danger mt-4 d-none shadow-sm" role="alert"></div>
+                                    <div class="text-center mt-4 pt-3">
+                                        <small class="text-muted">Forgot password? <a href="#" class="text-decoration-none fw-semibold" style="color: #D97706;">Reset here</a></small>
+                                    </div>
+                                </form>
+
+                                <!-- Signup Redirect -->
+                                <div id="signup-placeholder" class="tab-pane fade p-5 text-center" role="tabpanel">
+                                    <i class="fas fa-utensils display-3 text-warning mb-4 opacity-75"></i>
+                                    <h3 class="h4 fw-bold text-primary mb-3">Join the Food Revolution</h3>
+                                    <p class="text-muted mb-4 lead">Discover amazing dishes from local vendors. Create your account now!</p>
+                                    <a href="signup.html" class="btn btn-warning btn-lg w-100 py-4 fs-5 fw-bold shadow-lg mb-3">
+                                        <i class="fas fa-arrow-right me-2"></i>Create Account
                                     </a>
+                                    <p class="text-muted small">Already have an account? <a href="#" class="text-primary fw-semibold" onclick="switchToLogin()">Login here</a></p>
                                 </div>
                             </div>
                         </div>
@@ -224,13 +164,119 @@
         </div>
     </section>
 
-    <!-- AOS CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <!-- AOS JS -->
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <!-- App JS with animations -->
     <script src="js/app.js"></script>
+    <script>
+        // Professional GSAP Animations for Food Vending Experience
+        document.addEventListener('DOMContentLoaded', function() {
+            // Master timeline for kitchen ambiance
+            const tl = gsap.timeline({ defaults: { duration: 1.2, ease: 'power3.out' } });
+            
+            // Animate navbar
+            tl.from('#main-navbar', { y: -100, opacity: 0 }, 0);
+            
+            // Animate auth card with cooking effect
+            tl.from('.card-auth', { 
+                y: 100, 
+                scale: 0.9, 
+                rotationX: 20,
+                opacity: 0 
+            }, 0.3);
+            
+            // Logo floating animation
+            gsap.to('.logo-container img', {
+                y: -8,
+                rotation: 2,
+                duration: 3,
+                repeat: -1,
+                yoyo: true,
+                ease: 'power2.inOut'
+            });
+            
+            // Continuous food particles breathing
+            gsap.to('#food-particles', {
+                scale: 1.03,
+                duration: 4,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut'
+            });
+            
+            // Form input ingredient mix effect
+            const inputs = document.querySelectorAll('.form-control-auth');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    gsap.to(input, { scale: 1.02, duration: 0.3, y: -2 });
+                });
+                input.addEventListener('blur', () => {
+                    gsap.to(input, { scale: 1, duration: 0.3, y: 0 });
+                });
+            });
+            
+            // Button cooking sizzle effect
+            const loginBtn = document.getElementById('login-submit-btn');
+            loginBtn.addEventListener('mouseenter', () => {
+                gsap.to(loginBtn, { 
+                    scale: 1.05, 
+                    y: -4,
+                    boxShadow: '0 24px 64px rgba(217,119,6,0.6)',
+                    duration: 0.4 
+                });
+                // Steam burst effect
+                createSteamBurst(loginBtn);
+            });
+            loginBtn.addEventListener('mouseleave', () => {
+                gsap.to(loginBtn, { scale: 1, y: 0, duration: 0.3 });
+            });
+            
+            // Tab switch smooth animation
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function(e) {
+                    gsap.from(e.target.parentNode.querySelector('.tab-pane.show'), {
+                        x: e.target.getAttribute('data-bs-target') === '#login-form' ? 30 : -30,
+                        opacity: 0,
+                        duration: 0.5
+                    });
+                });
+            });
+        });
+
+        // Steam burst particle effect
+        function createSteamBurst(element) {
+            const rect = element.getBoundingClientRect();
+            const steam = document.createElement('div');
+            steam.style.cssText = `
+                position: fixed;
+                left: ${rect.left + rect.width/2}px;
+                top: ${rect.top + rect.height/2}px;
+                width: 4px; height: 4px;
+                background: radial-gradient(circle, rgba(254,243,199,0.8), transparent);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                transform: translate(-50%, -50%);
+            `;
+            document.body.appendChild(steam);
+            
+            gsap.to(steam, {
+                scale: 8,
+                opacity: 0,
+                y: -60,
+                duration: 0.8,
+                ease: 'power2.out',
+                onComplete: () => steam.remove()
+            });
+        }
+
+        // Smooth tab switch helper
+        function switchToLogin() {
+            const loginTab = document.getElementById('login-tab');
+            const loginTabList = new bootstrap.Tab(loginTab);
+            loginTabList.show();
+        }
+    </script>
 
 </body>
 </html>
