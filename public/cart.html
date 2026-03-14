@@ -177,22 +177,22 @@
                         <div class="row align-items-center">
                             <div class="col-md-2">
                                 <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=100&h=100&fit=crop&round" 
-                                     class="img-fluid rounded-circle" alt="${item.name}">
+                                     class="img-fluid rounded-circle" alt="${item.name || 'Item'}">
                             </div>
                             <div class="col-md-6">
-                                <h5 class="fw-bold">${item.name}</h5>
-                                <small class="text-muted">Unit: ₦${item.price.toLocaleString()}</small>
+                                <h5 class="fw-bold">${item.name || 'Item'}</h5>
+                                <small class="text-muted">Unit: ₦${(item.price || 0).toLocaleString()}</small>
                             </div>
                             <div class="col-md-4 text-end">
                                 <div class="input-group w-75 mx-auto">
-                                    <button class="btn btn-outline-secondary" onclick="updateQuantity('${item.menuItemId}', -1)">-</button>
-                                    <input type="number" class="form-control text-center fw-bold" value="${item.quantity}" min="1" readonly>
-                                    <button class="btn btn-outline-secondary" onclick="updateQuantity('${item.menuItemId}', 1)">+</button>
+                                    <button class="btn btn-outline-secondary" onclick="updateQuantity('${item.menuItemId || item.id || ''}', -1)">-</button>
+                                    <input type="number" class="form-control text-center fw-bold" value="${item.quantity || 1}" min="1" readonly>
+                                    <button class="btn btn-outline-secondary" onclick="updateQuantity('${item.menuItemId || item.id || ''}', 1)">+</button>
                                 </div>
                                 <div class="mt-2 fs-5 fw-bold text-success">
-                                    ₦${(item.price * item.quantity).toLocaleString()}
+                                    ₦${((item.price || 0) * (item.quantity || 1)).toLocaleString()}
                                 </div>
-                                <button class="btn btn-sm btn-outline-danger mt-2" onclick="removeFromCart('${item.menuItemId}')">
+                                <button class="btn btn-sm btn-outline-danger mt-2" onclick="removeFromCart('${item.menuItemId || item.id || ''}')">
                                     <i class="fas fa-trash"></i> Remove
                                 </button>
                             </div>
@@ -203,14 +203,15 @@
         }
         
         function renderSummary(cartData) {
-            const total = cartData.totalAmount || 0;
+            const items = cartData.items || [];
+            const total = items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
             document.getElementById('cartTotal').textContent = `₦${total.toLocaleString()}`;
-            document.getElementById('checkoutBtn').disabled = (cartData.items?.length ?? 0) === 0;
+            document.getElementById('checkoutBtn').disabled = items.length === 0;
             
             const summaryItems = document.getElementById('summaryItems');
-            summaryItems.innerHTML = (cartData.items || []).map(item => `
+            summaryItems.innerHTML = items.map(item => `
                 <div class="d-flex justify-content-between small mb-2">
-                    <span>${item.name || 'Unknown'} × ${item.quantity || 1}</span>
+                    <span>${item.name || 'Unknown item'} × ${item.quantity || 1}</span>
                     <span>₦${((item.price || 0) * (item.quantity || 1)).toLocaleString()}</span>
                 </div>
             `).join('');
@@ -222,10 +223,27 @@
         }
         
         window.removeFromCart = async function(id) {
-            if (confirm('Remove this item?')) {
-                // API call implementation
-                showToast('Item removed!', 'success');
-                loadCartPage();
+            if (confirm('Remove this item from cart?')) {
+                try {
+                    const isAuth = !!localStorage.getItem('token');
+                    if (isAuth) {
+                        const token = localStorage.getItem('token');
+                        await fetch(`${window.API_BASE}/cart/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                    } else {
+                        // Guest cart remove
+                        let cart = JSON.parse(localStorage.getItem('guestCart') || '{"items":[]}');
+                        cart.items = cart.items.filter(item => (item.menuItemId || item.id) !== id);
+                        localStorage.setItem('guestCart', JSON.stringify(cart));
+                    }
+                    showToast('Item removed from cart!', 'success');
+                    loadCartPage();
+                } catch (error) {
+                    console.error('Remove failed:', error);
+                    showToast('Failed to remove item', 'error');
+                }
             }
         }
         
