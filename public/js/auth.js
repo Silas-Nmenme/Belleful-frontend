@@ -2,14 +2,6 @@
 let currentUser = null;
 let authMode = 'user'; // 'user' or 'admin'
 
-// DOM Elements
-const loginForm = document.getElementById('loginForm');
-const otpForm = document.getElementById('otpForm');
-const loginEmail = document.getElementById('loginEmail');
-const loginPassword = document.getElementById('loginPassword');
-const otpEmail = document.getElementById('otpEmail');
-const otpCode = document.getElementById('otpCode');
-
 // Initialize auth system
 document.addEventListener('DOMContentLoaded', initAuth);
 
@@ -29,23 +21,28 @@ function initAuth() {
 }
 
 function setupEventListeners() {
-  // OTP input enhancements
-  otpCode.addEventListener('input', function(e) {
-    this.value = this.value.replace(/[^0-9]/g, '').slice(0,6);
-  });
+  // Get OTP elements dynamically with null checks
+  const otpCodeEl = document.getElementById('otpCode');
+  const otpFormEl = document.getElementById('otpForm');
   
-  otpCode.addEventListener('keyup', function(e) {
-    if (this.value.length === 6) {
-      otpForm.querySelector('button[type="submit"]').focus();
-    }
-  });
-  
-  // Enter to submit
-  otpCode.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter' && this.value.length === 6) {
-      otpForm.querySelector('form').dispatchEvent(new Event('submit'));
-    }
-  });
+  if (otpCodeEl) {
+    otpCodeEl.addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '').slice(0,6);
+    });
+    
+    otpCodeEl.addEventListener('keyup', function(e) {
+      if (this.value.length === 6 && otpFormEl) {
+        const submitBtn = otpFormEl.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.focus();
+      }
+    });
+    
+    otpCodeEl.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && this.value.length === 6 && otpFormEl) {
+        otpFormEl.querySelector('form')?.dispatchEvent(new Event('submit'));
+      }
+    });
+  }
 }
 
 // Check authentication status
@@ -118,10 +115,16 @@ const MOCK_USERS = {
 async function handleLogin(e) {
   e.preventDefault();
   
-  const emailInput = loginEmail || document.querySelector('input[type="email"]') || document.querySelector('#adminLoginEmail, #loginEmail');
-  const passwordInput = loginPassword || document.querySelector('input[type="password"]');
-  const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
-  const password = passwordInput ? passwordInput.value : '';
+  // Dynamic element lookup with fallbacks
+  const emailInput = document.getElementById('loginEmail') || 
+                     document.querySelector('input[type="email"]:not([readonly])') ||
+                     document.getElementById('adminLoginEmail');
+  const passwordInput = document.getElementById('loginPassword') || 
+                        document.querySelector('input[type="password"]') ||
+                        document.getElementById('adminLoginPassword');
+  
+  const email = emailInput?.value.trim().toLowerCase() || '';
+  const password = passwordInput?.value || '';
   
   if (!email || !password) {
     showToast('Please fill all fields', 'error');
@@ -210,8 +213,11 @@ async function handleRegister(e) {
 async function handleOTP(e) {
   e.preventDefault();
   
-  const email = otpEmail.value;
-  const otp = otpCode.value.trim();
+  const otpEmailEl = document.getElementById('otpEmail');
+  const otpCodeEl = document.getElementById('otpCode');
+  
+  const email = otpEmailEl?.value || '';
+  const otp = otpCodeEl?.value.trim() || '';
   
   if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
     showToast('Please enter valid 6-digit OTP', 'error');
@@ -358,11 +364,16 @@ window.AuthManager = {
   checkAuthStatus
 };
 
-// Form submissions - attach to all matching forms
-document.querySelectorAll('#loginForm form, form#loginFormSubmit').forEach(form => {
-  form.addEventListener('submit', handleLogin);
-});
-document.querySelectorAll('form#otpFormSubmit').forEach(form => {
-  form.addEventListener('submit', handleOTP);
+// Global form event listeners with null safety
+document.addEventListener('DOMContentLoaded', () => {
+  // Login forms
+  document.querySelectorAll('form#loginFormSubmit, #loginForm form').forEach(form => {
+    form.addEventListener('submit', handleLogin);
+  });
+  
+  // OTP forms
+  document.querySelectorAll('form#otpFormSubmit').forEach(form => {
+    form.addEventListener('submit', handleOTP);
+  });
 });
 
