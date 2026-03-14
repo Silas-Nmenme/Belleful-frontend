@@ -16,6 +16,9 @@ function initAuth() {
   // Listen for auth state changes
   checkAuthStatus();
   
+  // Update navbar for current auth state
+  updateNavbarForAdmin();
+  
   // Event listeners
   setupEventListeners();
 }
@@ -73,8 +76,9 @@ async function checkAuthStatus() {
       // Skip redirect if already on correct dashboard
       const currentPath2 = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
       const targetDash2 = currentUser.role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
-      if (currentPath2 === targetDash2) {
+  if (currentPath2 === targetDash2) {
         showToast(`Welcome ${currentUser.role === 'admin' ? 'Admin' : 'back'}, ${currentUser.name}!`, 'success');
+        updateNavbarForAdmin();
         return;
       }
       
@@ -309,7 +313,10 @@ function logout() {
   localStorage.removeItem('currentUser');
   currentUser = null;
   showToast('Logged out successfully', 'info');
-  setTimeout(() => window.location.href = 'index.html', 1000);
+  setTimeout(() => {
+    updateNavbarForAdmin(); // Reset navbar
+    window.location.href = 'index.html';
+  }, 1000);
 }
 
 // Utility functions
@@ -380,6 +387,32 @@ window.AuthManager = {
   checkAuthStatus
 };
 
+// Update navbar for admin users
+function updateNavbarForAdmin() {
+  const role = localStorage.getItem('userRole');
+  if (role !== 'admin') return;
+
+  // Set all navbar brands to public site
+  document.querySelectorAll('.navbar-brand').forEach(brand => {
+    brand.href = 'index.html';
+    brand.innerHTML = '<i class="fas fa-utensils me-2"></i>Belleful';
+  });
+
+  // Redirect public nav links to admin dashboard
+  document.querySelectorAll('a[href="index.html"], a[href="#menu"], a[href="cart.html"], a[href="user-dashboard.html"]').forEach(link => {
+    if (!link.closest('.dropdown-menu') && !link.textContent.includes('Admin') && !link.closest('#navbarNav')?.querySelector('[href="admin-dashboard.html"]')) {
+      link.href = 'admin-dashboard.html';
+      if (link.href === '#menu') link.href = 'admin-dashboard.html#orders-admin';
+    }
+  });
+
+  // Add admin indicator to account dropdown if present
+  const accountToggle = document.querySelector('.dropdown-toggle:has(.fa-user)');
+  if (accountToggle) {
+    accountToggle.innerHTML = '<i class="fas fa-user-shield text-warning me-1"></i>Admin';
+  }
+}
+
 // Global form event listeners - only on login pages
 document.addEventListener('DOMContentLoaded', () => {
   // Only attach if on login page
@@ -398,6 +431,13 @@ document.addEventListener('DOMContentLoaded', () => {
       form.addEventListener('submit', handleOTP);
     });
   }
+  
+  // Update navbar after DOM ready
+  updateNavbarForAdmin();
 });
+
+// Export navbar function globally
+window.AuthManager.updateNavbarForAdmin = updateNavbarForAdmin;
+
 
 
