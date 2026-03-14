@@ -56,14 +56,17 @@ async function checkAuthStatus() {
         currentUser = userData.user;
         localStorage.setItem('userRole', currentUser.role);
         
-        // Redirect based on role
-        if (currentUser.role === 'admin') {
-          showToast('Welcome Admin!', 'success');
-          setTimeout(() => window.location.href = 'admin-dashboard.html', 1500);
-        } else {
-          showToast(`Welcome back, ${currentUser.name}!`, 'success');
-          setTimeout(() => window.location.href = 'user-dashboard.html', 1500);
+        // Skip redirect if already on correct dashboard
+        const currentPath = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
+        const targetDash = currentUser.role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
+        if (currentPath === targetDash) {
+          showToast(`Welcome ${currentUser.role === 'admin' ? 'Admin' : 'back'}, ${currentUser.name}!`, 'success');
+          return;
         }
+        
+        // Redirect based on role
+        showToast(`Welcome ${currentUser.role === 'admin' ? 'Admin' : 'back'}, ${currentUser.name}!`, 'success');
+        setTimeout(() => window.location.href = targetDash, 1500);
       } else {
         logout();
       }
@@ -112,7 +115,7 @@ const MOCK_USERS = {
 };
 
 // Login handler
-async function handleLogin(e) {
+async function handleLogin(e, submitBtn = null) {
   e.preventDefault();
   
   // Dynamic element lookup with fallbacks
@@ -135,7 +138,7 @@ async function handleLogin(e) {
   const user = MOCK_USERS[email];
   if (user && (password === 'password123' || (email === 'admin@belleful.com' && password === 'admin123'))) {
     // Mock success
-    showLoading('loginFormSubmit', 'Signing in...');
+    showLoading(submitBtn || 'loginFormSubmit', 'Signing in...');
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
     
     const mockResult = {
@@ -150,12 +153,12 @@ async function handleLogin(e) {
       checkAuthStatus(); // Triggers redirect
     }, 1500);
     
-    hideLoading('loginFormSubmit');
+    hideLoading(submitBtn || 'loginFormSubmit');
     return;
   }
   
   try {
-    showLoading('loginFormSubmit', 'Signing in...');
+    showLoading(submitBtn || 'loginFormSubmit', 'Signing in...');
     
     const response = await apiPost('/auth/login', { email, password });
     
@@ -170,7 +173,7 @@ async function handleLogin(e) {
   } catch (error) {
     showToast(`Invalid credentials. Try: user@example.com/password123 or admin@belleful.com/admin123`, 'error');
   } finally {
-    hideLoading('loginFormSubmit');
+    hideLoading(submitBtn || 'loginFormSubmit');
   }
 }
 
@@ -364,16 +367,24 @@ window.AuthManager = {
   checkAuthStatus
 };
 
-// Global form event listeners with null safety
+// Global form event listeners - only on login pages
 document.addEventListener('DOMContentLoaded', () => {
-  // Login forms
-  document.querySelectorAll('form#loginFormSubmit, #loginForm form').forEach(form => {
-    form.addEventListener('submit', handleLogin);
-  });
+  // Only attach if on login page
+  if (document.getElementById('loginFormSubmit') || document.querySelector('#loginForm form')) {
+    document.querySelectorAll('form#loginFormSubmit, #loginForm form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        handleLogin(e, submitBtn);
+      });
+    });
+  }
   
   // OTP forms
-  document.querySelectorAll('form#otpFormSubmit').forEach(form => {
-    form.addEventListener('submit', handleOTP);
-  });
+  if (document.getElementById('otpFormSubmit')) {
+    document.querySelectorAll('form#otpFormSubmit').forEach(form => {
+      form.addEventListener('submit', handleOTP);
+    });
+  }
 });
+
 
