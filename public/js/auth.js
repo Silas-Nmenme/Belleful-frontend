@@ -161,7 +161,7 @@ async function handleLogin(e, submitBtn = null) {
   }
 
   const authMode = localStorage.getItem('authMode') || 'user';
-  const endpoint = authMode === 'admin' ? '/admin/login' : '/login';
+  const endpoint = authMode === 'admin' ? '/auth/login' : '/login';
   
   showLoading(submitBtn || 'loginFormSubmit', 'Signing in...');
   
