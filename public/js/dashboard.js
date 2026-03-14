@@ -381,7 +381,7 @@ function renderAdminMenu(items, count) {
 }
 
 function getCategoryBadge(category) {
-  const badges = { food: 'primary', drink: 'info', dessert: 'warning', side: 'secondary' };
+  const badges = { food: 'primary', drink: 'info', side: 'secondary' };
   return badges[category] || 'secondary';
 }
 
