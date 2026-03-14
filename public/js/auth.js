@@ -165,14 +165,16 @@ async function handleLogin(e, submitBtn = null) {
     saveAuth(mockResult);
     showToast(`Login successful! Welcome ${user.name}`, 'success');
     
-    // Auto-verify (skip OTP for demo)
+    // Demo direct redirect (bypasses API/checkAuthStatus loop)
     setTimeout(() => {
-      checkAuthStatus(); // Triggers redirect
+      const role = user.role;
+      window.location.href = role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
     }, 1500);
     
     hideLoading(submitBtn || 'loginFormSubmit');
     return;
   }
+
   
   try {
     showLoading(submitBtn || 'loginFormSubmit', 'Signing in...');
@@ -415,17 +417,7 @@ function updateNavbarForAdmin() {
 
 // Global form event listeners - only on login pages
 document.addEventListener('DOMContentLoaded', () => {
-  // Only attach if on login page
-  if (document.getElementById('loginFormSubmit') || document.querySelector('#loginForm form')) {
-    document.querySelectorAll('form#loginFormSubmit, #loginForm form').forEach(form => {
-      form.addEventListener('submit', function(e) {
-        const submitBtn = form.querySelector('button[type="submit"]');
-        handleLogin(e, submitBtn);
-      });
-    });
-  }
-  
-  // OTP forms
+  // OTP forms only (login handled by HTML inline)
   if (document.getElementById('otpFormSubmit')) {
     document.querySelectorAll('form#otpFormSubmit').forEach(form => {
       form.addEventListener('submit', handleOTP);
@@ -435,6 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update navbar after DOM ready
   updateNavbarForAdmin();
 });
+
 
 // Export navbar function globally
 window.AuthManager.updateNavbarForAdmin = updateNavbarForAdmin;

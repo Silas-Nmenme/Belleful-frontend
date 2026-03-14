@@ -189,11 +189,11 @@
         document.addEventListener('DOMContentLoaded', async function() {
             // Simple auth check - no checkAuthStatus to avoid redirect loop
             const token = localStorage.getItem('token');
-            const role = localStorage.getItem('userRole');
-            if (!token || role !== 'admin') {
+            if (!token) {
                 window.location.href = 'admin-login.html';
                 return;
             }
+
             
             // Load dashboard only if still here
             async function loadAdminDashboard() {
