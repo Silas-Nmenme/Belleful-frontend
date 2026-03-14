@@ -78,10 +78,33 @@
                                 <span class="badge bg-light text-danger ms-2" id="pendingCount">0</span>
                             </h4>
                         </div>
-                        <div class="card-body">
+<div class="card-body p-0">
+                            <!-- Orders Filter -->
+                            <div class="p-4 border-bottom">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" id="ordersSearch" placeholder="Search orders..." oninput="loadAdminDashboard()">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="statusFilter" onchange="loadAdminDashboard()">
+                                            <option value="">All Status</option>
+                                            <option value="pending_approval">Pending Approval</option>
+                                            <option value="vendor_approved">Approved</option>
+                                            <option value="preparing">Preparing</option>
+                                            <option value="delivered">Delivered</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-primary" onclick="loadAdminDashboard()">
+                                            <i class="fas fa-refresh"></i> Refresh
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Table -->
                             <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-dark">
                                         <tr>
                                             <th>ID</th>
                                             <th>Customer</th>
@@ -92,9 +115,13 @@
                                         </tr>
                                     </thead>
                                     <tbody id="pendingOrdersTable">
-                                        <!-- Pending orders -->
+                                        <!-- Pending orders loaded here -->
                                     </tbody>
                                 </table>
+                            </div>
+                            <!-- Pagination -->
+                            <div id="ordersPagination" class="p-3 bg-light">
+                                <!-- Pagination loaded dynamically -->
                             </div>
                         </div>
                     </div>
@@ -106,17 +133,32 @@
                         <div class="card-header bg-info text-white">
                             <h4 class="mb-0 fw-bold">
                                 <i class="fas fa-users me-2"></i>Users
+                                <small class="badge bg-light text-dark ms-2" id="usersCount">0</small>
                             </h4>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body p-0">
+                            <!-- Users Filter -->
+                            <div class="p-4 border-bottom">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="usersSearch" placeholder="Search users by name/email..." oninput="DashboardManager.loadAdminStats(1,10,1,10,this.value,'')">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="btn btn-primary" onclick="DashboardManager.loadAdminDashboard()">
+                                            <i class="fas fa-refresh"></i> Refresh
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Table -->
                             <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-dark">
                                         <tr>
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Role</th>
-                                            <th>Orders</th>
+                                            <th>Total Orders</th>
                                             <th>Joined</th>
                                         </tr>
                                     </thead>
@@ -124,6 +166,9 @@
                                         <!-- Users loaded here -->
                                     </tbody>
                                 </table>
+                            </div>
+                            <div id="usersPagination" class="p-3 bg-light">
+                                <!-- Pagination loaded dynamically -->
                             </div>
                         </div>
                     </div>
@@ -146,36 +191,13 @@
                 return;
             }
             
-            await DashboardManager.loadAdminDashboard();
+            await DashboardManager.loadAdminDashboard(1, '');
+            AOS.refresh();
         }
+        
+        window.loadAdminDashboard = () => DashboardManager.loadAdminDashboard(1, document.getElementById('statusFilter')?.value || '');
         
         initAdminDashboard();
-        
-        // Quick order status update
-        window.quickApproveOrder = async function(orderId) {
-            if (confirm('Approve this payment?')) {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${API_BASE}/orders/${orderId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ orderStatus: 'vendor_approved', paymentStatus: 'paid' })
-                });
-                
-                if (res.ok) {
-                    showToast('Order approved!', 'success');
-                    initAdminDashboard(); // Refresh
-                }
-            }
-        };
-        
-        function showToast(msg, type) {
-            const toast = document.createElement('div');
-            // Simplified toast
-            console.log(`${type.toUpperCase()}: ${msg}`);
-        }
     </script>
 </body>
 </html>

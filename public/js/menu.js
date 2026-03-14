@@ -1,4 +1,6 @@
-const API_BASE = window.API_BASE;\n\n// Menu functionality + API integration\n\n// DOM Elements
+// Menu functionality + API integration
+
+// DOM Elements
 const menuGrid = document.getElementById('menuGrid');
 const menuLoading = document.querySelector('.menu-loading');
 const menuLink = document.getElementById('menuLink');
@@ -9,7 +11,7 @@ async function loadMenu() {
     menuGrid.style.display = 'none';
     menuLoading.style.display = 'flex';
     
-    const response = await fetch(`${API_BASE}/menu`);
+    const response = await fetch(`${window.API_BASE}/menu`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const { data: menuItems } = await response.json();
@@ -67,7 +69,7 @@ function createMenuCard(item, delayIndex = 0) {
           </span>
         </div>
         <button class="btn btn-success w-100 add-to-cart-btn" onclick="addToCart('${item._id}', ${item.price}, '${item.name}')" ${!item.available ? 'disabled' : ''}>
-          ${item.available ? '<i class=\"fas fa-plus me-2\"></i>Add to Cart' : '<i class=\"fas fa-ban me-2\"></i>Unavailable'}
+          ${item.available ? '<i class=\\"fas fa-plus me-2\\"></i>Add to Cart' : '<i class=\\"fas fa-ban me-2\\"></i>Unavailable'}
         </button>
       </div>
     </div>
@@ -90,7 +92,7 @@ async function addToCart(menuItemId, price, name) {
     
     if (token) {
       // Authenticated - API call
-      const response = await fetch(`${API_BASE}/cart`, {
+      const response = await fetch(`${window.API_BASE}/cart`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

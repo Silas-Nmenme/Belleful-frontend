@@ -1,4 +1,5 @@
-const API_BASE = window.API_BASE;\n\n// Cart management - shared across pages\nlet currentCart = [];
+// Cart management - shared across pages
+let currentCart = [];
 
 // Initialize cart system
 document.addEventListener('DOMContentLoaded', initCartSystem);
@@ -15,7 +16,7 @@ async function checkAuthStatus() {
   
   if (token && !currentCart.length) {
     try {
-      const response = await fetch(`${API_BASE}/cart`, {
+      const response = await fetch(`${window.API_BASE}/cart`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -48,11 +49,11 @@ async function mergeGuestCart() {
   
   for (const item of guestCart.items) {
     try {
-      await fetch(`${API_BASE}/cart`, {
+      await fetch(`${window.API_BASE}/cart`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify({ menuItemId: item.menuItemId, quantity: item.quantity })
       });
@@ -83,4 +84,3 @@ window.CartManager = {
 function updateCartUI() {
   updateCartCount();
 }
-

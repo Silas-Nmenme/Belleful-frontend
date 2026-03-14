@@ -1,4 +1,5 @@
-const API_BASE = window.API_BASE;\n\n// Authentication system - complete flow\nlet currentUser = null;
+// Authentication system - complete flow
+let currentUser = null;
 let authMode = 'user'; // 'user' or 'admin'
 
 // DOM Elements
@@ -85,7 +86,7 @@ async function apiCall(endpoint, options = {}) {
     ...options
   };
   
-  const response = await fetch(`${API_BASE}${endpoint}`, config);
+  const response = await fetch(`${window.API_BASE}${endpoint}`, config);
   
   if (response.status === 401) {
     logout();
@@ -324,3 +325,4 @@ if (loginForm) {
 if (document.getElementById('otpFormSubmit')) {
   document.getElementById('otpFormSubmit').addEventListener('submit', handleOTP);
 }
+

@@ -1,7 +1,8 @@
-const API_BASE = window.API_BASE;\n\n// Orders & Checkout functionality\nasync function getUserOrders() {
+// Orders & Checkout functionality
+async function getUserOrders() {
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE}/orders/myorders`, {
+    const response = await fetch(`${window.API_BASE}/orders/myorders`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
@@ -15,7 +16,7 @@ const API_BASE = window.API_BASE;\n\n// Orders & Checkout functionality\nasync f
 
 async function pollOrderStatus(orderId) {
   const token = localStorage.getItem('token');
-  const response = await fetch(`${API_BASE}/dashboard/user/orders`, {
+  const response = await fetch(`${window.API_BASE}/dashboard/user/orders`, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
   return response.ok ? await response.json() : null;
