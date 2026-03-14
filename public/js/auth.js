@@ -108,6 +108,12 @@ async function apiGet(endpoint) {
   return apiCall(endpoint, { method: 'GET' });
 }
 
+// Mock users for frontend demo
+const MOCK_USERS = {
+  'user@example.com': { name: 'John User', role: 'user' },
+  'admin@belleful.com': { name: 'Admin Belleful', role: 'admin' }
+};
+
 // Login handler
 async function handleLogin(e) {
   e.preventDefault();
@@ -119,6 +125,29 @@ async function handleLogin(e) {
   
   if (!email || !password) {
     showToast('Please fill all fields', 'error');
+    return;
+  }
+
+  // Mock credentials check
+  const user = MOCK_USERS[email];
+  if (user && (password === 'password123' || (email === 'admin@belleful.com' && password === 'admin123'))) {
+    // Mock success
+    showLoading('loginFormSubmit', 'Signing in...');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
+    
+    const mockResult = {
+      token: 'mock-jwt-' + Date.now(),
+      user: user
+    };
+    saveAuth(mockResult);
+    showToast(`Login successful! Welcome ${user.name}`, 'success');
+    
+    // Auto-verify (skip OTP for demo)
+    setTimeout(() => {
+      checkAuthStatus(); // Triggers redirect
+    }, 1500);
+    
+    hideLoading('loginFormSubmit');
     return;
   }
   
@@ -136,7 +165,7 @@ async function handleLogin(e) {
       throw new Error(error.message || 'Login failed');
     }
   } catch (error) {
-    showToast(error.message, 'error');
+    showToast(`Invalid credentials. Try: user@example.com/password123 or admin@belleful.com/admin123`, 'error');
   } finally {
     hideLoading('loginFormSubmit');
   }

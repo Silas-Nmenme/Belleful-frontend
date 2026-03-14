@@ -141,19 +141,29 @@
     <script>
         AOS.init({ duration: 1200, once: true });
         
-        // Form validation
-        (function() {
+        // Enhanced form handlers with AuthManager
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form validation + auth handlers
             ['loginFormSubmit', 'otpFormSubmit'].forEach(formId => {
                 const form = document.getElementById(formId);
-                form.addEventListener('submit', function(e) {
-                    if (!this.checkValidity()) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                    this.classList.add('was-validated');
-                }, false);
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        if (!this.checkValidity()) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        } else {
+                            // Call AuthManager after validation passes
+                            e.preventDefault();
+                            AuthManager.login(e);
+                        }
+                        this.classList.add('was-validated');
+                    }, false);
+                }
             });
-        })();
+        });
+        
+        // Auto-init auth
+        AuthManager.checkAuthStatus();
     </script>
 </body>
 </html>

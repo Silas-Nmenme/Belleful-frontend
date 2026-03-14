@@ -72,18 +72,34 @@
     <script>
         AOS.init();
         
-        // Load user dashboard
-        async function loadUserDashboard() {
-            if (!await AuthManager.checkAuthStatus()) return;
+        // Enhanced auth check + dashboard load
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check auth and redirect if valid (handles auto-redirect from login)
+            const token = localStorage.getItem('token');
+            if (token && localStorage.getItem('userRole') === 'user') {
+                await AuthManager.checkAuthStatus(); // May redirect if needed
+            } else {
+                window.location.href = 'login.html';
+            }
             
-            const stats = await loadUserStats();
-            renderStats(stats.data);
-            
-            const orders = await OrderManager.getUserOrders();
-            renderOrders(orders.data);
-        }
-        
-        loadUserDashboard();
+            // Load dashboard only if still here
+            async function loadUserDashboard() {
+                try {
+                    const stats = await loadUserStats();
+                    if (stats.data) renderStats(stats.data);
+                    
+                    const orders = await OrderManager.getUserOrders();
+                    if (orders.data) renderOrders(orders.data);
+                } catch (e) {
+                    // Mock data for demo
+                    document.getElementById('statsCards').innerHTML = 
+                        '<div class="col-12 text-center py-5"><h5>No data available (demo mode)</h5></div>';
+                    document.getElementById('ordersTableBody').innerHTML = 
+                        '<tr><td colspan="6" class="text-center py-5 text-muted">No orders yet. Place some from home!</td></tr>';
+                }
+            }
+            loadUserDashboard();
+        });
     </script>
 </body>
 </html>
