@@ -149,7 +149,7 @@
         // Enhanced form handlers with AuthManager
         document.addEventListener('DOMContentLoaded', function() {
             // Form validation + auth handlers
-            ['loginFormSubmit'].forEach(formId => {
+            ['loginFormSubmit', 'adminRegisterForm'].forEach(formId => {
                 const form = document.getElementById(formId);
                 if (form) {
                     form.addEventListener('submit', function(e) {
@@ -159,7 +159,7 @@
                         } else {
                             // Call AuthManager after validation passes
                             const submitBtn = document.getElementById('loginSubmitBtn');
-                            window.handleLocalLogin(e, submitBtn);
+                            AuthManager.login(e, submitBtn);
                         }
                         this.classList.add('was-validated');
                     }, false);
