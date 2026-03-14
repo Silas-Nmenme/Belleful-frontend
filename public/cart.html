@@ -217,6 +217,32 @@
             `).join('');
         }
         
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `position-fixed top-4 end-4 p-4 rounded-4 shadow-lg z-1050 animate__animated animate__fadeInRight`;
+            toast.style.cssText = `
+                background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
+                color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
+                max-width: 400px;
+            `;
+            toast.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <strong class="me-3">${type.charAt(0).toUpperCase() + type.slice(1)}! </strong>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close ms-auto" style="filter: invert(1);" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('animate__fadeInRight');
+                toast.classList.add('animate__fadeOutRight');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+            window.showToast = showToast;
+        }
+        
         window.updateQuantity = async function(id, change) {
             // Implementation for quantity update
             showToast('Quantity updated!', 'success');
@@ -228,9 +254,13 @@
                     const isAuth = !!localStorage.getItem('token');
                     if (isAuth) {
                         const token = localStorage.getItem('token');
-                        await fetch(`${window.API_BASE}/cart/${id}`, {
+                        await fetch(`${window.API_BASE}/cart`, {
                             method: 'DELETE',
-                            headers: { 'Authorization': `Bearer ${token}` }
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}` 
+                            },
+                            body: JSON.stringify({ menuItemId: id })
                         });
                     } else {
                         // Guest cart remove
