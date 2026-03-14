@@ -16,9 +16,10 @@ document.addEventListener('DOMContentLoaded', initAuth);
 function initAuth() {
   // Auto-fill email from localStorage if available
   const savedEmail = localStorage.getItem('lastEmail');
-  if (savedEmail) {
-    loginEmail.value = savedEmail;
-  }
+  const emailInputs = document.querySelectorAll('input[type="email"]:not([readonly])');
+  emailInputs.forEach(input => {
+    if (!input.value) input.value = savedEmail;
+  });
   
   // Listen for auth state changes
   checkAuthStatus();
@@ -111,8 +112,10 @@ async function apiGet(endpoint) {
 async function handleLogin(e) {
   e.preventDefault();
   
-  const email = loginEmail.value.trim().toLowerCase();
-  const password = loginPassword.value;
+  const emailInput = loginEmail || document.querySelector('input[type="email"]') || document.querySelector('#adminLoginEmail, #loginEmail');
+  const passwordInput = loginPassword || document.querySelector('input[type="password"]');
+  const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+  const password = passwordInput ? passwordInput.value : '';
   
   if (!email || !password) {
     showToast('Please fill all fields', 'error');
@@ -261,12 +264,20 @@ function logout() {
 // Utility functions
 function showLoading(selector, text) {
   const btn = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  if (!btn) {
+    console.warn(`showLoading: Element not found for selector "${selector}"`);
+    return;
+  }
   btn.disabled = true;
   btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>${text}`;
 }
 
 function hideLoading(selector) {
   const btn = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  if (!btn) {
+    console.warn(`hideLoading: Element not found for selector "${selector}"`);
+    return;
+  }
   btn.disabled = false;
   // Reset original text would be set by caller
 }
@@ -318,11 +329,11 @@ window.AuthManager = {
   checkAuthStatus
 };
 
-// Form submissions
-if (loginForm) {
-  loginForm.addEventListener('submit', handleLogin);
-}
-if (document.getElementById('otpFormSubmit')) {
-  document.getElementById('otpFormSubmit').addEventListener('submit', handleOTP);
-}
+// Form submissions - attach to all matching forms
+document.querySelectorAll('#loginForm form, form#loginFormSubmit').forEach(form => {
+  form.addEventListener('submit', handleLogin);
+});
+document.querySelectorAll('form#otpFormSubmit').forEach(form => {
+  form.addEventListener('submit', handleOTP);
+});
 
