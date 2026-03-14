@@ -106,30 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast('Your cart is empty!');
                 return;
             }
-
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const order = {
-                id: Date.now(),
-                items: [...cart],
-                total: total,
-                date: new Date().toLocaleDateString(),
-                status: 'Pending'
-            };
-
-            let orders = JSON.parse(localStorage.getItem('orders')) || [];
-            orders.unshift(order);
-            localStorage.setItem('orders', JSON.stringify(orders));
-
-            localStorage.removeItem('cart');
-            cart = [];
-            
-            showToast('Order placed successfully!');
-            renderCart();
-            updateCartCount();
-            
-            setTimeout(() => {
-                window.location.href = 'orders.html';
-            }, 1500);
+            window.location.href = 'checkout.html';
         });
     }
 
