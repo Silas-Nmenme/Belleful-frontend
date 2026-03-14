@@ -4,198 +4,220 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Belleful</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Custom Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .checkout-stepper { display: flex; gap: 1rem; justify-content: center; margin: 2rem 0; }
-        .step { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; }
-        .step.active { background: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,0.3); }
-        .step.completed { background: var(--emerald); }
-        .step.pending { background: rgba(0,0,0,0.1); color: #6b7280; }
-        .step-line { height: 3px; background: linear-gradient(to right, var(--gold), var(--emerald)); flex: 1; border-radius: 2px; margin: 0 0.5rem; }
-        .receipt-dropzone { border: 3px dashed var(--gold); border-radius: 16px; padding: 3rem; text-align: center; transition: all 0.3s; cursor: pointer; background: rgba(245,158,11,0.05); }
-        .receipt-dropzone.dragover { border-color: var(--emerald); background: rgba(16,185,129,0.05); transform: scale(1.02); }
-        .receipt-preview { max-width: 200px; max-height: 200px; border-radius: 12px; }
-        .payment-card { backdrop-filter: blur(20px); border: 1px solid rgba(139,30,63,0.1); }
-        #success-modal .modal-content { border-radius: 24px; }
-    </style>
 </head>
-<body class="bg-cream-gradient">
+<body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-enhanced navbar-wine fixed-top shadow-lg">
-        <div class="container-xl">
-            <a class="navbar-brand text-wine fs-2 fw-bold" href="index.html">
-                <img src="asset/logo.jpeg" alt="Belleful Logo" style="height: 50px; border-radius: 12px;">
-                <span>Belleful</span>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-primary shadow-lg">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fas fa-utensils me-2"></i>Belleful
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <i class="fas fa-bars text-warning fs-3"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link text-wine" href="menu.html">Menu</a></li>
-                    <li class="nav-item"><a class="nav-link text-wine active" href="cart.html">Cart</a></li>
-                    <li class="nav-item"><a class="nav-link text-wine" href="orders.html">Orders</a></li>
-                </ul>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="cart.html"><i class="fas fa-arrow-left"></i> Cart</a>
             </div>
         </div>
     </nav>
 
-    <!-- Checkout Hero -->
-    <section class="py-5 pt-5 mt-5 text-center">
-        <div class="container">
-            <h1 class="display-4 fw-bold mb-4" style="background: linear-gradient(135deg, var(--wine), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                Checkout
-            </h1>
-            <div id="order-summary" class="d-none">
-                <h2 id="checkout-total" class="text-warning fs-1 mb-0">₦0</h2>
-                <p class="lead text-muted">Secure checkout - No payment gateway needed</p>
-            </div>
-            <div id="empty-checkout" class="py-5">
-                <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
-                <h4 class="text-muted">Your cart is empty</h4>
-                <a href="menu.html" class="btn btn-warning btn-lg">Continue Shopping</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Checkout Steps -->
-    <main class="container-xl mb-5">
-        <!-- Stepper -->
-        <div class="checkout-stepper mb-5" id="stepper">
-            <!-- Steps populated by JS -->
-        </div>
-
-        <!-- Step 1: Review Order -->
-        <div id="step-review" class="checkout-step d-none">
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <div class="payment-card card shadow-lg p-4">
-                        <h3><i class="fas fa-list me-2 text-warning"></i>Order Review</h3>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Item</th>
-                                        <th>Qty</th>
-                                        <th>Price</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="review-items">
-                                    <!-- Items by JS -->
-                                </tbody>
-                            </table>
+    <div class="container py-5 mt-5">
+        <div class="row g-5">
+            <!-- Order Summary -->
+            <div class="col-lg-7">
+                <div class="card shadow-xl border-0 rounded-4" data-aos="fade-right">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0 fw-bold">
+                            <i class="fas fa-receipt me-2 text-primary"></i>Order Summary
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="checkoutItems"></div>
+                        <hr class="my-4">
+                        <div class="h3 fw-bold text-end text-success mb-4">
+                            Total: <span id="checkoutTotal">₦0</span>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="payment-card card shadow-lg p-4 sticky-top" style="top: 100px;">
-                        <h4>Order Summary</h4>
-                        <hr>
-                        <div class="d-flex justify-content-between fs-5">
-                            <span>Total:</span>
-                            <strong id="review-total" class="text-warning">₦0</strong>
+            </div>
+
+            <!-- Payment Section -->
+            <div class="col-lg-5">
+                <div class="card shadow-xl border-0 rounded-4 h-100" data-aos="fade-left">
+                    <div class="card-header bg-success text-white text-center py-4">
+                        <i class="fas fa-university fa-3x mb-3"></i>
+                        <h4 class="mb-0 fw-bold">Bank Transfer Payment</h4>
+                        <p class="mb-0 opacity-75">Pay directly to our account</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="payment-details mb-4 p-4 bg-light rounded-3">
+                            <div class="row text-center">
+                                <div class="col-md-6 mb-3">
+                                    <div class="h2 fw-bold text-primary mb-1" id="accountNumber">8107586167</div>
+                                    <div class="text-muted small">Account Number</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="h4 fw-bold text-success mb-1">Opay</div>
+                                    <div class="text-muted small">Bank Name</div>
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-3">
+                                <div class="col-6">
+                                    <div class="form-control border-primary bg-white py-3 text-center fw-bold h4" id="paymentAmount">₦0</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-control border-success bg-white py-3 text-center">
+                                        <i class="fas fa-copy text-muted me-2"></i>
+                                        Copy Details
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <button class="btn btn-warning w-100 btn-lg mt-4" onclick="proceedToPayment()">
-                            <i class="fas fa-credit-card me-2"></i> Proceed to Payment
+
+                        <div id="uploadSection" style="display: none;">
+                            <form id="paymentUploadForm" enctype="multipart/form-data" class="dropzone p-4 border-dashed rounded-3 mb-4" novalidate>
+                                <div class="text-center">
+                                    <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-4"></i>
+                                    <h5 class="fw-bold mb-3">Upload Payment Receipt</h5>
+                                    <p class="text-muted mb-4">Take photo or screenshot of your transfer</p>
+                                    <input type="file" id="receiptFile" class="form-control form-control-lg" accept="image/*" required>
+                                    <div class="invalid-feedback"></div>
+                                    <button type="submit" class="btn btn-success w-100 mt-4 btn-lg fw-bold py-3">
+                                        <i class="fas fa-upload me-2"></i>Upload & Submit Order
+                                    </button>
+                                </div>
+                            </form>
+                            <div class="text-center text-success fw-bold fs-5 mb-3">
+                                <i class="fas fa-clock me-2"></i>Order Created! Waiting admin approval...
+                            </div>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 30%">
+                                    Pending Verification
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="createOrderBtn" class="btn btn-warning w-100 btn-lg py-4 fw-bold shadow-lg">
+                            <i class="fas fa-credit-card me-2"></i>I've Made Payment - Create Order
                         </button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Step 2: Payment Details -->
-        <div id="step-payment" class="checkout-step d-none">
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="payment-card card shadow-lg p-5 text-center">
-                        <i class="fas fa-university fa-4x text-warning mb-4"></i>
-                        <h3>Bank Transfer Details</h3>
-                        <div id="bank-details" class="mt-4">
-                            <!-- Populated by API -->
+                        <div class="mt-4 p-3 bg-light rounded-3 small">
+                            <strong>Instructions:</strong>
+                            <div>1. Transfer exact amount to account above</div>
+                            <div>2. Upload receipt after payment</div>
+                            <div>3. Admin will verify within 10 mins</div>
+                            <div>4. Order confirmed → Real-time tracking</div>
                         </div>
-                        <div class="mt-4">
-                            <p class="text-muted small">Transfer exact amount & include <strong>Order Reference</strong> in description</p>
-                        </div>
-                        <button class="btn btn-success w-100 btn-lg mt-4" onclick="showUploadModal()">
-                            <i class="fas fa-upload me-2"></i> Upload Payment Receipt
-                        </button>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="card shadow-lg p-4 h-100">
-                        <h4>Order Details</h4>
-                        <div id="payment-order-details">
-                            <!-- Order summary by JS -->
-                        </div>
-                        <button class="btn btn-outline-secondary w-100 mt-3" onclick="goBackToReview()">
-                            <i class="fas fa-arrow-left me-2"></i> Back to Review
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 3: Upload Modal Trigger -->
-        <div class="text-center mt-5 d-none" id="upload-trigger">
-            <p class="lead">Ready to complete your order?</p>
-            <!-- Modal button handled in JS -->
-        </div>
-    </main>
-
-    <!-- Receipt Upload Modal -->
-    <div class="modal fade" id="receiptModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content payment-card shadow-xl">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title"><i class="fas fa-receipt text-warning me-2"></i>Upload Receipt</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="receipt-dropzone mb-4" id="dropzone">
-                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                        <h6>Drag & drop receipt or click to select</h6>
-                        <p class="text-muted">PNG, JPG, PDF up to 5MB</p>
-                        <input type="file" id="receipt-file" accept="image/*,.pdf" class="d-none">
-                        <img id="receipt-preview" class="receipt-preview d-none mt-3 mx-auto" alt="Preview">
-                    </div>
-                    <div id="upload-status" class="text-center d-none">
-                        <div class="spinner-border text-warning" role="status"></div>
-                        <p class="mt-2">Uploading...</p>
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" id="confirm-upload" disabled>Confirm Upload</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div class="modal fade" id="successModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-center p-5">
-                <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
-                <h2 class="text-success mb-4">Order Confirmed!</h2>
-                <div id="success-details" class="mb-4"></div>
-                <a href="orders.html" class="btn btn-success btn-lg w-100 mb-2">View Orders</a>
-                <button class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Continue Shopping</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/auth-shared.js"></script>
-    <script src="js/checkout.js"></script>
-    <script src="dashboard/js/shared-checkout.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        AOS.init();
+        
+        let currentOrder = null;
+        
+        async function initCheckout() {
+            if (!await window.checkAuth('login.html')) return;
+            
+            // Load cart and create order
+            await loadCheckoutData();
+        }
+        
+        async function loadCheckoutData() {
+            const token = localStorage.getItem('token');
+            const cartRes = await fetch(`${API_BASE}/cart`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!cartRes.ok) {
+                showToast('Cart not found. Redirecting...', 'error');
+                setTimeout(() => window.location.href = 'cart.html', 2000);
+                return;
+            }
+            
+            const cart = await cartRes.json();
+            renderCheckoutItems(cart.data.items);
+            document.getElementById('checkoutTotal').textContent = `₦${cart.data.totalAmount.toLocaleString()}`;
+            document.getElementById('paymentAmount').textContent = `₦${cart.data.totalAmount.toLocaleString()}`;
+        }
+        
+        function renderCheckoutItems(items) {
+            document.getElementById('checkoutItems').innerHTML = items.map(item => `
+                <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                    <div>
+                        <h6 class="fw-bold">${item.menuItem?.name || item.name}</h6>
+                        <small class="text-muted">${item.quantity} × ₦${item.price.toLocaleString()}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="h6 fw-bold">₦${(item.price * item.quantity).toLocaleString()}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        document.getElementById('createOrderBtn').onclick = async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`${API_BASE}/orders/checkout`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (res.ok) {
+                    currentOrder = await res.json();
+                    document.getElementById('accountNumber').textContent = currentOrder.data.accountNumber;
+                    
+                    document.getElementById('uploadSection').style.display = 'block';
+                    document.getElementById('createOrderBtn').style.display = 'none';
+                    
+                    showToast(`Order #${currentOrder.data._id.slice(-6).toUpperCase()} created! Upload receipt.`, 'success');
+                }
+            } catch (error) {
+                showToast('Checkout failed: ' + error.message, 'error');
+            }
+        };
+        
+        document.getElementById('paymentUploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('orderId', currentOrder.data._id);
+            formData.append('receipt', document.getElementById('receiptFile').files[0]);
+            
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`${API_BASE}/payments/upload-receipt`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                
+                if (res.ok) {
+                    showToast('Receipt uploaded! Waiting verification...', 'success');
+                    setTimeout(() => window.location.href = 'user-dashboard.html', 2000);
+                }
+            } catch (error) {
+                showToast('Upload failed', 'error');
+            }
+        };
+        
+        initCheckout();
+        
+        function showToast(msg, type) {
+            // Toast implementation
+            console.log(`${type}: ${msg}`);
+        }
+    </script>
 </body>
 </html>
-

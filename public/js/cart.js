@@ -1,117 +1,89 @@
-// Cart functionality
-let cart = [];
+// Cart management - shared across pages
+const API_BASE = 'https://belleful-fphf.vercel.app/api';
 
-function renderCart() {
-    const tbody = document.getElementById('cart-items');
-    const totalEl = document.getElementById('cart-total');
+let currentCart = [];
 
-    if (cart.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5" class="text-center py-5">
-                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                    <p class="text-muted mb-0">Your cart is empty</p>
-                    <a href="menu.html" class="btn btn-warning mt-2">Continue Shopping</a>
-                </td>
-            </tr>
-        `;
-        totalEl.textContent = '₦0';
-        return;
-    }
+// Initialize cart system
+document.addEventListener('DOMContentLoaded', initCartSystem);
 
-    tbody.innerHTML = cart.map((item, index) => `
-        <tr>
-            <td>
-                <img src="${item.image || './asset/hero.jpeg'}" alt="${item.name}" 
-                     class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                ${item.name}
-
-            </td>
-            <td>₦${item.price.toLocaleString()}</td>
-            <td>
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-secondary btn-sm decrement" data-index="${index}">-</button>
-                    <span class="mx-2 fs-5">${item.quantity}</span>
-                    <button class="btn btn-outline-secondary btn-sm increment" data-index="${index}">+</button>
-                </div>
-            </td>
-            <td>₦${(item.price * item.quantity).toLocaleString()}</td>
-            <td>
-                <button class="btn btn-danger btn-sm remove-item" data-index="${index}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
-
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    totalEl.textContent = `₦${total.toLocaleString()}`;
-
-    // Add event listeners only if on cart page
-    if (document.getElementById('cart-items')) {
-        document.querySelectorAll('.increment').forEach(btn => btn.addEventListener('click', handleQuantityChange));
-        document.querySelectorAll('.decrement').forEach(btn => btn.addEventListener('click', handleQuantityChange));
-        document.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', removeItem));
-    }
+function initCartSystem() {
+  checkAuthStatus();
+  updateCartUI();
 }
 
-function handleQuantityChange(e) {
-    e.preventDefault();
-    const index = parseInt(e.target.dataset.index);
-    if (e.target.classList.contains('increment')) {
-        cart[index].quantity += 1;
-    } else {
-        cart[index].quantity = Math.max(1, cart[index].quantity - 1);
+// Auth check + cart sync
+async function checkAuthStatus() {
+  const token = localStorage.getItem('token');
+  const userRole = localStorage.getItem('userRole');
+  
+  if (token && !currentCart.length) {
+    try {
+      const response = await fetch(`${API_BASE}/cart`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const result = await response.json();
+        currentCart = result.data?.items || [];
+      }
+    } catch (error) {
+      console.warn('Cart sync failed:', error);
     }
-    localStorage.setItem('cart', JSON.stringify(cart));
-    renderCart();
-    updateCartCount();
+  }
 }
 
-function removeItem(e) {
-    const index = parseInt(e.target.closest('.remove-item').dataset.index);
-    cart.splice(index, 1);
-    localStorage.setItem('cart', JSON.stringify(cart));
-    renderCart();
-    updateCartCount();
-}
-
+// Update cart count in navbar (all pages)
 function updateCartCount() {
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const cartCountEl = document.getElementById('cart-count');
-    if (cartCountEl) {
-        cartCountEl.textContent = totalItems;
-    }
+  const badges = document.querySelectorAll('.cart-count');
+  const count = currentCart.length;
+  badges.forEach(badge => {
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'inline-flex' : 'none';
+  });
 }
 
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification position-fixed top-0 end-0 m-3 bg-success text-white p-3 rounded shadow-lg';
-    toast.style.zIndex = '9999';
-    toast.style.cssText = 'animation: slideIn 0.3s ease-out;';
-    toast.innerHTML = `${message} <i class="fas fa-check ms-2"></i>`;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
+// Guest to auth cart merge
+async function mergeGuestCart() {
+  const guestCart = JSON.parse(localStorage.getItem('guestCart') || '{"items":[]}');
+  if (guestCart.items.length === 0) return;
+  
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  
+  for (const item of guestCart.items) {
+    try {
+      await fetch(`${API_BASE}/cart`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ menuItemId: item.menuItemId, quantity: item.quantity })
+      });
+    } catch (error) {
+      console.error('Merge failed:', error);
+    }
+  }
+  
+  localStorage.removeItem('guestCart');
+  updateCartUI();
 }
 
-// Checkout functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const checkoutBtnEl = document.getElementById('checkout-btn');
-    if (checkoutBtnEl) {
-        checkoutBtnEl.addEventListener('click', function() {
-            if (cart.length === 0) {
-                showToast('Your cart is empty!');
-                return;
-            }
-            window.location.href = 'checkout.html';
-        });
-    }
+// Export for other modules
+window.CartManager = {
+  currentCart,
+  addItem: (item) => {
+    currentCart.push(item);
+    updateCartUI();
+  },
+  removeItem: (menuItemId) => {
+    currentCart = currentCart.filter(item => item.menuItemId !== menuItemId);
+    updateCartUI();
+  },
+  getTotal: () => currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+  updateCartUI
+};
 
-    // Load cart and render
-    cart = JSON.parse(localStorage.getItem('cart')) || [];
-    renderCart();
-    updateCartCount();
-});
+function updateCartUI() {
+  updateCartCount();
+}
+

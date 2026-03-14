@@ -3,281 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Belleful - Authentic Nigerian Delights</title>
+    <title>Belleful - Delicious Food Delivery</title>
+    
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --wine: #B91C52;
-            --wine-light: #EC4899;
-            --wine-dark: #BE185D;
-            --gold: #F59E0B;
-            --gold-light: #FBBF24;
-            --cream: #FDF4F0;
-        }
-        /* Bootstrap overrides for theme */
-        :root {
-            --bs-primary: var(--wine);
-            --bs-primary-rgb: 185, 28, 82;
-            --bs-warning: var(--gold);
-            --bs-warning-rgb: 245, 158, 11;
-        }
-        .btn-primary {
-            background-color: var(--bs-primary);
-            border-color: var(--bs-primary);
-        }
-        .btn-primary:hover {
-            background-color: var(--wine-light);
-            border-color: var(--wine-light);
-        }
-        .btn-warning {
-            background-color: var(--bs-warning);
-            border-color: var(--bs-warning);
-            color: #000;
-        }
-        .btn-warning:hover {
-            background-color: var(--gold-light);
-            border-color: var(--gold-light);
-            color: #000;
-        }
-.navbar-enhanced {
-    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(253,244,240,0.95));
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-bottom: 2px solid rgba(185,28,82,0.15);
-    box-shadow: 0 8px 32px rgba(185,28,82,0.1);
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-.navbar-enhanced.scrolled {
-    background: rgba(255,255,255,0.95);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-    border-bottom-color: rgba(185,28,82,0.2);
-}
-.navbar-wine { /* fallback */
-    background: rgba(255,255,255,0.95) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--wine);
-}
-        .hero-bg {
-            background-image: url('./asset/hero.jpeg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            position: relative;
-        }
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
-        }
-        .card-dish {
-            border: none;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            transition: all 0.4s ease;
-            height: 100%;
-        }
-        .card-dish:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-        }
-        .card-img-top {
-            height: 250px;
-            object-fit: cover;
-        }
-        .bg-cream-gradient {
-            background: linear-gradient(135deg, var(--cream) 0%, #f8f3ee 100%);
-        }
-        .featured-section {
-            background: linear-gradient(to bottom, var(--wine) 0%, var(--wine-dark) 100%);
-            color: white;
-        }
-        .text-gold {
-            color: var(--gold) !important;
-        }
-
-        /* Enhanced Navbar Styles */
-        .nav-link {
-            position: relative;
-            padding: 0.75rem 1.25rem !important;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        .nav-link::after {
-            content: ''; 
-            position: absolute; 
-            bottom: -5px; 
-            left: 50%; 
-            width: 0; 
-            height: 2px; 
-            background: var(--gold); 
-            transition: all 0.3s ease; 
-            transform: translateX(-50%);
-        }
-        .nav-link:hover::after { 
-            width: 80%; 
-        }
-        .nav-link:hover {
-            color: var(--wine-dark) !important;
-            transform: translateY(-2px);
-        }
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-        }
-        .navbar-brand:hover {
-            color: var(--wine-dark) !important;
-        }
-        .cart-badge {
-            position: absolute; 
-            top: -8px; 
-            right: -8px; 
-            background: var(--gold); 
-            color: white; 
-            border-radius: 50%; 
-            width: 24px; 
-            height: 24px; 
-            font-size: 0.75rem; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        @keyframes fadeInDown { 
-            from { opacity: 0; transform: translateY(-20px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        .navbar-enhanced {
-            animation: fadeInDown 0.8s ease-out;
-        }
-        @media (max-width: 991px) {
-            .navbar-nav .nav-link {
-                padding: 1rem !important;
-            }
-        }
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-        }
-        body {
-            font-family: 'Open Sans', sans-serif;
-            line-height: 1.6;
-        }
-        /* Glassmorphism for modals */
-        .modal-content {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .user-nav {
-            background-color: var(--gold) !important;
-            color: var(--wine-dark) !important;
-        }
-    /* Toast notification */
-        .toast-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            z-index: 9999;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .toast-notification.show {
-            transform: translateX(0);
-        }
-        .toast-success {
-            background: linear-gradient(135deg, var(--gold), var(--gold-light));
-        }
-        .toast-remove {
-            background: linear-gradient(135deg, #ef4444, #f87171);
-        }
-
-        /* Search results */
-        .search-result {
-            padding: 12px;
-            margin-bottom: 8px;
-            background: rgba(255,255,255,0.9);
-            border-radius: 12px;
-            border-left: 4px solid var(--gold);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .search-result:hover {
-            background: white;
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .search-result h6 {
-            margin: 0;
-            font-weight: 600;
-            color: var(--wine);
-        }
-        .search-result small {
-            color: #666;
-        }
-
-    /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.5rem !important; }
-            .toast-notification { right: 10px; left: 10px; top: 10px; }
-        }
-    </style>
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- AOS Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-cream-gradient">
-
-    <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-enhanced navbar-wine fixed-top shadow-lg" id="main-navbar">
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-primary shadow-lg">
         <div class="container">
-            <a class="navbar-brand text-wine fs-2 fw-bold" href="index.html">
-<img src="./asset/logo.jpeg" alt="Belleful Logo" style="height: 50px; width: auto;">
-                <span>Belleful</span>
+            <a class="navbar-brand fw-bold fs-3" href="index.html">
+                <i class="fas fa-utensils me-2"></i>Belleful
             </a>
-            <button class="navbar-toggler border-0 p-2 rounded shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="background: rgba(245,158,11,0.1);">
-                <i class="fas fa-bars text-warning fs-3"></i>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link text-wine" href="menu.html"><i class="fas fa-utensils me-1"></i>Menu</a></li>
-                    <li class="nav-item position-relative">
-                        <a class="nav-link text-wine" href="cart.html">
-                            <i class="fas fa-shopping-cart me-1"></i>Cart
-                            <span class="cart-badge" id="cart-count">0</span>
-                        </a>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
                     </li>
-                    <li class="nav-item"><a class="nav-link text-wine" href="orders.html"><i class="fas fa-box me-1"></i>Orders</a></li>
-                    <li class="nav-item mx-2">
-                        <button class="btn btn-outline-warning btn-sm px-3 rounded-pill shadow-sm" id="search-toggle" title="Search dishes">
-                            <i class="fas fa-search"></i>
-                        </button>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#menu" id="menuLink">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="cart.html">
+                            <i class="fas fa-shopping-cart"></i> Cart 
+                            <span class="badge bg-danger cart-count" style="display:none;">0</span>
+                        </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="dropdown-toggle btn btn-warning fw-semibold ms-1 px-4 rounded-pill shadow-sm d-flex align-items-center" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-2"></i>
-                            Account
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> Account
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4" aria-labelledby="userDropdown" style="min-width: 200px;">
-                            <li><a class="dropdown-item fw-semibold text-wine" href="login.html"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
-                            <li><a class="dropdown-item fw-semibold text-wine" href="signup.html"><i class="fas fa-user-plus me-2"></i>Sign Up</a></li>
-                            <li><hr class="dropdown-divider bg-light opacity-25"></li>
-                            <li><a class="dropdown-item fw-semibold text-primary" href="orders.html"><i class="fas fa-history me-2"></i>My Orders</a></li>
-                            <li><a class="dropdown-item fw-semibold" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="login.html">Login</a></li>
+                            <li><a class="dropdown-item" href="user-dashboard.html">Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="admin-login.html">Admin Login</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -286,136 +57,71 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-bg min-vh-100 d-flex align-items-center text-center text-white pt-5 pt-lg-0">
-        <div class="hero-overlay"></div>
-        <div class="container position-relative z-2">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <h1 class="display-3 fw-bold mb-4 animate__animated animate__fadeInDown">Authentic Nigerian Delights</h1>
-                    <p class="fs-4 mb-5 opacity-95">Authentic Nigerian Flavors Crafted with Love at Belleful</p>
-                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-                        <a href="menu.html" class="btn btn-warning btn-lg px-5 py-3 fs-5 fw-semibold shadow-lg">Explore Menu</a>
-                        <a href="cart.html" class="btn btn-outline-warning btn-lg px-5 py-3 fs-5 fw-semibold shadow-lg">Order Now</a>
+    <section class="hero-section min-vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container text-center text-white">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-aos="fade-right" data-aos-duration="1000">
+                    <h1 class="display-3 fw-bold animate__animated animate__fadeInUp">Delicious Food <br>Delivered Fast</h1>
+                    <p class="lead mb-4 animate__animated animate__fadeInUp animate__delay-1s">Fresh meals prepared by top chefs. Order now and enjoy hot food at your doorstep!</p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="#menu" class="btn btn-light btn-lg px-5 py-3 shadow-lg animate__animated animate__pulse animate__infinite">
+                            <i class="fas fa-utensils me-2"></i>View Menu
+                        </a>
+                        <a href="login.html" class="btn btn-outline-light btn-lg px-5 py-3 animate__animated animate__pulse animate__infinite animate__delay-1s">
+                            <i class="fas fa-sign-in-alt me-2"></i>Order Now
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left" data-aos-duration="1000">
+                    <div class="hero-image">
+                        <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                             class="img-fluid rounded-5 shadow-lg" alt="Delicious food">
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Featured Dishes -->
-    <section class="featured-section py-5 py-lg-5">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="display-4 fw-bold mb-4 text-warning">Featured Delicacies</h2>
-                <p class="fs-5 opacity-90 max-w-2xl mx-auto">Our signature dishes prepared with fresh ingredients and traditional recipes.</p>
-            </div>
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                <!-- Dish 1 -->
-                        <div class="col">
-                    <div class="card card-dish h-100 bg-white text-dark border-0" data-id="1">
-                        <div class="card-img-top" style="background-image: url('./asset/jollof.webp'); background-size: cover;"></div>
-                        <div class="card-body p-4">
-                            <h3 class="card-title fs-3 fw-bold mb-3 text-primary">Jollof Rice & Fried Chicken</h3>
-                            <p class="card-text">Perfectly spiced jollof rice paired with crispy fried chicken.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fs-2 fw-bold text-warning">₦2,500</span>
-                                <button class="btn btn-outline-warning add-cart-btn rounded-circle shadow" title="Add to cart" aria-label="Add to cart">
-                                    <i class="fas fa-plus fs-3"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dish 2 -->
-                <div class="col">
-                    <div class="card card-dish h-100 bg-white text-dark border-0" data-id="2">
-                        <div class="card-img-top" style="background-image: url('./asset/beans.webp'); background-size: cover;"></div>
-                        <div class="card-body p-4">
-                            <h3 class="card-title fs-3 fw-bold mb-3 text-primary">White Rice & Beans Stew</h3>
-                            <p class="card-text">Fluffy white rice with hearty beans and rich stew.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fs-2 fw-bold text-warning">₦1,800</span>
-                                <button class="btn btn-outline-warning add-cart-btn rounded-circle shadow" title="Add to cart" aria-label="Add to cart">
-                                    <i class="fas fa-plus fs-3"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dish 3 -->
-                <div class="col">
-                    <div class="card card-dish h-100 bg-white text-dark border-0" data-id="3">
-                        <div class="card-img-top" style="background-image: url('../asset/grilled.jpg'); background-size: cover;"></div>
-                        <div class="card-body p-4">
-                            <h3 class="card-title fs-3 fw-bold mb-3 text-primary">Grilled Catfish & Fried Yam</h3>
-                            <p class="card-text">Smoky grilled catfish with golden fried yam and sauce.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fs-2 fw-bold text-warning">₦3,500</span>
-                                <button class="btn btn-outline-warning add-cart-btn rounded-circle shadow" title="Add to cart">
-                                    <i class="fas fa-plus fs-3"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dish 4 -->
-                <div class="col-lg-12 col-md-12">
-                    <div class="card card-dish h-100 bg-white text-dark border-0" data-id="4">
-                        <div class="card-img-top" style="height: 300px; background-image: url('./asset/ofe.webp'); background-size: cover;"></div>
-                        <div class="card-body p-4">
-                            <h3 class="card-title fs-3 fw-bold mb-3 text-primary">Ofe Owerri Soup with Pounded Yam</h3>
-                            <p class="card-text">Rich Ofe Owerri soup featuring fresh proteins, served with smooth pounded yam.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fs-2 fw-bold text-warning">₦4,000</span>
-                                <button class="btn btn-outline-warning add-cart-btn" title="Add to cart">
-                                    <i class="fas fa-plus fs-3"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
+    <!-- Features Section -->
     <section class="py-5 bg-light">
         <div class="container">
-            <div class="row align-items-center g-5">
-                <div class="col-lg-6" data-aos="fade-right">
-                    <h2 class="display-4 fw-bold text-primary mb-4">About Belleful</h2>
-                    <p class="fs-5 lh-lg mb-4 text-muted">Belleful brings the soul of Nigerian cuisine to your table. From smoky grilled meats to aromatic soups like Egusi, Ogbono, and Bitterleaf, paired with fufu, eba, semo, wheat, or pounded yam. Every dish tells a story of tradition and passion.</p>
-                    <a href="menu.html" class="btn btn-primary btn-lg px-5 py-3 fw-semibold">View Full Menu</a>
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto" data-aos="zoom-in">
+                    <h2 class="display-5 fw-bold text-dark mb-4">Why Choose Belleful?</h2>
+                    <p class="lead text-muted">Experience food delivery like never before</p>
                 </div>
-                <div class="col-lg-6">
-                    <div class="row g-4">
-                        <div class="col-6">
-                            <div class="text-center p-4 bg-primary-subtle rounded-4 shadow-sm">
-                                <i class="fas fa-heart fa-3x text-primary mb-3"></i>
-                                <h4 class="fw-bold text-primary">Made with Love</h4>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body text-center p-5">
+                            <div class="icon-circle bg-primary text-white mb-4 mx-auto">
+                                <i class="fas fa-shipping-fast fa-2x"></i>
                             </div>
+                            <h5 class="card-title fw-bold">Lightning Fast</h5>
+                            <p class="card-text text-muted">Delivered in under 30 minutes</p>
                         </div>
-                        <div class="col-6">
-                            <div class="text-center p-4 bg-warning-subtle rounded-4 shadow-sm">
-                                <div class="stats-counter fs-1 fw-bold text-warning" data-target="500">0</div>
-                                <div class="fw-semibold">Happy Customers</div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body text-center p-5">
+                            <div class="icon-circle bg-success text-white mb-4 mx-auto">
+                                <i class="fas fa-utensils fa-2x"></i>
                             </div>
+                            <h5 class="card-title fw-bold">Fresh Food</h5>
+                            <p class="card-text text-muted">Prepared fresh just for you</p>
                         </div>
-                        <div class="col-6">
-                            <div class="text-center p-4 bg-success-subtle rounded-4 shadow-sm">
-                                <div class="stats-counter fs-1 fw-bold text-success" data-target="1000">0</div>
-                                <div class="fw-semibold">Dishes Served</div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body text-center p-5">
+                            <div class="icon-circle bg-warning text-white mb-4 mx-auto">
+                                <i class="fas fa-dollar-sign fa-2x"></i>
                             </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-center p-4 bg-info-subtle rounded-4 shadow-sm">
-                                <div class="stats-counter fs-1 fw-bold text-info" data-target="50">0</div>
-                                <div class="fw-semibold">Daily Orders</div>
-                            </div>
+                            <h5 class="card-title fw-bold">Affordable</h5>
+                            <p class="card-text text-muted">Best prices in town</p>
                         </div>
                     </div>
                 </div>
@@ -423,275 +129,94 @@
         </div>
     </section>
 
-    <!-- Testimonials -->
-    <section class="py-5 bg-white">
+    <!-- Menu Section -->
+    <section id="menu" class="py-5 bg-white">
         <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="display-4 fw-bold text-primary mb-4">What Our Customers Say</h2>
-            </div>
-            <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <div class="text-center p-5">
-                            <blockquote class="fs-4 text-muted mb-4">
-                                <i class="fas fa-quote-left fa-2x text-warning mb-3 d-block"></i>
-                                "Best Jollof rice in town! The grilled catfish is divine."
-                            </blockquote>
-                            <div>
-                                <div class="bg-warning d-inline-flex align-items-center justify-content-center rounded-circle mx-3 mb-3" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-user fs-5 text-white"></i>
-                                </div>
-                                <h5 class="fw-bold text-primary">Ada Chi</h5>
-                                <div class="text-warning fs-4">★★★★★</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="text-center p-5">
-                            <blockquote class="fs-4 text-muted mb-4">
-                                <i class="fas fa-quote-left fa-2x text-warning mb-3 d-block"></i>
-                                "Ofe Owerri with pounded yam was perfection. Highly recommend!"
-                            </blockquote>
-                            <div>
-                                <div class="bg-warning d-inline-flex align-items-center justify-content-center rounded-circle mx-3 mb-3" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-user fs-5 text-white"></i>
-                                </div>
-                                <h5 class="fw-bold text-primary">Emeka N.</h5>
-                                <div class="text-warning fs-4">★★★★★</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="text-center p-5">
-                            <blockquote class="fs-4 text-muted mb-4">
-                                <i class="fas fa-quote-left fa-2x text-warning mb-3 d-block"></i>
-                                "Fried yam and sauce hit the spot every time. Belleful is my go-to!"
-                            </blockquote>
-                            <div>
-                                <div class="bg-warning d-inline-flex align-items-center justify-content-center rounded-circle mx-3 mb-3" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-user fs-5 text-white"></i>
-                                </div>
-                                <h5 class="fw-bold text-primary">Funmi A.</h5>
-                                <div class="text-warning fs-4">★★★★★</div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto text-center" data-aos="fade-down">
+                    <h2 class="display-4 fw-bold text-dark mb-4">Our Delicious Menu</h2>
+                    <p class="lead text-muted mb-0">Freshly prepared meals from our kitchen</p>
                 </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                </button>
+            </div>
+            <div class="menu-loading text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading delicious menu items...</p>
+            </div>
+            <div class="row g-4 menu-grid" id="menuGrid" style="display:none;">
+                <!-- Menu items will be loaded here by JS -->
             </div>
         </div>
     </section>
-
-    <!-- CTA Section -->
-    <section class="py-5 text-center text-white" style="background: linear-gradient(135deg, var(--wine-dark), var(--wine));">
-        <div class="container">
-            <h2 class="display-4 fw-bold mb-4">Ready to Indulge?</h2>
-            <p class="fs-4 mb-5 opacity-90">Order your favorites from roasted plantain, egusi soup, fufu, and more today!</p>
-            <a href="cart.html" class="btn btn-warning btn-lg px-6 py-4 fs-4 fw-bold shadow-lg">Start Ordering</a>
-        </div>
-    </section>
-
-    <!-- Search Modal -->
-    <div class="modal fade" id="searchModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header border-0">
-                    <h3 class="modal-title fs-3 fw-bold text-primary">Search Dishes</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-primary"></i></span>
-                        <input type="text" class="form-control border-start-0 fs-5" id="search-input" placeholder="Search for Jollof, Egusi, Pounded Yam...">
-                    </div>
-                    <div id="search-results" class="mt-4"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cart Modal -->
-    <div class="modal fade" id="cartModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header border-0">
-                    <h3 class="modal-title fs-2 fw-bold text-primary">Your Cart</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="cart-items"></div>
-                    <div id="cart-total-section" class="mt-4 p-4 bg-light rounded-3 shadow-sm d-none">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fs-4 fw-semibold text-dark">Total:</span>
-                            <span id="cart-total" class="fs-1 fw-bold text-warning">₦0</span>
-                        </div>
-                        <div class="d-flex gap-3">
-                            <a href="cart.html" class="btn btn-primary flex-fill py-3 fs-5 fw-semibold">View Cart</a>
-                            <button id="checkout-btn" class="btn btn-warning flex-fill py-3 fs-5 fw-semibold">Checkout</button>
-                        </div>
-                    </div>
-                    <div id="empty-cart" class="text-center py-5 d-none">
-                        <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
-                        <p class="fs-4 text-muted mb-4">Your cart is empty</p>
-                        <a href="menu.html" class="btn btn-warning btn-lg fw-semibold">Browse Menu</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-5 mt-5">
+    <footer class="bg-dark text-white py-5 mt-5">
         <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-3 col-md-6">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-utensils fa-2x text-warning me-2"></i>
-                        <h3 class="fw-bold text-warning mb-0">Belleful</h3>
-                    </div>
-                    <p class="opacity-75 mb-3">Bringing authentic Nigerian tastes to you with passion and quality.</p>
-                    <div class="d-flex gap-3">
-                        <a href="#" class="text-light opacity-75 hover:text-warning"><i class="fab fa-facebook fa-lg"></i></a>
-                        <a href="#" class="text-light opacity-75 hover:text-warning"><i class="fab fa-instagram fa-lg"></i></a>
-                        <a href="#" class="text-light opacity-75 hover:text-warning"><i class="fab fa-twitter fa-lg"></i></a>
-                    </div>
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-utensils me-2"></i>Belleful
+                    </h5>
+                    <p class="text-muted">Your favorite food delivered hot and fresh to your doorstep.</p>
                 </div>
-                <div class="col-lg-2 col-md-6">
-                    <h5 class="fw-bold mb-3">Quick Links</h5>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="fw-bold mb-3">Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li><a href="menu.html" class="text-light opacity-75 text-decoration-none hover:text-warning">Menu</a></li>
-                        <li><a href="cart.html" class="text-light opacity-75 text-decoration-none hover:text-warning">Cart</a></li>
-                        <li><a href="orders.html" class="text-light opacity-75 text-decoration-none hover:text-warning">Orders</a></li>
-                    </ul> 
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="fw-bold mb-3">Dishes</h5>
-                    <ul class="list-unstyled opacity-75">
-                        <li>Jollof Rice</li>
-                        <li>Fried Yam</li>
-                        <li>Grilled Chicken</li>
-                        <li>Ogbono Soup</li>
-                        <li>Pounded Yam</li>
+                        <li><a href="index.html" class="text-muted text-decoration-none">Home</a></li>
+                        <li><a href="#menu" class="text-muted text-decoration-none">Menu</a></li>
+                        <li><a href="login.html" class="text-muted text-decoration-none">Login</a></li>
+                        <li><a href="user-dashboard.html" class="text-muted text-decoration-none">Dashboard</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-4 col-md-6">
-                    <h5 class="fw-bold mb-3">Contact</h5>
-                    <p class="opacity-75 mb-1">info@belleful.com</p>
-                    <p class="opacity-75">+234 800 BELLEFUL</p>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="fw-bold mb-3">Contact Info</h6>
+                    <p class="text-muted mb-1"><i class="fas fa-phone me-2"></i>+234 810 758 6167</p>
+                    <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>hello@belleful.com</p>
                 </div>
             </div>
-            <hr class="my-4 opacity-25">
+            <hr class="my-4">
             <div class="text-center">
-                <p>&copy; 2026 Belleful. All rights reserved. Made with <i class="fas fa-heart text-danger"></i> in Nigeria.</p>
+                <p class="mb-0 text-muted">&copy; 2024 Belleful. All rights reserved. Made with <i class="fas fa-heart text-danger"></i></p>
             </div>
         </div>
     </footer>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <!-- App JS -->
-    <script src="js/app.js"></script>
-    
-    <!-- Index-specific functionality for search and cart -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="js/menu.js"></script>
+    <script src="js/cart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Dishes data
-            const dishes = [
-                { id: 1, name: 'Jollof Rice & Fried Chicken', price: 2500 },
-                { id: 2, name: 'White Rice & Beans Stew', price: 1800 },
-                { id: 3, name: 'Grilled Catfish & Fried Yam', price: 3500 },
-                { id: 4, name: 'Ofe Owerri Soup with Pounded Yam', price: 4000 }
-            ];
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
 
-            // Load cart and update badge
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            function updateCartCount() {
-                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-                document.getElementById('cart-count').textContent = totalItems;
-            }
-            updateCartCount();
-
-            // Show toast
-            function showToast(message, type = 'success') {
-                const toast = document.createElement('div');
-                toast.className = `toast-notification toast-${type}`;
-                toast.textContent = message;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.classList.add('show'), 100);
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    setTimeout(() => document.body.removeChild(toast), 300);
-                }, 3000);
-            }
-
-            // Add to cart
-            document.querySelectorAll('.add-cart-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    const card = this.closest('.card');
-                    const id = parseInt(card.dataset.id);
-                    const dish = dishes.find(d => d.id === id);
-                    if (!dish) return;
-
-                    const existingItem = cart.find(item => item.id === id);
-                    if (existingItem) {
-                        existingItem.quantity += 1;
-                    } else {
-                        cart.push({ ...dish, quantity: 1 });
-                    }
-localStorage.setItem('cart', JSON.stringify(cart));
-                    updateCartCount();
-                    showToast(`${dish.name} added to cart! (${existingItem ? existingItem.quantity : 1})`);
-                    
-                    // Button animation
-                    this.style.transform = 'scale(1.1)';
-                    setTimeout(() => this.style.transform = 'scale(1)', 200);
-                });
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             });
+        });
 
-            // Search functionality
-            const searchToggle = document.getElementById('search-toggle');
-            const searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
-            const searchInput = document.getElementById('search-input');
-            const searchResults = document.getElementById('search-results');
-
-            if (searchToggle) {
-                searchToggle.addEventListener('click', () => searchModal.show());
+        // Navbar background on scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
             }
-
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    const query = this.value.toLowerCase().trim();
-                    if (query.length === 0) {
-                        searchResults.innerHTML = '';
-                        return;
-                    }
-
-                    const matches = dishes.filter(dish => 
-                        dish.name.toLowerCase().includes(query)
-                    ).sort((a, b) => a.name.localeCompare(b.name));
-
-                    if (matches.length === 0) {
-                        searchResults.innerHTML = '<div class="text-center py-4 text-muted">No dishes found.</div>';
-                        return;
-                    }
-
-                    searchResults.innerHTML = matches.map(dish => 
-                        `<div class="search-result" onclick="document.querySelector('[data-id="${dish.id}"]').scrollIntoView({behavior: \'smooth\'});">
-                            <h6>${dish.name}</h6>
-                            <small>₦${dish.price.toLocaleString()}</small>
-                        </div>`
-                    ).join('');
-                });
-            }
-
-            // Close modals on outside/esc handled by Bootstrap
         });
     </script>
 </body>
 </html>
-
