@@ -470,15 +470,39 @@ window.deleteMenuItem = function(id, name) {
 
 document.getElementById('menuForm')?.addEventListener('submit', async function(e) {
   e.preventDefault();
+  
+  // Client-side validation
+  const name = document.getElementById('menuName').value.trim();
+  const priceStr = document.getElementById('menuPrice').value.trim();
+  const category = document.getElementById('menuCategory').value;
+  
+  if (!name) {
+    showToast('Name is required', 'error');
+    document.getElementById('menuName').focus();
+    return;
+  }
+  
+  if (!priceStr || isNaN(priceStr) || parseFloat(priceStr) <= 0) {
+    showToast('Price must be a positive number', 'error');
+    document.getElementById('menuPrice').focus();
+    return;
+  }
+  
+  if (!category) {
+    showToast('Category is required', 'error');
+    document.getElementById('menuCategory').focus();
+    return;
+  }
+  
   const submitBtn = document.getElementById('menuSubmitBtn');
   showLoading(submitBtn);
   
   const formData = new FormData();
   const id = document.getElementById('menuId').value;
-  formData.append('name', document.getElementById('menuName').value);
-  formData.append('price', document.getElementById('menuPrice').value);
-  formData.append('category', document.getElementById('menuCategory').value);
-  formData.append('description', document.getElementById('menuDescription').value);
+  formData.append('name', name);
+  formData.append('price', parseFloat(priceStr));
+  formData.append('category', category);
+  formData.append('description', document.getElementById('menuDescription').value.trim());
   formData.append('available', document.getElementById('menuAvailable').checked);
   
   const imageFile = document.getElementById('menuImage').files[0];
@@ -500,7 +524,7 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
       bootstrap.Modal.getInstance(document.getElementById('menuModal')).hide();
       loadAdminMenu(1);
     } else {
-      const err = await res.json();
+      const err = await res.json().catch(() => ({}));
       throw new Error(err.message || 'Operation failed');
     }
   } catch (error) {
