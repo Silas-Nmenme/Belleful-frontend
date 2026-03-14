@@ -11,6 +11,11 @@ function initCartSystem() {
 
 // Auth check + cart sync
 async function checkAuthStatus() {
+  if (typeof window?.API_BASE === 'undefined') {
+    console.warn('API_BASE not loaded. Skipping auth cart sync.');
+    return;
+  }
+  
   const token = localStorage.getItem('token');
   const userRole = localStorage.getItem('userRole');
   

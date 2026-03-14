@@ -7,6 +7,12 @@ const menuLink = document.getElementById('menuLink');
 
 // Load menu items on page load and menu link click
 async function loadMenu() {
+  // Defensive null checks - elements may not exist on all pages
+  if (!menuGrid || !menuLoading) {
+    console.warn('Menu elements not found on this page');
+    return;
+  }
+  
   try {
     menuGrid.style.display = 'none';
     menuLoading.style.display = 'flex';
@@ -17,18 +23,20 @@ async function loadMenu() {
     const { data: menuItems } = await response.json();
     
     displayMenuItems(menuItems);
-  } catch (error) {
+    } catch (error) {
     console.error('Failed to load menu:', error);
-    menuLoading.innerHTML = `
-      <div class="text-center">
-        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
-        <h5>Failed to load menu</h5>
-        <p class="text-muted">Please check your connection and try again</p>
-        <button class="btn btn-primary" onclick="loadMenu()">
-          <i class="fas fa-redo me-2"></i>Retry
-        </button>
-      </div>
-    `;
+    if (menuLoading) {
+      menuLoading.innerHTML = `
+        <div class="text-center">
+          <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+          <h5>Failed to load menu</h5>
+          <p class="text-muted">Please check your connection and try again</p>
+          <button class="btn btn-primary" onclick="loadMenu()">
+            <i class="fas fa-redo me-2"></i>Retry
+          </button>
+        </div>
+      `;
+    }
   }
 }
 
@@ -182,7 +190,9 @@ function showToast(message, type = 'info') {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  loadMenu();
+  if (document.getElementById('menuGrid')) {
+    loadMenu();
+  }
 });
 
 menuLink?.addEventListener('click', (e) => {
