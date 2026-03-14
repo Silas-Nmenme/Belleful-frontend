@@ -48,31 +48,44 @@ function setupEventListeners() {
 // Check authentication status
 async function checkAuthStatus() {
   const token = localStorage.getItem('token');
-  if (token) {
-    try {
-      const response = await apiGet('/auth/profile');
-      if (response.ok) {
-        const userData = await response.json();
-        currentUser = userData.user;
-        localStorage.setItem('userRole', currentUser.role);
-        
-        // Skip redirect if already on correct dashboard
-        const currentPath = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
-        const targetDash = currentUser.role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
-        if (currentPath === targetDash) {
-          showToast(`Welcome ${currentUser.role === 'admin' ? 'Admin' : 'back'}, ${currentUser.name}!`, 'success');
-          return;
-        }
-        
-        // Redirect based on role
+  if (!token) {
+    window.location.href = window.location.pathname.includes('admin') ? 'admin-login.html' : 'login.html';
+    return;
+  }
+
+  const role = localStorage.getItem('userRole');
+  const currentPath = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
+  const targetDash = role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
+
+  // Skip API call & trust localStorage if already on correct dashboard
+  if (role && currentPath === targetDash) {
+    showToast(`Welcome ${role === 'admin' ? 'Admin' : ''}!`, 'success');
+    return;
+  }
+
+  try {
+    const response = await apiGet('/auth/profile');
+    if (response.ok) {
+      const userData = await response.json();
+      currentUser = userData.user;
+      localStorage.setItem('userRole', currentUser.role);
+      
+      // Skip redirect if already on correct dashboard
+      const currentPath2 = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
+      const targetDash2 = currentUser.role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
+      if (currentPath2 === targetDash2) {
         showToast(`Welcome ${currentUser.role === 'admin' ? 'Admin' : 'back'}, ${currentUser.name}!`, 'success');
-        setTimeout(() => window.location.href = targetDash, 1500);
-      } else {
-        logout();
+        return;
       }
-    } catch (error) {
+      
+      // Redirect based on role
+      showToast(`Welcome ${currentUser.role === 'admin' ? 'Admin' : 'back'}, ${currentUser.name}!`, 'success');
+      setTimeout(() => window.location.href = targetDash2, 1500);
+    } else {
       logout();
     }
+  } catch (error) {
+    logout();
   }
 }
 
