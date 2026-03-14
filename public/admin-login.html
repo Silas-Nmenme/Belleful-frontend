@@ -158,8 +158,7 @@
                             e.stopPropagation();
                         } else {
                             // Call AuthManager after validation passes
-                            e.preventDefault();
-                            AuthManager.login();
+AuthManager.login(e);
                         }
                         this.classList.add('was-validated');
                     }, false);
