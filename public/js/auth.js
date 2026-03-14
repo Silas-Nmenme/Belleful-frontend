@@ -160,10 +160,13 @@ async function handleLogin(e, submitBtn = null) {
     return;
   }
 
+  const authMode = localStorage.getItem('authMode') || 'user';
+  const endpoint = authMode === 'admin' ? '/admin/login' : '/login';
+  
   showLoading(submitBtn || 'loginFormSubmit', 'Signing in...');
   
   try {
-    const response = await apiPost('/login', { email, password });
+    const response = await apiPost(endpoint, { email, password });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || 'Login failed');
@@ -333,10 +336,12 @@ function updateNavbarForAdmin() {
 window.checkAuth = checkAuthStatus;
 window.logout = logout;
 window.AuthManager = {
+  login: handleLogin,
   currentUser,
   checkAuthStatus,
   updateNavbarForAdmin
 };
+AuthManager.login = handleLogin;
 
 // Auto-init if on login/register page
 if (document.querySelector('#loginForm, #registerForm, #otpForm')) {
