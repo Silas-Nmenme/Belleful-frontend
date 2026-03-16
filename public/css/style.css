@@ -323,6 +323,39 @@ footer .col-lg-4 ul li a {
 
 footer .col-lg-4 ul li a:hover {
   color: #ff8e53 !important;
+}/* Footer Styling - Balanced with Navbar */
+footer {
+  background: var(--primary-gradient);
+  color: #fff;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+}
+
+footer p,
+footer li {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.95rem;
+}
+
+footer a {
+  color: rgba(255,255,255,0.9);
+  transition: all 0.3s ease;
+}
+
+footer a:hover {
+  color: #ffd6c2;
+  transform: translateX(3px);
+}
+
+footer hr {
+  border-color: rgba(255,255,255,0.2);
+}
+
+footer .fab {
+  transition: transform 0.3s ease;
+}
+
+footer .fab:hover {
+  transform: scale(1.2);
 }
   
   .display-4,
