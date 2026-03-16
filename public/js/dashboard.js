@@ -367,6 +367,9 @@ function renderAdminMenu(items, count) {
         </span>
       </td>
       <td>
+        <span class="badge bg-${(item.stock || 0) > 0 ? 'info' : 'secondary'}">${item.stock || 0}</span>
+      </td>
+      <td>
         <div class="btn-group btn-group-sm" role="group">
           <button class="btn btn-outline-primary" onclick="editMenuItem('${item._id}')" title="Edit">
             <i class="fas fa-edit"></i>
@@ -444,6 +447,7 @@ window.editMenuItem = async function(id) {
     document.getElementById('menuId').value = item._id;
     document.getElementById('menuName').value = item.name || '';
     document.getElementById('menuPrice').value = item.price || '';
+    document.getElementById('menuStock').value = item.stock || 50;
     document.getElementById('menuCategory').value = item.category || 'food';
     document.getElementById('menuDescription').value = item.description || '';
     document.getElementById('menuAvailable').checked = item.available !== false;
@@ -531,7 +535,8 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
     price: parseFloat(priceStr),
     category: category,
     description: document.getElementById('menuDescription').value.trim(),
-    available: document.getElementById('menuAvailable').checked
+    available: document.getElementById('menuAvailable').checked,
+    stock: parseInt(document.getElementById('menuStock')?.value) || 50
   };
   
   const token = localStorage.getItem('token');
