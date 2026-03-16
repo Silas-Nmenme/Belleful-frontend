@@ -442,12 +442,25 @@ window.editMenuItem = async function(id) {
     return;
   }
 
-  // Check if modal exists first
+  // FIX 1: Show modal FIRST, wait for Bootstrap animation
   const menuModal = document.getElementById('menuModal');
   if (!menuModal) {
     showToast('Menu editor not available. Please refresh page.', 'error');
     return;
   }
+
+  const modalInstance = new bootstrap.Modal(menuModal);
+  modalInstance.show();
+
+  // Wait for modal fully shown
+  await new Promise((resolve) => {
+    const handleShown = () => {
+      menuModal.removeEventListener('shown.bs.modal', handleShown);
+      resolve();
+    };
+    menuModal.addEventListener('shown.bs.modal', handleShown);
+    setTimeout(resolve, 600); // Failsafe
+  });
 
   const submitBtn = document.getElementById('menuSubmitBtn');
   showLoading(submitBtn);
@@ -483,88 +496,55 @@ window.editMenuItem = async function(id) {
     const item = responseData.data;
     console.log('Edit menu response:', responseData);
     
-    // STRICT validation
-    if (!responseData.success || !item || typeof item !== 'object' || !item._id) {
-      console.error('Invalid item data:', item);
-      showToast(responseData.message || 'Invalid item data or not found', 'error');
+    // FIX 2: Promise.all() wait for ALL critical elements (modal already shown)
+    console.log('✅ Modal ready, waiting for form elements...');
+    const [menuIdEl, menuNameEl, menuPriceEl, menuCategoryEl, menuSubmitTextEl, menuModalTitleEl, menuStockEl, menuDescriptionEl, menuAvailableEl, imagePreviewEl] = 
+      await Promise.all([
+        waitForElement('#menuId', 1500),
+        waitForElement('#menuName', 1500),
+        waitForElement('#menuPrice', 1500),
+        waitForElement('#menuCategory', 1500),
+        waitForElement('#menuSubmitText', 1500),
+        waitForElement('#menuModalTitle', 1500),
+        waitForElement('#menuStock', 1500),
+        waitForElement('#menuDescription', 1500),
+        waitForElement('#menuAvailable', 1500),
+        waitForElement('#imagePreview', 1500)
+      ]);
+    
+    if (!menuSubmitTextEl || !menuNameEl || !menuPriceEl || !menuCategoryEl) {
+      console.error('❌ Critical form elements missing after modal ready');
+      showToast('Form elements not ready. Please refresh page and try again.', 'error');
       return;
     }
-    if (!responseData.success || !item || !item._id) {
-      showToast(responseData.message || 'Item not found', 'error');
-      return;
-    }
     
-    // Safe population with null checks
-    // Wait for DOM stability
-    await new Promise(resolve => setTimeout(resolve, 0));
+    console.log('✅ ALL form elements confirmed - populating!');
     
-    // SAFE element collection with wait + fallback
-    console.log('🔍 Collecting form elements safely...');
+    // Populate form - guaranteed elements exist
+    menuIdEl.value = item._id || '';
+    menuNameEl.value = item.name || '';
+    menuPriceEl.value = item.price?.toString() || '';
+    menuStockEl.value = (item.stock ?? 50).toString();
+    menuCategoryEl.value = item.category || 'food';
+    menuDescriptionEl.value = item.description || '';
+    menuAvailableEl.checked = item.available !== false;
     
-    const formEls = {
-      menuId: safeGetElement('menuId'),
-      menuName: safeGetElement('menuName'),
-      menuPrice: safeGetElement('menuPrice'),
-      menuStock: safeGetElement('menuStock'),
-      menuCategory: safeGetElement('menuCategory'),
-      menuDescription: safeGetElement('menuDescription'),
-      menuAvailable: safeGetElement('menuAvailable'),
-      menuModalTitle: safeGetElement('menuModalTitle'),
-      menuSubmitText: safeGetElement('menuSubmitText'),
-      imagePreview: safeGetElement('imagePreview'),
-      menuSubmitBtn: safeGetElement('menuSubmitBtn')
-    };
+    // Update titles
+    menuModalTitleEl.textContent = item.name ? `Edit: ${item.name}` : 'Edit Menu Item';
+    menuSubmitTextEl.textContent = 'Update Item';
     
-    // FINAL RESORT: Wait for critical elements
-    const criticalMissing = ['menuName', 'menuPrice', 'menuCategory', 'menuSubmitText']
-      .filter(key => !formEls[key]);
-    
-    if (criticalMissing.length > 0) {
-      console.warn('⚠️ Critical elements missing, waiting...', criticalMissing);
-      const menuSubmitEl = await waitForElement('#menuSubmitText', 2000);
-      if (!menuSubmitEl) {
-        console.error('❌ Critical timeout - menuSubmitText failed to appear');
-        showToast(`Form error: Core elements missing. Please refresh page.`, 'error');
-        return;
-      }
-      // Refresh formEls after wait
-      formEls.menuSubmitText = menuSubmitEl;
-      console.log('✅ menuSubmitText recovered via waitForElement');
-    }
-    
-    console.log('✅ All form elements ready, populating...');
-    
-    // SAFE population with optional chaining and validation
-    formEls.menuId.value = item._id || '';
-    formEls.menuName.value = item.name || '';
-    formEls.menuPrice.value = item.price?.toString() || '';
-    formEls.menuStock.value = (item.stock ?? 50).toString();
-    formEls.menuCategory.value = item.category || 'food';
-    formEls.menuDescription.value = item.description || '';
-    formEls.menuAvailable.checked = item.available !== false;
-    
-    // SAFE textContent with null check + fallback
-    if (formEls.menuModalTitle) {
-      formEls.menuModalTitle.textContent = item.name ? `Edit: ${item.name}` : 'Edit Menu Item';
-    }
-    if (formEls.menuSubmitText) {
-      formEls.menuSubmitText.textContent = 'Update Item';
-    }
-    
-    // Safe image preview with error handling
-    if (item.image && formEls.imagePreview) {
-      formEls.imagePreview.src = item.image;
-      formEls.imagePreview.style.display = 'block';
-      formEls.imagePreview.onerror = () => {
-        formEls.imagePreview.style.display = 'none';
+    // Image preview
+    if (item.image && imagePreviewEl) {
+      imagePreviewEl.src = item.image;
+      imagePreviewEl.style.display = 'block';
+      imagePreviewEl.onerror = () => {
+        imagePreviewEl.style.display = 'none';
       };
-    } else if (formEls.imagePreview) {
-      formEls.imagePreview.style.display = 'none';
+    } else if (imagePreviewEl) {
+      imagePreviewEl.style.display = 'none';
     }
     
-    console.log('✅ Form populated successfully:', { id: item._id, name: item.name });
-    
-    new bootstrap.Modal(menuModal).show();
+    console.log('✅ Form populated successfully:', { id: item._id, name: item.name });;
   } catch (error) {
     console.error('Edit menu fetch error:', error);
     showToast('Failed to load item: ' + error.message, 'error');
