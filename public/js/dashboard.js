@@ -333,11 +333,11 @@ async function loadAdminMenu(page = 1, search = '', category = '') {
     });
     
     if (!response.ok) {
-      showToast(`Menu API unavailable (${response.status}). Showing demo data.`, 'warning');
-      // Mock data fallback
-      const mockData = getMockMenuData(page, search, category);
-      renderAdminMenu(mockData.items, mockData.count);
-      renderMenuPagination(mockData.pages, page, search, category);
+      const errorText = await response.text();
+      console.error('Menu API error:', response.status, errorText);
+      showToast(`Menu load failed (${response.status}): ${errorText.slice(0,100)}`, 'error');
+      renderAdminMenu([], 0);
+      renderMenuPagination(1, page, search, category);
       return;
     }
     
@@ -346,38 +346,15 @@ async function loadAdminMenu(page = 1, search = '', category = '') {
     renderMenuPagination(result.pages || 1, page, search, category);
   } catch (error) {
     console.error('loadAdminMenu error:', error);
-    showToast('Menu load failed - using demo data.', 'warning');
-    const mockData = getMockMenuData(page, search, category);
-    renderAdminMenu(mockData.items, mockData.count);
-    renderMenuPagination(mockData.pages, page, search, category);
+    showToast(`Menu load failed: ${error.message}`, 'error');
+    renderAdminMenu([], 0);
+    renderMenuPagination(1, page, search, category);
   } finally {
     document.body.classList.remove('loading');
   }
 }
 
-function getMockMenuData(page = 1, search = '', category = '') {
-  const mockItems = [
-    { _id: 'mock1', name: 'Jollof Rice', price: 2500, category: 'food', stock: 20, available: true, image: '/asset/jollof.webp' },
-    { _id: 'mock2', name: 'Egusi Soup', price: 1800, category: 'food', stock: 15, available: true, image: '/asset/egusi.svg' },
-    { _id: 'mock3', name: 'Pounded Yam', price: 2200, category: 'food', stock: 10, available: false, image: '/asset/pounded-yam.svg' },
-    { _id: 'mock4', name: 'Chapman Drink', price: 1200, category: 'drink', stock: 30, available: true, image: '/asset/grilled.jpg' },
-    { _id: 'mock5', name: 'Beans & Plantain', price: 2000, category: 'food', stock: 25, available: true, image: '/asset/beans.webp' }
-  ];
-  
-  let filtered = mockItems;
-  if (search) filtered = filtered.filter(item => item.name.toLowerCase().includes(search.toLowerCase()));
-  if (category) filtered = filtered.filter(item => item.category === category);
-  
-  const itemsPerPage = 3;
-  const start = (page - 1) * itemsPerPage;
-  const paginated = filtered.slice(start, start + itemsPerPage);
-  
-  return {
-    items: paginated,
-    count: filtered.length,
-    pages: Math.ceil(filtered.length / itemsPerPage)
-  };
-}
+// getMockMenuData removed - real data only
 
 function renderAdminMenu(items, count) {
   document.getElementById('menuCount').textContent = count;
@@ -486,21 +463,10 @@ window.editMenuItem = async function(id) {
       return;
     }
     
-    const item = await response.json();
+    let item = await response.json();
+    // No demo fallback - real data only
     if (!item || !item._id) {
-      // Mock fallback for demo
-      const mockItem = {
-        _id: id,
-        name: 'Demo Item',
-        price: 1500,
-        category: 'food',
-        stock: 50,
-        description: 'Backend unavailable - using demo data',
-        available: true,
-        image: '/asset/jollof.webp'
-      };
-      showToast('Using demo data (backend unavailable)', 'warning');
-      item = mockItem;
+      throw new Error('Item not found');
     }
     
     // Populate form
