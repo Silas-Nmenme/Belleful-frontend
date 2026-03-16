@@ -282,7 +282,7 @@ async function loadAdminDashboard(pageOrders = 1, statusFilter = '') {
     // DEBUG: Log raw response
     console.log('🔍 RAW STATS:', data.stats);
     
-    // Force render regardless of success flag (debug)
+    // Force render
     renderAdminStats(data.stats);
     renderPendingOrders(data.orders.data || [], (data.orders.data || []).filter(o => o.orderStatus === 'pending_approval').length);
     renderAdminUsers(data.users.data || []);
@@ -629,11 +629,12 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
       document.getElementById('menuForm').reset();
       document.getElementById('imagePreview').style.display = 'none';
       await loadAdminMenu(1);
-      await loadAdminDashboard(); // ← FIX: Refresh stats
-    }
+      await loadAdminDashboard(); // Refresh stats
+    } else {
       const errData = await res.json().catch(() => ({}));
       const errMsg = errData.message || errData.error || (await res.text()) || 'Operation failed';
       throw new Error(errMsg);
+    }
     }
   } catch (error) {
     console.error('Menu form submit error:', error);
