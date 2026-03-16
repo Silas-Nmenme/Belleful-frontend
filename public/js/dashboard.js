@@ -438,8 +438,15 @@ window.editMenuItem = async function(id) {
     return;
   }
 
-  // Use global loader instead of dynamic ID
-  showLoading('#menuSubmitBtn');
+  // Check if modal exists first
+  const menuModal = document.getElementById('menuModal');
+  if (!menuModal) {
+    showToast('Menu editor not available. Please refresh page.', 'error');
+    return;
+  }
+
+  const submitBtn = document.getElementById('menuSubmitBtn');
+  showLoading(submitBtn);
   
   try {
     const token = localStorage.getItem('token');
@@ -448,7 +455,6 @@ window.editMenuItem = async function(id) {
     });
     
     if (!response.ok) {
-      // Graceful handling for backend errors
       let errMsg = `Server error ${response.status}`;
       try {
         const errData = await response.json();
@@ -457,42 +463,60 @@ window.editMenuItem = async function(id) {
         // Fallback
       }
       showToast(`Failed to load item: ${errMsg}`, 'error');
+      return; // FIXED: Early return, don't proceed
+    }
+    
+    const responseData = await response.json();
+    const item = responseData.data;
+    console.log('Edit menu response:', responseData);
+    if (!responseData.success || !item || !item._id) {
+      showToast(responseData.message || 'Item not found', 'error');
       return;
     }
     
-    // Fixed: Parse backend {success, data: item} format
-    const responseData = await response.json();
-    const item = responseData.data;
-    console.log('Edit menu response:', responseData); // Debug
-    if (!responseData.success || !item || !item._id) {
-      throw new Error(responseData.message || 'Item not found');
+    // Safe population with null checks
+    const formEls = {
+      menuId: document.getElementById('menuId'),
+      menuName: document.getElementById('menuName'),
+      menuPrice: document.getElementById('menuPrice'),
+      menuStock: document.getElementById('menuStock'),
+      menuCategory: document.getElementById('menuCategory'),
+      menuDescription: document.getElementById('menuDescription'),
+      menuAvailable: document.getElementById('menuAvailable'),
+      menuModalTitle: document.getElementById('menuModalTitle'),
+      menuSubmitText: document.getElementById('menuSubmitText'),
+      imagePreview: document.getElementById('imagePreview')
+    };
+    
+    if (!formEls.menuId || !formEls.menuName /* add more if needed */) {
+      showToast('Form elements missing. Please refresh.', 'error');
+      return;
     }
     
-    // Populate form
-    document.getElementById('menuId').value = item._id;
-    document.getElementById('menuName').value = item.name || '';
-    document.getElementById('menuPrice').value = item.price || '';
-    document.getElementById('menuStock').value = item.stock || 50;
-    document.getElementById('menuCategory').value = item.category || 'food';
-    document.getElementById('menuDescription').value = item.description || '';
-    document.getElementById('menuAvailable').checked = item.available !== false;
-    document.getElementById('menuModalTitle').textContent = `Edit: ${item.name}`;
-    document.getElementById('menuSubmitText').textContent = 'Update Item';
+    formEls.menuId.value = item._id;
+    formEls.menuName.value = item.name || '';
+    formEls.menuPrice.value = item.price || '';
+    formEls.menuStock.value = item.stock || 50;
+    formEls.menuCategory.value = item.category || 'food';
+    formEls.menuDescription.value = item.description || '';
+    formEls.menuAvailable.checked = item.available !== false;
+    formEls.menuModalTitle.textContent = `Edit: ${item.name}`;
+    formEls.menuSubmitText.textContent = 'Update Item';
     
-    // Image preview
-    if (item.image) {
-      document.getElementById('imagePreview').src = item.image;
-      document.getElementById('imagePreview').style.display = 'block';
-    } else {
-      document.getElementById('imagePreview').style.display = 'none';
+    // Safe image preview
+    if (item.image && formEls.imagePreview) {
+      formEls.imagePreview.src = item.image;
+      formEls.imagePreview.style.display = 'block';
+    } else if (formEls.imagePreview) {
+      formEls.imagePreview.style.display = 'none';
     }
     
-    new bootstrap.Modal(document.getElementById('menuModal')).show();
+    new bootstrap.Modal(menuModal).show();
   } catch (error) {
     console.error('Edit menu fetch error:', error);
-    showToast('Failed to load item (network/backend error). Try refresh.', 'error');
+    showToast('Failed to load item: ' + error.message, 'error');
   } finally {
-    hideLoading('#menuSubmitBtn');
+    if (submitBtn) hideLoading(submitBtn);
   }
 };
 
@@ -631,3 +655,16 @@ window.DashboardManager = {
   renderAdminUsers,
   loadAdminDashboard
 };
+
+// Safe helper for dashboard loading states
+function safeShowLoading(selector) {
+  const el = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  if (el) showLoading(el);
+  else console.warn('safeShowLoading: Element not found:', selector);
+}
+
+function safeHideLoading(selector) {
+  const el = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  if (el) hideLoading(el);
+  else console.warn('safeHideLoading: Element not found:', selector);
+}

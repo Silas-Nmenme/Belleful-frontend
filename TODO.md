@@ -1,1 +1,0 @@
-# Fix Menu Edit "Item not found" Error&#10;&#10;## Steps:&#10;- [x] 1. Create TODO.md (done)&#10;- [x] 2. Edit public/js/dashboard.js: Fix response parsing in editMenuItem() (response now correctly parses backend {success:true, data:item})&#10;- [ ] 3. Test: Refresh admin-dashboard.html and click Edit on a menu item&#10;- [ ] 4. Complete task
