@@ -266,14 +266,24 @@ function logout() {
 function showLoading(selectorOrBtn, text) {
   let btn = selectorOrBtn;
   if (typeof selectorOrBtn === 'string') {
+    // Try exact selector first
     btn = document.querySelector(selectorOrBtn);
-    if (!btn && selectorOrBtn.includes('Form')) {
-      const form = document.querySelector(selectorOrBtn.replace('Submit', ''));
-      btn = form ? form.querySelector('button[type="submit"]') : null;
+    // Fallback chain: form submit → global menu btn → first submit
+    if (!btn) {
+      const formSelector = selectorOrBtn.includes('Form') ? selectorOrBtn.replace('Submit', '') : null;
+      if (formSelector) {
+        const form = document.querySelector(formSelector);
+        btn = form ? form.querySelector('button[type="submit"]') : null;
+      }
+    }
+    if (!btn) {
+      // Global fallbacks for menu operations
+      btn = document.querySelector('#menuSubmitBtn, .btn-success[type="submit"], button[type="submit"]');
     }
   }
+  
   if (!btn) {
-    console.warn(`showLoading: Element "${selectorOrBtn}" not found`);
+    console.warn(`showLoading: Element "${selectorOrBtn}" not found - no loading UI`);
     return;
   }
   btn.dataset.originalText = btn.innerHTML;
