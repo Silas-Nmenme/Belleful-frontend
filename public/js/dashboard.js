@@ -753,8 +753,16 @@ document.getElementById('menuImage')?.addEventListener('change', async function(
   // Upload to Cloudinary directly
   try {
     showToast('Uploading to Cloudinary...', 'info');
-    const uploadRes = await fetch(`${window.API_BASE}/menu/upload-url?folder=menu`);
+    const token = localStorage.getItem('token');
+    const uploadRes = await fetch(`${window.API_BASE}/menu/upload-url?folder=menu`, {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    });
+    if (!uploadRes.ok) throw new Error(`Upload URL failed: ${uploadRes.status}`);
+    
     const uploadConfig = await uploadRes.json();
+    if (!uploadConfig.url || !uploadConfig.fields) {
+      throw new Error('Invalid upload config from server');
+    }
     
     const formData = new FormData();
     formData.append('file', file);
@@ -765,6 +773,7 @@ document.getElementById('menuImage')?.addEventListener('change', async function(
       body: formData
     });
     
+    if (!cloudRes.ok) throw new Error(`Cloudinary upload failed: ${cloudRes.status}`);
     const result = await cloudRes.json();
     if (result.secure_url) {
       cloudinaryImageUrl = result.secure_url;
