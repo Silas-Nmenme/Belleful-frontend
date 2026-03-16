@@ -1,6 +1,7 @@
 /* Belleful - Custom Styles & Animations */
 :root {
   --primary-gradient: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  --primary-warm: #ff8e53;
   --secondary-gradient: linear-gradient(135deg, #f4a261 0%, #e76f51 100%);
   --success-gradient: linear-gradient(135deg, #2ec4b6 0%, #e71d36 100%);
   --warning-gradient: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
@@ -304,22 +305,24 @@ body {
   }
   
 footer {
-  --bs-link-color: rgba(255,255,255,0.8);
-  --bs-link-hover-color: #fff;
+  --bs-link-color: rgba(169, 109, 25, 0.8);
+  --bs-link-hover-color: #ff8e53;
+  background: linear-gradient(135deg, var(--primary-warm) 0%, var(--primary-gradient) 100%) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
 }
 
 footer .col-lg-4 p,
 footer .col-lg-4 ul li {
   font-size: 0.9rem;
-  color: rgba(255,255,255,0.9) !important;
+  color: rgba(157, 106, 17, 0.9) !important;
 }
 
 footer .col-lg-4 ul li a {
-  color: rgba(255,255,255,0.8) !important;
+  color: rgba(189, 126, 18, 0.8) !important;
 }
 
 footer .col-lg-4 ul li a:hover {
-  color: #fff !important;
+  color: #ff8e53 !important;
 }
   
   .display-4,
