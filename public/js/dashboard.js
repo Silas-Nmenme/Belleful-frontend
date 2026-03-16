@@ -363,16 +363,19 @@ function renderAdminMenu(items, count) {
     return;
   }
   
-  tbody.innerHTML = items.map(item => `
+  tbody.innerHTML = items.map(item => {
+    const safeId = item._id ? item._id.toString() : '';
+    const safeName = item.name || 'Unknown';
+    return `
     <tr>
-      <td>#${(item._id || 'MOCK').slice(-8).toUpperCase()}</td>
+      <td>#${safeId.slice(-8).toUpperCase()}</td>
       <td>
-        <img src="${item.image || '/asset/placeholder-food.jpg'}" class="rounded" style="width:50px;height:50px;object-fit:cover;" alt="${item.name}">
+        <img src="${item.image || '/asset/placeholder-food.jpg'}" class="rounded" style="width:50px;height:50px;object-fit:cover;" alt="${safeName}">
       </td>
-      <td>${item.name}</td>
+      <td>${safeName}</td>
       <td><strong>₦${parseFloat(item.price || 0).toLocaleString()}</strong></td>
       <td>
-        <span class="badge bg-${getCategoryBadge(item.category)}">${item.category}</span>
+        <span class="badge bg-${getCategoryBadge(item.category)}">${item.category || 'Unknown'}</span>
       </td>
       <td>
         <span class="badge bg-${item.available ? 'success' : 'warning'}">
@@ -384,16 +387,17 @@ function renderAdminMenu(items, count) {
       </td>
       <td>
         <div class="btn-group btn-group-sm" role="group">
-          <button class="btn btn-outline-primary" onclick="editMenuItem('${item._id}')" title="Edit">
+          <button class="btn btn-outline-primary" onclick="editMenuItem('${safeId}')" title="Edit" ${!safeId ? 'disabled' : ''}>
             <i class="fas fa-edit"></i>
           </button>
-          <button class="btn btn-outline-danger" onclick="deleteMenuItem('${item._id}', '${item.name}')" title="Delete">
+          <button class="btn btn-outline-danger" onclick="deleteMenuItem('${safeId}', '${safeName}')" title="Delete" ${!safeId ? 'disabled' : ''}>
             <i class="fas fa-trash"></i>
           </button>
         </div>
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function getCategoryBadge(category) {
@@ -450,7 +454,7 @@ window.editMenuItem = async function(id) {
   
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${window.API_BASE}/menu/${id}`, {
+  const response = await fetch(`${window.API_BASE}/menu/${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
@@ -462,19 +466,38 @@ window.editMenuItem = async function(id) {
       } catch {
         // Fallback
       }
+      console.error(`Edit menu fetch failed (${response.status}):`, errMsg);
       showToast(`Failed to load item: ${errMsg}`, 'error');
-      return; // FIXED: Early return, don't proceed
+      return;
     }
     
-    const responseData = await response.json();
+    let responseData;
+    try {
+      responseData = await response.json();
+    } catch (parseErr) {
+      console.error('JSON parse error:', parseErr);
+      showToast('Invalid server response', 'error');
+      return;
+    }
+    
     const item = responseData.data;
     console.log('Edit menu response:', responseData);
+    
+    // STRICT validation
+    if (!responseData.success || !item || typeof item !== 'object' || !item._id) {
+      console.error('Invalid item data:', item);
+      showToast(responseData.message || 'Invalid item data or not found', 'error');
+      return;
+    }
     if (!responseData.success || !item || !item._id) {
       showToast(responseData.message || 'Item not found', 'error');
       return;
     }
     
     // Safe population with null checks
+    // Wait for DOM stability
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
     const formEls = {
       menuId: document.getElementById('menuId'),
       menuName: document.getElementById('menuName'),
@@ -488,28 +511,45 @@ window.editMenuItem = async function(id) {
       imagePreview: document.getElementById('imagePreview')
     };
     
-    if (!formEls.menuId || !formEls.menuName /* add more if needed */) {
-      showToast('Form elements missing. Please refresh.', 'error');
+    // Bulletproof null check ALL elements
+    const missingEls = Object.entries(formEls).filter(([key, el]) => !el);
+    if (missingEls.length > 0) {
+      console.error('Missing form elements:', missingEls.map(([k]) => k));
+      showToast(`Form error: Missing elements (${missingEls.length}). Refresh page.`, 'error');
       return;
     }
     
-    formEls.menuId.value = item._id;
+    console.log('✅ All form elements found, populating...');
+    
+    // SAFE population with optional chaining and validation
+    formEls.menuId.value = item._id || '';
     formEls.menuName.value = item.name || '';
-    formEls.menuPrice.value = item.price || '';
-    formEls.menuStock.value = item.stock || 50;
+    formEls.menuPrice.value = item.price?.toString() || '';
+    formEls.menuStock.value = (item.stock ?? 50).toString();
     formEls.menuCategory.value = item.category || 'food';
     formEls.menuDescription.value = item.description || '';
     formEls.menuAvailable.checked = item.available !== false;
-    formEls.menuModalTitle.textContent = `Edit: ${item.name}`;
-    formEls.menuSubmitText.textContent = 'Update Item';
     
-    // Safe image preview
+    // SAFE textContent with null check + fallback
+    if (formEls.menuModalTitle) {
+      formEls.menuModalTitle.textContent = item.name ? `Edit: ${item.name}` : 'Edit Menu Item';
+    }
+    if (formEls.menuSubmitText) {
+      formEls.menuSubmitText.textContent = 'Update Item';
+    }
+    
+    // Safe image preview with error handling
     if (item.image && formEls.imagePreview) {
       formEls.imagePreview.src = item.image;
       formEls.imagePreview.style.display = 'block';
+      formEls.imagePreview.onerror = () => {
+        formEls.imagePreview.style.display = 'none';
+      };
     } else if (formEls.imagePreview) {
       formEls.imagePreview.style.display = 'none';
     }
+    
+    console.log('✅ Form populated successfully:', { id: item._id, name: item.name });
     
     new bootstrap.Modal(menuModal).show();
   } catch (error) {
