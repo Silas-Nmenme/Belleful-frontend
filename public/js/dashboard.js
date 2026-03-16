@@ -496,44 +496,65 @@ window.editMenuItem = async function(id) {
     const item = responseData.data;
     console.log('Edit menu response:', responseData);
     
-    // FIX 2: Promise.all() wait for ALL critical elements (modal already shown)
-    console.log('✅ Modal ready, waiting for form elements...');
-    const [menuIdEl, menuNameEl, menuPriceEl, menuCategoryEl, menuSubmitTextEl, menuModalTitleEl, menuStockEl, menuDescriptionEl, menuAvailableEl, imagePreviewEl] = 
-      await Promise.all([
-        waitForElement('#menuId', 1500),
-        waitForElement('#menuName', 1500),
-        waitForElement('#menuPrice', 1500),
-        waitForElement('#menuCategory', 1500),
-        waitForElement('#menuSubmitText', 1500),
-        waitForElement('#menuModalTitle', 1500),
-        waitForElement('#menuStock', 1500),
-        waitForElement('#menuDescription', 1500),
-        waitForElement('#menuAvailable', 1500),
-        waitForElement('#imagePreview', 1500)
-      ]);
+// SEQUENTIAL wait for CRITICAL form inputs only (fastest + most reliable)
+    console.log('✅ Modal ready, waiting for CRITICAL form elements...');
     
-    if (!menuSubmitTextEl || !menuNameEl || !menuPriceEl || !menuCategoryEl) {
-      console.error('❌ Critical form elements missing after modal ready');
-      showToast('Form elements not ready. Please refresh page and try again.', 'error');
+    const criticalElements = [
+      { selector: '#menuId', required: true },
+      { selector: '#menuName', required: true },
+      { selector: '#menuPrice', required: true },
+      { selector: '#menuCategory', required: true }
+    ];
+    
+    let missingCritical = [];
+    for (const { selector, required } of criticalElements) {
+      const el = await waitForElement(selector);
+      if (!el && required) {
+        missingCritical.push(selector);
+      }
+    }
+    
+    if (missingCritical.length > 0) {
+      console.error('❌ Missing critical elements:', missingCritical);
+      showToast(`Missing form fields: ${missingCritical.join(', ')}. Please refresh page.`, 'error');
       return;
     }
     
-    console.log('✅ ALL form elements confirmed - populating!');
+    console.log('✅ Critical form elements ready - populating form');
     
-    // Populate form - guaranteed elements exist
-    menuIdEl.value = item._id || '';
-    menuNameEl.value = item.name || '';
-    menuPriceEl.value = item.price?.toString() || '';
-    menuStockEl.value = (item.stock ?? 50).toString();
-    menuCategoryEl.value = item.category || 'food';
-    menuDescriptionEl.value = item.description || '';
-    menuAvailableEl.checked = item.available !== false;
+    // Populate CRITICAL fields (guaranteed to exist)
+    document.getElementById('menuId').value = item._id || '';
+    document.getElementById('menuName').value = item.name || '';
+    document.getElementById('menuPrice').value = item.price?.toString() || '';
+    document.getElementById('menuCategory').value = item.category || 'food';
     
-    // Update titles
-    menuModalTitleEl.textContent = item.name ? `Edit: ${item.name}` : 'Edit Menu Item';
-    menuSubmitTextEl.textContent = 'Update Item';
+    // Populate OPTIONAL fields safely
+    const safeFields = {
+      menuStock: (item.stock ?? 50).toString(),
+      menuDescription: item.description || '',
+      menuAvailable: item.available !== false
+    };
     
-    // Image preview
+    for (const [id, value] of Object.entries(safeFields)) {
+      const el = document.getElementById(id);
+      if (el) {
+        if (typeof value === 'boolean') {
+          el.checked = value;
+        } else {
+          el.value = value;
+        }
+      }
+    }
+    
+    // Safe UI updates (no more undefined variables)
+    const titleEl = document.getElementById('menuModalTitle');
+    if (titleEl) titleEl.textContent = item.name ? `Edit: ${item.name}` : 'Edit Menu Item';
+    
+    const submitTextEl = document.getElementById('menuSubmitText');
+    if (submitTextEl) submitTextEl.textContent = 'Update Item';
+    
+    // Safe image preview
+    const imagePreviewEl = document.getElementById('imagePreview');
     if (item.image && imagePreviewEl) {
       imagePreviewEl.src = item.image;
       imagePreviewEl.style.display = 'block';
@@ -544,7 +565,7 @@ window.editMenuItem = async function(id) {
       imagePreviewEl.style.display = 'none';
     }
     
-    console.log('✅ Form populated successfully:', { id: item._id, name: item.name });;
+    console.log('✅ Form populated successfully:', { id: item._id, name: item.name });
   } catch (error) {
     console.error('Edit menu fetch error:', error);
     showToast('Failed to load item: ' + error.message, 'error');
@@ -696,19 +717,52 @@ window.DashboardManager = {
  * @param {number} timeoutMs - Max wait time
  * @returns {Promise<HTMLElement|null>}
  */
-async function waitForElement(selector, timeoutMs = 3000) {
+async function waitForElement(selector, timeoutMs = 2500) {
   return new Promise((resolve) => {
     const start = Date.now();
-    const check = () => {
+    
+    // Primary: RAF polling
+    const checkRAF = () => {
       const el = document.querySelector(selector);
       if (el) return resolve(el);
       if (Date.now() - start > timeoutMs) {
-        console.warn(`waitForElement timeout: ${selector}`);
-        return resolve(null);
+        console.warn(`waitForElement RAF timeout: ${selector}`);
+      } else {
+        requestAnimationFrame(checkRAF);
       }
-      requestAnimationFrame(check);
     };
-    check();
+    
+    // Fallback: MutationObserver on modal container
+    const modal = document.getElementById('menuModal');
+    if (modal) {
+      const observer = new MutationObserver(() => {
+        const el = document.querySelector(selector);
+        if (el) {
+          observer.disconnect();
+          resolve(el);
+        }
+      });
+      observer.observe(modal, { childList: true, subtree: true });
+    }
+    
+    // Also poll body as ultimate fallback
+    const checkBodyRAF = () => {
+      const el = document.querySelector(selector);
+      if (el) return resolve(el);
+      if (Date.now() - start <= timeoutMs) {
+        requestAnimationFrame(checkBodyRAF);
+      }
+    };
+    
+    checkRAF();
+    checkBodyRAF();
+    
+    // Final timeout
+    setTimeout(() => {
+      const finalEl = document.querySelector(selector);
+      if (!finalEl) console.error(`waitForElement FINAL FAIL: ${selector}`);
+      resolve(finalEl);
+    }, timeoutMs);
   });
 }
 
