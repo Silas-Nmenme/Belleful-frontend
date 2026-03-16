@@ -370,7 +370,9 @@ function renderAdminMenu(items, count) {
     <tr>
       <td>#${safeId.slice(-8).toUpperCase()}</td>
       <td>
-        <img src="${item.image || '/asset/placeholder-food.jpg'}" class="rounded" style="width:50px;height:50px;object-fit:cover;" alt="${safeName}">
+        <img src="${item.image || 'https://via.placeholder.com/50x50/667eea/ffffff?text=?'}"
+           class="rounded" style="width:50px;height:50px;object-fit:cover;" alt="${safeName}"
+           onerror="this.src='https://via.placeholder.com/50x50/667eea/ffffff?text=?'; this.onerror=null;"> 
       </td>
       <td>${safeName}</td>
       <td><strong>₦${parseFloat(item.price || 0).toLocaleString()}</strong></td>
@@ -733,17 +735,62 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
   }
 });
 
-// Image preview
-document.getElementById('menuImage')?.addEventListener('change', function(e) {
+// Direct Cloudinary upload + preview
+let cloudinaryImageUrl = null;
+
+document.getElementById('menuImage')?.addEventListener('change', async function(e) {
   const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('imagePreview').src = e.target.result;
-      document.getElementById('imagePreview').style.display = 'block';
-    };
-    reader.readAsDataURL(file);
+  if (!file) return;
+  
+  const preview = document.getElementById('imagePreview');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  
+  // Upload to Cloudinary directly
+  try {
+    showToast('Uploading to Cloudinary...', 'info');
+    const uploadRes = await fetch(`${window.API_BASE}/menu/upload-url?folder=menu`);
+    const uploadConfig = await uploadRes.json();
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    Object.entries(uploadConfig.fields).forEach(([k, v]) => formData.append(k, v));
+    
+    const cloudRes = await fetch(uploadConfig.url, {
+      method: 'POST',
+      body: formData
+    });
+    
+    const result = await cloudRes.json();
+    if (result.secure_url) {
+      cloudinaryImageUrl = result.secure_url;
+      showToast('✅ Image uploaded to Cloudinary!', 'success');
+      // Store URL for form submit
+      const hiddenUrl = document.createElement('input');
+      hiddenUrl.type = 'hidden';
+      hiddenUrl.name = 'image';
+      hiddenUrl.value = result.secure_url;
+      hiddenUrl.id = 'cloudinaryImageUrl';
+      document.getElementById('menuForm').appendChild(hiddenUrl);
+    } else {
+      throw new Error('No secure_url in response');
+    }
+  } catch (err) {
+    console.error('Cloudinary upload failed:', err);
+    showToast('Upload failed, using server fallback: ' + err.message, 'warning');
+    cloudinaryImageUrl = null;
   }
+});
+
+// Clear on modal close
+document.getElementById('menuModal')?.addEventListener('hidden.bs.modal', () => {
+  cloudinaryImageUrl = null;
+  const hidden = document.getElementById('cloudinaryImageUrl');
+  if (hidden) hidden.remove();
 });
 
 // Make globally available

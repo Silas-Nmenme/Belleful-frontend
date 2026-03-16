@@ -66,7 +66,8 @@ function createMenuCard(item, delayIndex = 0) {
   card.innerHTML = `
     <div class="card h-100">
       <img src="${item.image || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'}" 
-           class="card-img-top" alt="${item.name}">
+           class="card-img-top" alt="${item.name}"
+           onerror="this.src='https://via.placeholder.com/400x300/667eea/ffffff?text=No+Image'; this.onerror=null;"> 
       <div class="card-body d-flex flex-column">
         <h5 class="card-title fw-bold mb-2">${item.name}</h5>
         <p class="card-text text-muted flex-grow-1">${item.description || 'Delicious ' + item.category}</p>
