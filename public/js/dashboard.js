@@ -151,6 +151,7 @@ function getOrderStatusBadge(status) {
     'ready': 'success',
     'preparing': 'warning',
     'pending_approval': 'warning',
+    'vendor_approved': 'info',
     'ordered': 'secondary'
   };
   return badges[status] || 'light';
@@ -186,7 +187,7 @@ function renderPendingOrders(orders, pendingCount = 0) {
 
   tbody.innerHTML = orders.map(order => `
     <tr>
-      <td>#${order._id.slice(-8).toUpperCase()}</td>
+      <td>#${(order._id || 'ORDER').slice(-8).toUpperCase()}</td>
       <td>
         <div>${order.user?.name || order.user?.email || 'Guest'}</div>
         <small class="text-muted">${order.user?.email || ''}</small>
@@ -284,7 +285,7 @@ async function loadAdminDashboard(pageOrders = 1, statusFilter = '') {
     
     // Force render
     renderAdminStats(data.stats);
-    renderPendingOrders(data.orders.data || [], (data.orders.data || []).filter(o => o.orderStatus === 'pending_approval').length);
+    renderPendingOrders(data.orders.data || [], data.stats.data?.pendingOrders || 0);
     renderAdminUsers(data.users.data || []);
     loadAdminMenu(1);
   } catch (err) {
@@ -390,7 +391,7 @@ function renderAdminMenu(items, count) {
   
   tbody.innerHTML = items.map(item => `
     <tr>
-      <td>#${item._id.slice(-8).toUpperCase()}</td>
+      <td>#${(item._id || 'MOCK').slice(-8).toUpperCase()}</td>
       <td>
         <img src="${item.image || '/asset/placeholder-food.jpg'}" class="rounded" style="width:50px;height:50px;object-fit:cover;" alt="${item.name}">
       </td>
@@ -635,7 +636,6 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
       const errMsg = errData.message || errData.error || (await res.text()) || 'Operation failed';
       throw new Error(errMsg);
     }
-    }
   } catch (error) {
     console.error('Menu form submit error:', error);
     showToast('Error: ' + error.message, 'error');
@@ -643,6 +643,7 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
     hideLoading(submitBtn);
   }
 });
+
 
 // Image preview
 document.getElementById('menuImage')?.addEventListener('change', function(e) {
