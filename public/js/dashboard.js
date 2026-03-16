@@ -318,7 +318,6 @@ document.querySelectorAll('.nav-link[href^="#"]').forEach(link => {
   });
 });
 
-
 // Load admin menu items
 async function loadAdminMenu(page = 1, search = '', category = '') {
   try {
@@ -353,8 +352,6 @@ async function loadAdminMenu(page = 1, search = '', category = '') {
     document.body.classList.remove('loading');
   }
 }
-
-// getMockMenuData removed - real data only
 
 function renderAdminMenu(items, count) {
   document.getElementById('menuCount').textContent = count;
@@ -463,10 +460,12 @@ window.editMenuItem = async function(id) {
       return;
     }
     
-    let item = await response.json();
-    // No demo fallback - real data only
-    if (!item || !item._id) {
-      throw new Error('Item not found');
+    // Fixed: Parse backend {success, data: item} format
+    const responseData = await response.json();
+    const item = responseData.data;
+    console.log('Edit menu response:', responseData); // Debug
+    if (!responseData.success || !item || !item._id) {
+      throw new Error(responseData.message || 'Item not found');
     }
     
     // Populate form
@@ -610,7 +609,6 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
   }
 });
 
-
 // Image preview
 document.getElementById('menuImage')?.addEventListener('change', function(e) {
   const file = e.target.files[0];
@@ -633,5 +631,3 @@ window.DashboardManager = {
   renderAdminUsers,
   loadAdminDashboard
 };
-
-
