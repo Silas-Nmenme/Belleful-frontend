@@ -1,1 +1,1 @@
-window.API_BASE = 'https://belleful-fphf.vercel.app/api';
+window.API_BASE = 'https://belleful-gold.vercel.app/api';
