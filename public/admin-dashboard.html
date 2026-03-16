@@ -31,10 +31,14 @@
         </div>
     </nav>
 
-    <div class="container-fluid py-5 mt-5 min-vh-100 bg-light">
+<div class="container-fluid py-5 mt-5 min-vh-100 bg-light">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="btn btn-primary sidebar-toggle d-lg-none mb-3 position-relative z-3" onclick="toggleSidebar()" style="position: fixed; top: 90px; left: 15px;">
+          <i class="fas fa-bars fa-lg"></i>
+        </button>
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-lg-2 col-md-3 p-0">
+<div class="col-lg-2 col-md-3 sidebar-col p-0">
                 <div class="card h-100 border-0 shadow-lg">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-4 border-bottom pb-3">
@@ -322,6 +326,19 @@
     <script src="js/dashboard.js"></script>
     <script src="js/auth.js"></script>
     <script>
+      function toggleSidebar() {
+        document.querySelector('.sidebar-col').classList.toggle('show');
+      }
+      
+      // Close sidebar when clicking outside
+      document.addEventListener('click', function(e) {
+        const sidebar = document.querySelector('.sidebar-col');
+        const toggle = document.querySelector('.sidebar-toggle');
+        if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+          sidebar.classList.remove('show');
+        }
+      });
+    </script>
         AOS.init();
         
         // Enhanced auth check + dashboard load

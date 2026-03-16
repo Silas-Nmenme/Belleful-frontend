@@ -174,16 +174,16 @@
             container.innerHTML = items.map(item => `
                 <div class="card mb-4 shadow-sm" data-aos="fade-up" data-aos-delay="100">
                     <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-2">
+                        <div class="row align-items-center cart-item-row">
+                            <div class="col-12 col-md-2">
                                 <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=100&h=100&fit=crop&round" 
                                      class="img-fluid rounded-circle" alt="${item.name || 'Item'}">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <h5 class="fw-bold">${item.name || 'Item'}</h5>
                                 <small class="text-muted">Unit: ₦${(item.price || 0).toLocaleString()}</small>
                             </div>
-                            <div class="col-md-4 text-end">
+                            <div class="col-12 col-md-4 text-end">
                                 <div class="input-group w-75 mx-auto">
                                     <button class="btn btn-outline-secondary" onclick="updateQuantity('${item.menuItemId || item.id || ''}', -1)">-</button>
                                     <input type="number" class="form-control text-center fw-bold" value="${item.quantity || 1}" min="1" readonly>
