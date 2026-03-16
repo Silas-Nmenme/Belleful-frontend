@@ -1,9 +1,12 @@
 /* Belleful - Custom Styles & Animations */
 :root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --primary-gradient: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  --secondary-gradient: linear-gradient(135deg, #f4a261 0%, #e76f51 100%);
+  --success-gradient: linear-gradient(135deg, #2ec4b6 0%, #e71d36 100%);
+  --warning-gradient: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+  --primary-color: #ff6b35;
+  --primary-light: #ff8e53;
+  --text-primary: #2d1b14;
 }
 
 /* Base Styles */
@@ -23,6 +26,10 @@ body {
   background: var(--primary-gradient) !important;
 }
 
+.bg-gradient-warm {
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-gradient) 100%) !important;
+}
+
 /* Navbar Enhancements */
 .navbar {
   transition: all 0.3s ease;
@@ -30,8 +37,10 @@ body {
 }
 
 .navbar-scrolled {
-  background: rgba(0,0,0,0.9) !important;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.2) !important;
+  background: rgba(255,107,53,0.95) !important;
+  box-shadow: 0 2px 20px rgba(255,107,53,0.3) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .navbar-brand {
@@ -80,18 +89,31 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.3);
+  background: rgba(45, 27, 20, 0.4);
   z-index: 1;
 }
 
+.hero-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 500px;
+}
+
 .hero-image img {
-  transform: scale(1.1);
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  object-fit: cover;
+  transform: scale(1.05);
   transition: all 0.6s ease;
   border-radius: 25px !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
 
 .hero-image:hover img {
-  transform: scale(1.15);
+  transform: scale(1.08);
 }
 
 /* Cards Hover Effects */
@@ -113,7 +135,7 @@ body {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 15px 40px rgba(255,107,53,0.4);
 }
 
 /* Menu Cards */
@@ -232,6 +254,86 @@ body {
   }
 }
 
+@media (max-width: 576px) {
+  .hero-section {
+    padding-top: 80px !important;
+    padding-bottom: 60px !important;
+  }
+  
+  .hero-section h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  
+  .hero-section .lead {
+    font-size: 1.1rem;
+  }
+  
+  .hero-section .btn-lg {
+    width: 100%;
+    min-height: 52px;
+    font-size: 1rem;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .menu-card img {
+    height: 180px;
+  }
+  
+  .menu-card-body {
+    padding: 1.25rem !important;
+  }
+  
+  .menu-price {
+    font-size: 1.25rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+  
+  .navbar-toggler {
+    padding: 0.5rem;
+  }
+  
+  .icon-circle {
+    width: 70px;
+    height: 70px;
+  }
+  
+  footer .col-lg-4 p,
+  footer .col-lg-4 ul li {
+    font-size: 0.9rem;
+  }
+  
+  .display-4,
+  .display-5 {
+    font-size: 2rem;
+  }
+  
+  .btn {
+    min-height: 48px;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section h1 {
+    font-size: 1.75rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem !important;
+  }
+}
+
+/* Ensure all buttons are touch-friendly */
+.btn {
+  min-height: 48px;
+  padding: 0.75rem 1.5rem;
+  touch-action: manipulation;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -247,7 +349,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #5a67d8;
+  background: var(--primary-color);
 }
 
 /* Admin Dashboard Styles */
