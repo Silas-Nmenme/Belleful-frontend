@@ -498,28 +498,41 @@ window.editMenuItem = async function(id) {
     // Wait for DOM stability
     await new Promise(resolve => setTimeout(resolve, 0));
     
+    // SAFE element collection with wait + fallback
+    console.log('🔍 Collecting form elements safely...');
+    
     const formEls = {
-      menuId: document.getElementById('menuId'),
-      menuName: document.getElementById('menuName'),
-      menuPrice: document.getElementById('menuPrice'),
-      menuStock: document.getElementById('menuStock'),
-      menuCategory: document.getElementById('menuCategory'),
-      menuDescription: document.getElementById('menuDescription'),
-      menuAvailable: document.getElementById('menuAvailable'),
-      menuModalTitle: document.getElementById('menuModalTitle'),
-      menuSubmitText: document.getElementById('menuSubmitText'),
-      imagePreview: document.getElementById('imagePreview')
+      menuId: safeGetElement('menuId'),
+      menuName: safeGetElement('menuName'),
+      menuPrice: safeGetElement('menuPrice'),
+      menuStock: safeGetElement('menuStock'),
+      menuCategory: safeGetElement('menuCategory'),
+      menuDescription: safeGetElement('menuDescription'),
+      menuAvailable: safeGetElement('menuAvailable'),
+      menuModalTitle: safeGetElement('menuModalTitle'),
+      menuSubmitText: safeGetElement('menuSubmitText'),
+      imagePreview: safeGetElement('imagePreview'),
+      menuSubmitBtn: safeGetElement('menuSubmitBtn')
     };
     
-    // Bulletproof null check ALL elements
-    const missingEls = Object.entries(formEls).filter(([key, el]) => !el);
-    if (missingEls.length > 0) {
-      console.error('Missing form elements:', missingEls.map(([k]) => k));
-      showToast(`Form error: Missing elements (${missingEls.length}). Refresh page.`, 'error');
-      return;
+    // FINAL RESORT: Wait for critical elements
+    const criticalMissing = ['menuName', 'menuPrice', 'menuCategory', 'menuSubmitText']
+      .filter(key => !formEls[key]);
+    
+    if (criticalMissing.length > 0) {
+      console.warn('⚠️ Critical elements missing, waiting...', criticalMissing);
+      const menuSubmitEl = await waitForElement('#menuSubmitText', 2000);
+      if (!menuSubmitEl) {
+        console.error('❌ Critical timeout - menuSubmitText failed to appear');
+        showToast(`Form error: Core elements missing. Please refresh page.`, 'error');
+        return;
+      }
+      // Refresh formEls after wait
+      formEls.menuSubmitText = menuSubmitEl;
+      console.log('✅ menuSubmitText recovered via waitForElement');
     }
     
-    console.log('✅ All form elements found, populating...');
+    console.log('✅ All form elements ready, populating...');
     
     // SAFE population with optional chaining and validation
     formEls.menuId.value = item._id || '';
@@ -695,6 +708,38 @@ window.DashboardManager = {
   renderAdminUsers,
   loadAdminDashboard
 };
+
+// ===== SAFE DOM UTILITIES =====
+/**
+ * Wait for element with timeout/retry
+ * @param {string} selector - CSS selector
+ * @param {number} timeoutMs - Max wait time
+ * @returns {Promise<HTMLElement|null>}
+ */
+async function waitForElement(selector, timeoutMs = 3000) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const check = () => {
+      const el = document.querySelector(selector);
+      if (el) return resolve(el);
+      if (Date.now() - start > timeoutMs) {
+        console.warn(`waitForElement timeout: ${selector}`);
+        return resolve(null);
+      }
+      requestAnimationFrame(check);
+    };
+    check();
+  });
+}
+
+/**
+ * Safe single element getter with console info
+ */
+function safeGetElement(id) {
+  const el = document.getElementById(id);
+  if (!el) console.warn(`Element #${id} not found`);
+  return el;
+}
 
 // Safe helper for dashboard loading states
 function safeShowLoading(selector) {
