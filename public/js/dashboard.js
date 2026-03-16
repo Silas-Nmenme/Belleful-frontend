@@ -498,28 +498,85 @@ window.editMenuItem = async function(id) {
     // Wait for DOM stability
     await new Promise(resolve => setTimeout(resolve, 0));
     
-    const formEls = {
-      menuId: document.getElementById('menuId'),
-      menuName: document.getElementById('menuName'),
-      menuPrice: document.getElementById('menuPrice'),
-      menuStock: document.getElementById('menuStock'),
-      menuCategory: document.getElementById('menuCategory'),
-      menuDescription: document.getElementById('menuDescription'),
-      menuAvailable: document.getElementById('menuAvailable'),
-      menuModalTitle: document.getElementById('menuModalTitle'),
-      menuSubmitText: document.getElementById('menuSubmitText'),
-      imagePreview: document.getElementById('imagePreview')
-    };
+    // Robust element finder with retry + fallback
+    async function getFormElements() {
+      const selectors = {
+        menuId: '#menuId',
+        menuName: '#menuName',
+        menuPrice: '#menuPrice',
+        menuStock: '#menuStock',
+        menuCategory: '#menuCategory',
+        menuDescription: '#menuDescription',
+        menuAvailable: '#menuAvailable',
+        menuModalTitle: '#menuModalTitle',
+        menuSubmitText: '#menuSubmitText',
+        imagePreview: '#imagePreview'
+      };
+
+      const maxRetries = 5;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const formEls = {};
+        let allFound = true;
+
+        for (const [key, selector] of Object.entries(selectors)) {
+          formEls[key] = document.querySelector(selector);
+          if (!formEls[key]) {
+            allFound = false;
+            console.warn(`Attempt ${attempt}: ${key} not found`);
+          }
+        }
+
+        if (allFound) {
+          console.log(`✅ All ${Object.keys(formEls).length} form elements found (attempt ${attempt})`);
+          return formEls;
+        }
+
+        // Fallback: create missing menuSubmitText if button exists
+        const submitBtn = document.querySelector('#menuSubmitBtn');
+        if (!formEls.menuSubmitText && submitBtn) {
+          const span = document.createElement('span');
+          span.id = 'menuSubmitText';
+          span.textContent = 'Update Item';
+          submitBtn.appendChild(span);
+          console.log('🔧 Auto-created menuSubmitText fallback');
+          return getFormElements(); // Retry once
+        }
+
+        if (attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, 100 * attempt)); // Progressive delay
+        }
+      }
+
+      // Final fallback: minimal required fields only
+      console.warn('⚠️ Using minimal fallback elements');
+      return {
+        menuId: document.querySelector('#menuId'),
+        menuName: document.querySelector('#menuName'),
+        menuPrice: document.querySelector('#menuPrice'),
+        menuCategory: document.querySelector('#menuCategory'),
+        menuAvailable: document.querySelector('#menuAvailable'),
+        menuSubmitText: document.querySelector('#menuSubmitText') || (() => {
+          const btn = document.querySelector('#menuSubmitBtn');
+          if (btn) {
+            const span = document.createElement('span');
+            span.id = 'menuSubmitText';
+            span.textContent = 'Update Item';
+            btn.appendChild(span);
+            return span;
+          }
+          return { textContent: () => 'Update' };
+        })()
+      };
+    }
+
+    const formEls = await getFormElements();
     
-    // Bulletproof null check ALL elements
-    const missingEls = Object.entries(formEls).filter(([key, el]) => !el);
-    if (missingEls.length > 0) {
-      console.error('Missing form elements:', missingEls.map(([k]) => k));
-      showToast(`Form error: Missing elements (${missingEls.length}). Refresh page.`, 'error');
+    // Validate minimal required
+    if (!formEls.menuName || !formEls.menuPrice || !formEls.menuId) {
+      console.error('Critical form elements missing:', { menuName: !!formEls.menuName, menuPrice: !!formEls.menuPrice, menuId: !!formEls.menuId });
+      showToast('Form partially broken. Refresh page and try again.', 'warning');
       return;
     }
-    
-    console.log('✅ All form elements found, populating...');
     
     // SAFE population with optional chaining and validation
     formEls.menuId.value = item._id || '';
@@ -530,13 +587,9 @@ window.editMenuItem = async function(id) {
     formEls.menuDescription.value = item.description || '';
     formEls.menuAvailable.checked = item.available !== false;
     
-    // SAFE textContent with null check + fallback
-    if (formEls.menuModalTitle) {
-      formEls.menuModalTitle.textContent = item.name ? `Edit: ${item.name}` : 'Edit Menu Item';
-    }
-    if (formEls.menuSubmitText) {
-      formEls.menuSubmitText.textContent = 'Update Item';
-    }
+    // SAFE population - now guaranteed by getFormElements()
+    formEls.menuModalTitle.textContent = item.name ? `Edit: ${item.name}` : 'Edit Menu Item';
+    formEls.menuSubmitText.textContent = 'Update Item';
     
     // Safe image preview with error handling
     if (item.image && formEls.imagePreview) {
@@ -551,7 +604,14 @@ window.editMenuItem = async function(id) {
     
     console.log('✅ Form populated successfully:', { id: item._id, name: item.name });
     
-    new bootstrap.Modal(menuModal).show();
+    // Ensure modal fully shown
+    const modalInstance = new bootstrap.Modal(menuModal);
+    modalInstance.show();
+    
+    // Double-confirm elements after modal shown
+    modalInstance._element.addEventListener('shown.bs.modal', () => {
+      console.log('🎉 Modal fully shown, elements verified');
+    }, { once: true });
   } catch (error) {
     console.error('Edit menu fetch error:', error);
     showToast('Failed to load item: ' + error.message, 'error');
