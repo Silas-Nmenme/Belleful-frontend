@@ -370,9 +370,7 @@ function renderAdminMenu(items, count) {
     <tr>
       <td>#${safeId.slice(-8).toUpperCase()}</td>
       <td>
-        <img src="${item.image || 'https://via.placeholder.com/50x50/667eea/ffffff?text=?'}"
-           class="rounded" style="width:50px;height:50px;object-fit:cover;" alt="${safeName}"
-           onerror="this.src='https://via.placeholder.com/50x50/667eea/ffffff?text=?'; this.onerror=null;"> 
+        <img src="${item.image || '/asset/placeholder-food.jpg'}" class="rounded" style="width:50px;height:50px;object-fit:cover;" alt="${safeName}">
       </td>
       <td>${safeName}</td>
       <td><strong>₦${parseFloat(item.price || 0).toLocaleString()}</strong></td>
@@ -500,85 +498,28 @@ window.editMenuItem = async function(id) {
     // Wait for DOM stability
     await new Promise(resolve => setTimeout(resolve, 0));
     
-    // Robust element finder with retry + fallback
-    async function getFormElements() {
-      const selectors = {
-        menuId: '#menuId',
-        menuName: '#menuName',
-        menuPrice: '#menuPrice',
-        menuStock: '#menuStock',
-        menuCategory: '#menuCategory',
-        menuDescription: '#menuDescription',
-        menuAvailable: '#menuAvailable',
-        menuModalTitle: '#menuModalTitle',
-        menuSubmitText: '#menuSubmitText',
-        imagePreview: '#imagePreview'
-      };
-
-      const maxRetries = 5;
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        const formEls = {};
-        let allFound = true;
-
-        for (const [key, selector] of Object.entries(selectors)) {
-          formEls[key] = document.querySelector(selector);
-          if (!formEls[key]) {
-            allFound = false;
-            console.warn(`Attempt ${attempt}: ${key} not found`);
-          }
-        }
-
-        if (allFound) {
-          console.log(`✅ All ${Object.keys(formEls).length} form elements found (attempt ${attempt})`);
-          return formEls;
-        }
-
-        // Fallback: create missing menuSubmitText if button exists
-        const submitBtn = document.querySelector('#menuSubmitBtn');
-        if (!formEls.menuSubmitText && submitBtn) {
-          const span = document.createElement('span');
-          span.id = 'menuSubmitText';
-          span.textContent = 'Update Item';
-          submitBtn.appendChild(span);
-          console.log('🔧 Auto-created menuSubmitText fallback');
-          return getFormElements(); // Retry once
-        }
-
-        if (attempt < maxRetries) {
-          await new Promise(r => setTimeout(r, 100 * attempt)); // Progressive delay
-        }
-      }
-
-      // Final fallback: minimal required fields only
-      console.warn('⚠️ Using minimal fallback elements');
-      return {
-        menuId: document.querySelector('#menuId'),
-        menuName: document.querySelector('#menuName'),
-        menuPrice: document.querySelector('#menuPrice'),
-        menuCategory: document.querySelector('#menuCategory'),
-        menuAvailable: document.querySelector('#menuAvailable'),
-        menuSubmitText: document.querySelector('#menuSubmitText') || (() => {
-          const btn = document.querySelector('#menuSubmitBtn');
-          if (btn) {
-            const span = document.createElement('span');
-            span.id = 'menuSubmitText';
-            span.textContent = 'Update Item';
-            btn.appendChild(span);
-            return span;
-          }
-          return { textContent: () => 'Update' };
-        })()
-      };
-    }
-
-    const formEls = await getFormElements();
+    const formEls = {
+      menuId: document.getElementById('menuId'),
+      menuName: document.getElementById('menuName'),
+      menuPrice: document.getElementById('menuPrice'),
+      menuStock: document.getElementById('menuStock'),
+      menuCategory: document.getElementById('menuCategory'),
+      menuDescription: document.getElementById('menuDescription'),
+      menuAvailable: document.getElementById('menuAvailable'),
+      menuModalTitle: document.getElementById('menuModalTitle'),
+      menuSubmitText: document.getElementById('menuSubmitText'),
+      imagePreview: document.getElementById('imagePreview')
+    };
     
-    // Validate minimal required
-    if (!formEls.menuName || !formEls.menuPrice || !formEls.menuId) {
-      console.error('Critical form elements missing:', { menuName: !!formEls.menuName, menuPrice: !!formEls.menuPrice, menuId: !!formEls.menuId });
-      showToast('Form partially broken. Refresh page and try again.', 'warning');
+    // Bulletproof null check ALL elements
+    const missingEls = Object.entries(formEls).filter(([key, el]) => !el);
+    if (missingEls.length > 0) {
+      console.error('Missing form elements:', missingEls.map(([k]) => k));
+      showToast(`Form error: Missing elements (${missingEls.length}). Refresh page.`, 'error');
       return;
     }
+    
+    console.log('✅ All form elements found, populating...');
     
     // SAFE population with optional chaining and validation
     formEls.menuId.value = item._id || '';
@@ -589,9 +530,13 @@ window.editMenuItem = async function(id) {
     formEls.menuDescription.value = item.description || '';
     formEls.menuAvailable.checked = item.available !== false;
     
-    // SAFE population - now guaranteed by getFormElements()
-    formEls.menuModalTitle.textContent = item.name ? `Edit: ${item.name}` : 'Edit Menu Item';
-    formEls.menuSubmitText.textContent = 'Update Item';
+    // SAFE textContent with null check + fallback
+    if (formEls.menuModalTitle) {
+      formEls.menuModalTitle.textContent = item.name ? `Edit: ${item.name}` : 'Edit Menu Item';
+    }
+    if (formEls.menuSubmitText) {
+      formEls.menuSubmitText.textContent = 'Update Item';
+    }
     
     // Safe image preview with error handling
     if (item.image && formEls.imagePreview) {
@@ -606,14 +551,7 @@ window.editMenuItem = async function(id) {
     
     console.log('✅ Form populated successfully:', { id: item._id, name: item.name });
     
-    // Ensure modal fully shown
-    const modalInstance = new bootstrap.Modal(menuModal);
-    modalInstance.show();
-    
-    // Double-confirm elements after modal shown
-    modalInstance._element.addEventListener('shown.bs.modal', () => {
-      console.log('🎉 Modal fully shown, elements verified');
-    }, { once: true });
+    new bootstrap.Modal(menuModal).show();
   } catch (error) {
     console.error('Edit menu fetch error:', error);
     showToast('Failed to load item: ' + error.message, 'error');
@@ -735,71 +673,17 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
   }
 });
 
-// Direct Cloudinary upload + preview
-let cloudinaryImageUrl = null;
-
-document.getElementById('menuImage')?.addEventListener('change', async function(e) {
+// Image preview
+document.getElementById('menuImage')?.addEventListener('change', function(e) {
   const file = e.target.files[0];
-  if (!file) return;
-  
-  const preview = document.getElementById('imagePreview');
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    preview.src = e.target.result;
-    preview.style.display = 'block';
-  };
-  reader.readAsDataURL(file);
-  
-  // Upload to Cloudinary directly
-  try {
-    showToast('Uploading to Cloudinary...', 'info');
-    const token = localStorage.getItem('token');
-    const uploadRes = await fetch(`${window.API_BASE}/menu/upload-url?folder=menu`, {
-      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-    });
-    if (!uploadRes.ok) throw new Error(`Upload URL failed: ${uploadRes.status}`);
-    
-    const uploadConfig = await uploadRes.json();
-    if (!uploadConfig.url || !uploadConfig.fields) {
-      throw new Error('Invalid upload config from server');
-    }
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    Object.entries(uploadConfig.fields).forEach(([k, v]) => formData.append(k, v));
-    
-    const cloudRes = await fetch(uploadConfig.url, {
-      method: 'POST',
-      body: formData
-    });
-    
-    if (!cloudRes.ok) throw new Error(`Cloudinary upload failed: ${cloudRes.status}`);
-    const result = await cloudRes.json();
-    if (result.secure_url) {
-      cloudinaryImageUrl = result.secure_url;
-      showToast('✅ Image uploaded to Cloudinary!', 'success');
-      // Store URL for form submit
-      const hiddenUrl = document.createElement('input');
-      hiddenUrl.type = 'hidden';
-      hiddenUrl.name = 'image';
-      hiddenUrl.value = result.secure_url;
-      hiddenUrl.id = 'cloudinaryImageUrl';
-      document.getElementById('menuForm').appendChild(hiddenUrl);
-    } else {
-      throw new Error('No secure_url in response');
-    }
-  } catch (err) {
-    console.error('Cloudinary upload failed:', err);
-    showToast('Upload failed, using server fallback: ' + err.message, 'warning');
-    cloudinaryImageUrl = null;
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('imagePreview').src = e.target.result;
+      document.getElementById('imagePreview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
   }
-});
-
-// Clear on modal close
-document.getElementById('menuModal')?.addEventListener('hidden.bs.modal', () => {
-  cloudinaryImageUrl = null;
-  const hidden = document.getElementById('cloudinaryImageUrl');
-  if (hidden) hidden.remove();
 });
 
 // Make globally available
