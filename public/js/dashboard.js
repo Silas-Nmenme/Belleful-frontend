@@ -279,11 +279,16 @@ async function loadAdminDashboard(pageOrders = 1, statusFilter = '') {
     document.body.classList.add('loading');
     const data = await loadAdminStats(pageOrders, 10, 1, 10, '', statusFilter);
     
-    if (data.stats.success) renderAdminStats(data.stats);
+    // DEBUG: Log raw response
+    console.log('🔍 RAW STATS:', data.stats);
+    
+    // Force render regardless of success flag (debug)
+    renderAdminStats(data.stats);
     renderPendingOrders(data.orders.data || [], (data.orders.data || []).filter(o => o.orderStatus === 'pending_approval').length);
     renderAdminUsers(data.users.data || []);
-    loadAdminMenu(1); // Load menu items
+    loadAdminMenu(1);
   } catch (err) {
+    console.error('Dashboard load error:', err);
     showToast('Failed to load dashboard: ' + err.message, 'error');
   } finally {
     document.body.classList.remove('loading');
@@ -621,10 +626,11 @@ document.getElementById('menuForm')?.addEventListener('submit', async function(e
     if (res.ok) {
       showToast(id ? 'Item updated successfully!' : 'Item created successfully!', 'success');
       bootstrap.Modal.getInstance(document.getElementById('menuModal')).hide();
-      document.getElementById('menuForm').reset(); // Clear form
+      document.getElementById('menuForm').reset();
       document.getElementById('imagePreview').style.display = 'none';
       await loadAdminMenu(1);
-    } else {
+      await loadAdminDashboard(); // ← FIX: Refresh stats
+    }
       const errData = await res.json().catch(() => ({}));
       const errMsg = errData.message || errData.error || (await res.text()) || 'Operation failed';
       throw new Error(errMsg);
