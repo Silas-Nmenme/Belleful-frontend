@@ -97,7 +97,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(45, 27, 20, 0.4);
+  background: rgba(45, 27, 20, 0);
   z-index: 1;
 }
 
