@@ -4,7 +4,7 @@ body {
   background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
 }
 :root {
-  --primary-gradient: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  --primary-gradient: linear-gradient(135deg, red 0%, #fa8415 100%);
   --primary-warm: #ff8e53;
   --secondary-gradient: linear-gradient(135deg, #f4a261 0%, #e76f51 100%);
   --success-gradient: linear-gradient(135deg, #2ec4b6 0%, #e71d36 100%);
@@ -33,7 +33,7 @@ body {
 }
 
 .bg-gradient-warm {
-  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-gradient) 100%);
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
 }
 
 /* Navbar Enhancements */
@@ -52,14 +52,18 @@ body {
 }
 
 .navbar-brand {
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-weight: bolder;
+  letter-spacing: 2px;
+  font-size: 30px;
+
 }
 
 .nav-link {
   position: relative;
   transition: all 0.3s ease;
-  font-weight: 500;
+  font-weight: bolder;
+  font-size: 25px;
+  word-spacing: 5px;
 }
 
 .nav-link:hover {
@@ -77,6 +81,7 @@ body {
   background: #fff;
   transition: all 0.3s ease;
   transform: translateX(-50%);
+  font-weight: bold;
 }
 
 .nav-link:hover::after {
@@ -190,7 +195,7 @@ body {
   font-weight: 600;
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  overflow: hidden;;
 }
 
 .add-to-cart-btn:hover {
@@ -328,10 +333,12 @@ body {
     width: 70px;
     height: 70px;
   }
+
+}
   
 /* Warm Orange Footer matching Belleful theme */
 footer {
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  background: var(--primary-gradient);
   color: #ffffff;
   border-top: none;
 }
@@ -393,8 +400,8 @@ footer hr {
 .btn {
   min-height: 48px;
   padding: 0.75rem 1.5rem;
-  touch-action: manipulation;
 }
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
@@ -466,4 +473,3 @@ body.loading {
   .col-lg-2 { position: fixed; z-index: 1050; height: 100vh; transform: translateX(-100%); transition: 0.3s; }
   /* Toggle button etc */
 }
-
