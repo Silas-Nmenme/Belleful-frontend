@@ -370,7 +370,7 @@ function renderAdminMenu(items, count) {
     <tr>
       <td>#${safeId.slice(-8).toUpperCase()}</td>
       <td>
-        <img src="${item.image || '/asset/placeholder-food.jpg'}" class="rounded" style="width:50px;height:50px;object-fit:cover;" alt="${safeName}">
+        <img src="${item.image || '/asset/hero.jpeg'}" class="rounded" style="width:50px;height:50px;object-fit:cover;" alt="${safeName}">
       </td>
       <td>${safeName}</td>
       <td><strong>₦${parseFloat(item.price || 0).toLocaleString()}</strong></td>

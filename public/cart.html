@@ -18,7 +18,8 @@
             <a class="navbar-brand fw-bold fs-3" href="index.html">
                 <i class="fas fa-utensils me-2"></i>Belleful
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav;" 
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -37,7 +38,7 @@
         </div>
     </nav>
 
-    <div class="container-fluid py-5" style="margin-top: 100px;">
+    <div class="container-fluid py-5 page-offset">
         <div class="row">
             <!-- Cart Items -->
             <div class="col-lg-8">
@@ -52,7 +53,7 @@
                 </div>
                 
                 <div id="cartItemsContainer" data-aos="fade-up">
-                    <div class="empty-cart text-center py-5" style="display: none;">
+                    <div class="empty-cart text-center py-5 hidden">
                         <i class="fas fa-shopping-cart fa-8x text-muted mb-4"></i>
                         <h3 class="text-muted mb-4">Your cart is empty</h3>
                         <p class="lead text-muted mb-4">Add some delicious items to get started</p>
@@ -68,7 +69,7 @@
             
             <!-- Order Summary -->
             <div class="col-lg-4">
-                <div class="card sticky-top" style="top: 100px;" data-aos="fade-left">
+                <div class="card sticky-top sticky-top-offset" data-aos="fade-left">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0 fw-bold">
                             <i class="fas fa-receipt me-2"></i>Order Summary
@@ -97,6 +98,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="js/constants.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/cart.js"></script>
     <script>
         AOS.init({ duration: 1000, once: true });
@@ -229,7 +231,7 @@
                 <div class="d-flex align-items-start">
                     <strong class="me-3">${type.charAt(0).toUpperCase() + type.slice(1)}! </strong>
                     <span>${message}</span>
-                    <button type="button" class="btn-close ms-auto" style="filter: invert(1);" onclick="this.parentElement.parentElement.remove()"></button>
+                    <button type="button" class="btn-close ms-auto btn-close-invert" onclick="this.parentElement.parentElement.remove()"></button>
                 </div>
             `;
             

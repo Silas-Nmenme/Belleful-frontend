@@ -4,7 +4,7 @@ body {
   background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
 }
 :root {
-  --primary-gradient: linear-gradient(135deg, red 0%, #fa8415 100%);
+  --primary-gradient: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
   --primary-warm: #ff8e53;
   --secondary-gradient: linear-gradient(135deg, #f4a261 0%, #e76f51 100%);
   --success-gradient: linear-gradient(135deg, #2ec4b6 0%, #e71d36 100%);
@@ -53,17 +53,15 @@ body {
 
 .navbar-brand {
   font-weight: bolder;
-  letter-spacing: 2px;
-  font-size: 30px;
-
+  letter-spacing: 1px;
+  font-size: 22px;
 }
 
 .nav-link {
   position: relative;
-  transition: all 0.3s ease;
-  font-weight: bolder;
-  font-size: 25px;
-  word-spacing: 5px;
+  transition: all 0.25s ease;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .nav-link:hover {
@@ -473,3 +471,20 @@ body.loading {
   .col-lg-2 { position: fixed; z-index: 1050; height: 100vh; transform: translateX(-100%); transition: 0.3s; }
   /* Toggle button etc */
 }
+
+/* Extracted utility classes for inline styles */
+.password-wrapper { position: relative; display: flex; align-items: center; }
+.password-wrapper .password-field { flex: 1; padding-right: 40px; }
+.password-toggle { position: absolute; right: 8px; background: none; border: none; color: #333; }
+
+.cart-count.hidden { display: none !important; }
+.menu-grid.hidden { display: none !important; }
+.icon-circle.small { width: 50px; height: 50px; }
+.page-offset { margin-top: 100px; }
+.empty-cart.hidden { display: none !important; }
+.sticky-top-offset { top: 100px; }
+.btn-close-invert { filter: invert(1); }
+.image-preview { max-width: 200px; max-height: 200px; display: none; }
+.progress-lg { height: 25px; }
+.progress-bar-init { width: 30%; }
+.spinner-lg { width: 3rem; height: 3rem; }

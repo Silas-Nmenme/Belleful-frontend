@@ -75,13 +75,13 @@
                             </div>
                         </div>
 
-                        <div id="uploadSection" style="display: none;">
+                        <div id="uploadSection" class="hidden">
                             <form id="paymentUploadForm" enctype="multipart/form-data" class="dropzone p-4 border-dashed rounded-3 mb-4" novalidate>
                                 <div class="text-center">
                                     <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-4"></i>
                                     <h5 class="fw-bold mb-3">Upload Payment Receipt</h5>
                                     <p class="text-muted mb-4">Take photo or screenshot of your transfer</p>
-                                    <input type="file" id="receiptFile" class="form-control form-control-lg" accept="image/*" required>
+                                    <input type="file" id="receiptFile" class="form-control form-control-lg" accept="image/*"placeholder="Upload payment receipt" required/>
                                     <div class="invalid-feedback"></div>
                                     <button type="submit" class="btn btn-success w-100 mt-4 btn-lg fw-bold py-3">
                                         <i class="fas fa-upload me-2"></i>Upload & Submit Order
@@ -91,8 +91,8 @@
                             <div class="text-center text-success fw-bold fs-5 mb-3">
                                 <i class="fas fa-clock me-2"></i>Order Created! Waiting admin approval...
                             </div>
-                            <div class="progress" style="height: 25px;">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 30%">
+                            <div class="progress progress-lg">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning progress-bar-init" role="progressbar">
                                     Pending Verification
                                 </div>
                             </div>
@@ -118,9 +118,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="js/constants.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/orders.js"></script>
     <script src="js/cart.js"></script>
-    <script src="js/auth.js"></script>
     <script>
         AOS.init();
         
