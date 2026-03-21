@@ -1,0 +1,4 @@
+@import url('index.css');
+
+/* Admin login overrides (keeps gradient background) */
+.hero-icon-admin i { color: var(--primary-color); }
