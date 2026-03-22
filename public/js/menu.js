@@ -92,7 +92,7 @@ async function addToCart(menuItemId, price, name) {
 function addToCart(e, menuItemId, price, name) {
   const btn = e?.target?.closest('button');
   const originalText = btn.innerHTML;
-  
+}
   try {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
     btn.disabled = true;
