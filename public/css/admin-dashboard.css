@@ -1,0 +1,4 @@
+@import url('index.css');
+
+/* Admin dashboard specific overrides */
+.card { border-radius: 12px; }

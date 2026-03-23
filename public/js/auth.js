@@ -48,6 +48,36 @@ function setupEventListeners() {
       }
     });
   }
+
+  // Password visibility toggle
+  setupPasswordToggle();
+}
+
+// Password show/hide toggle setup
+function setupPasswordToggle() {
+  const toggle = document.getElementById('togglePassword');
+  const pwd = document.getElementById('loginPassword') || document.querySelector('input[type="password"]');
+  if (!toggle || !pwd) return;
+
+  toggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    const isPassword = pwd.type === 'password';
+    pwd.type = isPassword ? 'text' : 'password';
+    const icon = toggle.querySelector('i');
+    if (icon) {
+      if (isPassword) {
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+        toggle.setAttribute('aria-label', 'Hide password');
+      } else {
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+        toggle.setAttribute('aria-label', 'Show password');
+      }
+    } else {
+      toggle.textContent = isPassword ? 'Hide' : 'Show';
+    }
+  });
 }
 
 // Check authentication status - FIXED for mock tokens

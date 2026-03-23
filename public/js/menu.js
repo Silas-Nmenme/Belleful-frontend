@@ -77,8 +77,8 @@ function createMenuCard(item, delayIndex = 0) {
             ${item.category}
           </span>
         </div>
-        <button class="btn btn-success w-100 add-to-cart-btn" onclick="addToCart('${item._id}', ${item.price}, '${item.name}')" ${!item.available ? 'disabled' : ''}>
-          ${item.available ? '<i class=\\"fas fa-plus me-2\\"></i>Add to Cart' : '<i class=\\"fas fa-ban me-2\\"></i>Unavailable'}
+        <button class="btn btn-success w-100 add-to-cart-btn" onclick="addToCart(event, '${item._id}', ${item.price}, '${item.name}')" ${!item.available ? 'disabled' : ''}>
+          ${item.available ? '<i class="fas fa-plus me-2"></i>Add to Cart' : '<i class="fas fa-ban me-2"></i>Unavailable'}
         </button>
       </div>
     </div>
@@ -89,7 +89,8 @@ function createMenuCard(item, delayIndex = 0) {
 
 // Add to cart function (works pre/post auth)
 async function addToCart(menuItemId, price, name) {
-  const btn = event.target.closest('button');
+function addToCart(e, menuItemId, price, name) {
+  const btn = e?.target?.closest('button');
   const originalText = btn.innerHTML;
   
   try {
