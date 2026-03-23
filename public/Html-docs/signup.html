@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/signup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="contact-box">
+            <div class="left">
+                <a class="login-brand" href="index.html">
+                <i class="fas fa-utensils me-2"></i>Bellefull
+            </a>
+            </div>
+            <div class="right">
+                <h2> Sign Up </h2>
+                <form id="loginForm" class="login-form" onsubmit="AuthManager.login(event)">
+                    <input id="signup-name" name="name" type="text" placeholder="Enter your name" class="field">
+                    <input id="loginEmail" name="email" type="email" class="field" placeholder="Enter Your Email" required>
+                    <div class="password-wrapper">
+                        <input id="loginPassword" name="password" type="password" class="password-field" placeholder="Enter Your Password" required>
+                        <button id="togglePassword" type="button" aria-label="Show password" class="password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <p class="sign-up text">Don't have an account yet <a href="" class="sign-up-btn">Sign up</a></p>
+                    <a href="OTP.html">Forgot password</a>
+                    <button id="loginFormSubmit" class="btn" type="submit">Login</button>
+                </form>
+            </div>
+        </div> 
+    </div>
+</body>
+</html>
