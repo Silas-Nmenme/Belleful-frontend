@@ -88,8 +88,7 @@ function createMenuCard(item, delayIndex = 0) {
 }
 
 // Add to cart function (works pre/post auth)
-async function addToCart(menuItemId, price, name) {
-function addToCart(e, menuItemId, price, name) {
+async function addToCart(e, menuItemId, price, name) {
   const btn = e?.target?.closest('button');
   const originalText = btn.innerHTML;
   
