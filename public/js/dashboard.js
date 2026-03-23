@@ -307,13 +307,19 @@ setInterval(() => {
 document.querySelectorAll('.nav-link[href^="#"]').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
-    const target = document.querySelector(link.getAttribute('href'));
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-      // Auto-load menu section
-      if (link.getAttribute('href') === '#menu-admin') {
-        setTimeout(() => loadAdminMenu(1), 500);
+    const href = link.getAttribute('href');
+    if (!href || href === '#') return;
+    try {
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+        // Auto-load menu section
+        if (href === '#menu-admin') {
+          setTimeout(() => loadAdminMenu(1), 500);
+        }
       }
+    } catch (error) {
+      console.warn('Invalid smooth scroll target:', href, error);
     }
   });
 });
