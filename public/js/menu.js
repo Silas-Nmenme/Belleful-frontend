@@ -88,8 +88,7 @@ function createMenuCard(item, delayIndex = 0) {
 }
 
 // Add to cart function (works pre/post auth)
-async function addToCart(menuItemId, price, name) {
-function addToCart(e, menuItemId, price, name) {
+async function addToCart(e, menuItemId, price, name) {
   const btn = e?.target?.closest('button');
   const originalText = btn.innerHTML;
 }
@@ -159,11 +158,13 @@ function addToLocalCart(menuItemId, price, name) {
 
 function updateCartCount(count) {
   const badge = document.querySelector('.cart-count');
-  if (count > 0) {
-    badge.textContent = count;
-    badge.style.display = 'inline-flex';
-  } else {
-    badge.style.display = 'none';
+  if (badge) {
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
   }
 }
 
