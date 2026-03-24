@@ -117,7 +117,60 @@ function showToast(message, type = 'info') {
 }
 
 window.updateQuantity = async function(id, change) {
-    showToast('Quantity updated!', 'success');
+    try {
+        const isAuth = !!localStorage.getItem('token');
+        let cartData;
+
+        if (isAuth) {
+            const token = localStorage.getItem('token');
+            const currentData = await fetch(`${window.API_BASE}/cart`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).then(r => r.json());
+            cartData = currentData.data || currentData;
+        } else {
+            cartData = JSON.parse(localStorage.getItem('guestCart') || '{"items":[]}');
+        }
+
+        const item = cartData.items.find(i => (i.menuItemId || i.id) === id);
+        if (!item) {
+            showToast('Item not found!', 'error');
+            return;
+        }
+
+        const newQty = Math.max(1, (item.quantity || 1) + change);
+        item.quantity = newQty;
+
+        if (isAuth) {
+            const token = localStorage.getItem('token');
+            if (newQty === 1) {
+                await fetch(`${window.API_BASE}/cart`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ menuItemId: id })
+                });
+            } else {
+                await fetch(`${window.API_BASE}/cart`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ menuItemId: id, quantity: newQty })
+                });
+            }
+        } else {
+            cartData.items = cartData.items.map(i => 
+                (i.menuItemId || i.id) === id ? { ...i, quantity: newQty } : i
+            );
+            if (newQty === 1) {
+                cartData.items = cartData.items.filter(i => (i.menuItemId || i.id) !== id);
+            }
+            localStorage.setItem('guestCart', JSON.stringify(cartData));
+        }
+
+        showToast('Quantity updated!', 'success');
+        loadCartPage();
+    } catch (error) {
+        console.error('Update quantity failed:', error);
+        showToast('Failed to update quantity', 'error');
+    }
 }
 
 window.removeFromCart = async function(id) {
@@ -138,6 +191,36 @@ window.removeFromCart = async function(id) {
             console.error('Remove failed:', error);
             showToast('Failed to remove item', 'error');
         }
+    }
+}
+
+window.clearCart = async function() {
+    if (!confirm('Clear entire cart? This cannot be undone.')) return;
+
+    try {
+        const isAuth = !!localStorage.getItem('token');
+        if (isAuth) {
+            const token = localStorage.getItem('token');
+            // Assume API supports clearing all, or loop delete - fallback to loop
+            const cartData = await fetch(`${window.API_BASE}/cart`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).then(r => r.json());
+            const items = cartData.data?.items || cartData.items || [];
+            for (const item of items) {
+                await fetch(`${window.API_BASE}/cart`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ menuItemId: item.menuItemId || item.id })
+                });
+            }
+        } else {
+            localStorage.removeItem('guestCart');
+        }
+        showToast('Cart cleared!', 'success');
+        loadCartPage();
+    } catch (error) {
+        console.error('Clear cart failed:', error);
+        showToast('Failed to clear cart', 'error');
     }
 }
 

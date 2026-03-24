@@ -81,6 +81,9 @@
                             <span>Total:</span>
                             <span id="cartTotal" class="text-success">₦0</span>
                         </div>
+                        <button id="clearCartBtn" class="btn btn-outline-danger w-100 py-3 fw-bold mb-3" style="border: 2px solid #dc3545;">
+                            <i class="fas fa-trash-alt me-2"></i>Clear Cart
+                        </button>
                         <button id="checkoutBtn" class="btn btn-success w-100 btn-lg py-3 fw-bold mb-3" disabled>
                             <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
                         </button>
@@ -115,6 +118,9 @@
             } else {
                 navList.innerHTML += '<li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>';
             }
+
+            // Clear cart button
+            document.getElementById('clearCartBtn')?.addEventListener('click', clearCart);
         });
     </script>
 
