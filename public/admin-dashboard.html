@@ -98,6 +98,7 @@
                                     </div>
                                     <div class="col-md-3">
 
+                                        <select class="form-select" id="orderStatusFilter" title="Filter by order status" onchange="loadAdminDashboard(1, '', this.value)">
                                             <option value="">All Status</option>
                                             <option value="pending_approval">Pending Approval</option>
                                             <option value="vendor_approved">Approved</option>
@@ -106,7 +107,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-onclick="window.DashboardManager?.loadAdminDashboard?.() || loadAdminDashboard?.() || console.warn('Dashboard unavailable')">
+                                        <button class="btn btn-outline-danger" onclick="window.DashboardManager?.loadAdminDashboard?.() || loadAdminDashboard?.() || console.warn('Dashboard unavailable')">
                                             <i class="fas fa-refresh"></i> Refresh
                                         </button>
                                     </div>
@@ -152,11 +153,10 @@ onclick="window.DashboardManager?.loadAdminDashboard?.() || loadAdminDashboard?.
                             <div class="p-4 border-bottom">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-oninput="window.DashboardManager?.loadAdminStats?.(1,10,1,10,this.value,'') || console.warn('Dashboard unavailable')"
-
+                                        <input type="text" class="form-control" id="usersSearch" placeholder="Search users..." oninput="window.DashboardManager?.loadAdminStats?.(1,10,1,10,this.value,'') || console.warn('Dashboard unavailable')">
                                     </div>
                                     <div class="col-md-3">
-onclick="window.DashboardManager?.loadAdminDashboard?.() || console.warn('Dashboard unavailable')">
+                                        <button class="btn btn-info" onclick="window.DashboardManager?.loadAdminDashboard?.() || console.warn('Dashboard unavailable')">
                                             <i class="fas fa-refresh"></i> Refresh
                                         </button>
                                     </div>
@@ -206,13 +206,11 @@ onclick="window.DashboardManager?.loadAdminDashboard?.() || console.warn('Dashbo
                                         <input type="text" class="form-control" id="menuSearch" placeholder="Search menu items..." oninput="loadAdminMenu(1, this.value, document.getElementById('categoryFilter').value)">
                                     </div>
                                     <div class="col-md-3">
-                                        <select class="form-select" id="categoryFilter" 
-
+                                        <select class="form-select" id="categoryFilter" title="Filter by category">
                                             <option value="">All Categories</option>
-
-<option value="food">Food</option>
-                                    <option value="drink">Drink</option>
-                                    <option value="side">Side</option>
+                                            <option value="food">Food</option>
+                                            <option value="drink">Drink</option>
+                                            <option value="side">Side</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
@@ -266,7 +264,7 @@ onclick="window.DashboardManager?.loadAdminDashboard?.() || console.warn('Dashbo
                                         <input type="text" class="form-control" id="contactsSearch" placeholder="Search by name, email, phone, subject..." oninput="loadAdminContacts(1, this.value)">
                                     </div>
                                     <div class="col-md-3">
-                                        <select class="form-select" id="statusFilterContacts" onchange="loadAdminContacts(1, '', this.value)">
+                                        <select class="form-select" id="statusFilterContacts" title="Filter by contact status" onchange="loadAdminContacts(1, '', this.value)">
                                             <option value="">All</option>
                                             <option value="unread">Unread</option>
                                             <option value="read">Read</option>
