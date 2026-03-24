@@ -204,6 +204,7 @@ menuLink?.addEventListener('click', (e) => {
   loadMenu();
 });
 
-// Update cart count on page load
-updateCartCount(getLocalCart().items.length);
+// Update cart count on page load (use server cart if logged in)
+    const token = localStorage.getItem('token');
+    updateCartCount(token ? (window.CartManager?.currentCart?.length || 0) : getLocalCart().items.length);
 

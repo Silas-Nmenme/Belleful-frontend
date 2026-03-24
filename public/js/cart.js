@@ -22,6 +22,10 @@ async function checkAuthStatus() {
   }
   
   const token = localStorage.getItem('token');
+  if (token) {
+    localStorage.removeItem('guestCart');  // Clear guest cart for logged-in users
+  }
+  
   const userRole = localStorage.getItem('userRole');
   
   if (token && !currentCart.length) {
