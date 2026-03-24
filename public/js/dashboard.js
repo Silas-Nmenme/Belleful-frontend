@@ -306,7 +306,7 @@ async function loadAdminContacts(page = 1, search = '', status = '') {
     if (status) params.append('status', status);
     
     const token = localStorage.getItem('token');
-    const response = await fetch(`${window.API_BASE}/api/contact?${params}`, {
+    const response = await fetch(`${window.API_BASE}/contact?${params}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
@@ -410,7 +410,7 @@ function renderContactsPagination(pages, currentPage, search, status) {
 window.viewContact = async function(id) {
   try {
     const token = localStorage.getItem('token');
-    const res = await fetch(`${window.API_BASE}/api/contact/${id}`, {
+    const res = await fetch(`${window.API_BASE}/contact/${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) throw new Error('Contact not found');
