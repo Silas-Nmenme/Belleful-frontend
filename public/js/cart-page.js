@@ -133,7 +133,7 @@ window.updateQuantity = async function(id, change) {
             });
             const cartData = await cartRes.json();
             const cart = cartData.data;
-            const item = cart.items.find(i => (i.menuItem._id || i.menuItemId || i.id) === id);
+            const item = cart.items.find(i => (i.menuItem?._id || i.menuItemId || i.id) === id);
             if (!item) {
                 showToast('Item not found!', 'error');
                 return;
