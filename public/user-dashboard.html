@@ -123,6 +123,12 @@
             }
 
             
+// Clear guest cart on dashboard load (logged-in only)
+            localStorage.removeItem('guestCart');
+            if (typeof updateCartUI === 'function') {
+              updateCartUI();
+            }
+            
             // Load dashboard content
             async function loadUserDashboard() {
                 try {
