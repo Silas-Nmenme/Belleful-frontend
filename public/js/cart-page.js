@@ -32,7 +32,8 @@ async function loadAuthCart() {
         const response = await fetch(`${window.API_BASE}/cart`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) throw new Error('API response not ok');
         const data = await response.json();
-        return { items: data.data?.items || data.items || [], totalAmount: data.totalAmount || data.total || 0 };
+        const cart = data.data;
+        return { items: cart?.items || [], totalAmount: cart?.totalAmount || 0 };
     } catch (error) {
         console.warn('Auth cart load failed, using fallback:', error);
         return { items: [], totalAmount: 0 };
@@ -51,13 +52,16 @@ function getLocalCart() {
 
 function renderCartItems(items) {
     const container = document.getElementById('cartItemsList');
-    container.innerHTML = items.map(item => `
+    const placeholder = 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=100&h=100&fit=crop&round';
+    container.innerHTML = items.map(item => {
+        const itemId = item.menuItem?._id || item.menuItemId || item.id || item.menuItem;
+        return `
         <div class="card mb-4 shadow-sm" data-aos="fade-up" data-aos-delay="100">
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-md-2">
-                        <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=100&h=100&fit=crop&round" 
-                             class="img-fluid rounded-circle" alt="${item.name || 'Item'}">
+                        <img src="${item.image || placeholder}" 
+                             class="img-fluid rounded-circle" alt="${item.name || 'Item'}" onerror="this.src='${placeholder}'">
                     </div>
                     <div class="col-md-6">
                         <h5 class="fw-bold">${item.name || 'Item'}</h5>
@@ -65,21 +69,22 @@ function renderCartItems(items) {
                     </div>
                     <div class="col-md-4 text-end">
                         <div class="input-group w-75 mx-auto">
-                            <button class="btn btn-outline-secondary" onclick="updateQuantity('${item.menuItemId || item.id || ''}', -1)">-</button>
+                            <button class="btn btn-outline-secondary" onclick="updateQuantity('${itemId}', -1)">-</button>
                             <input type="number" class="form-control text-center fw-bold" value="${item.quantity || 1}" min="1" readonly>
-                            <button class="btn btn-outline-secondary" onclick="updateQuantity('${item.menuItemId || item.id || ''}', 1)">+</button>
+                            <button class="btn btn-outline-secondary" onclick="updateQuantity('${itemId}', 1)">+</button>
                         </div>
                         <div class="mt-2 fs-5 fw-bold text-success">
                             ₦${((item.price || 0) * (item.quantity || 1)).toLocaleString()}
                         </div>
-                        <button class="btn btn-sm btn-outline-danger mt-2" onclick="removeFromCart('${item.menuItemId || item.id || ''}')">
+                        <button class="btn btn-sm btn-outline-danger mt-2" onclick="removeFromCart('${itemId}')">
                             <i class="fas fa-trash"></i> Remove
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function renderSummary(cartData) {
@@ -119,50 +124,52 @@ function showToast(message, type = 'info') {
 window.updateQuantity = async function(id, change) {
     try {
         const isAuth = !!localStorage.getItem('token');
-        let cartData;
+        const token = localStorage.getItem('token');
 
-        if (isAuth) {
-            const token = localStorage.getItem('token');
-            const currentData = await fetch(`${window.API_BASE}/cart`, {
+        if (isAuth && token) {
+            // Get current qty for calc
+            const cartRes = await fetch(`${window.API_BASE}/cart`, {
                 headers: { 'Authorization': `Bearer ${token}` }
-            }).then(r => r.json());
-            cartData = currentData.data || currentData;
-        } else {
-            cartData = JSON.parse(localStorage.getItem('guestCart') || '{"items":[]}');
-        }
-
-        const item = cartData.items.find(i => (i.menuItemId || i.id) === id);
-        if (!item) {
-            showToast('Item not found!', 'error');
-            return;
-        }
-
-        const newQty = Math.max(1, (item.quantity || 1) + change);
-        item.quantity = newQty;
-
-        if (isAuth) {
-            const token = localStorage.getItem('token');
-            if (newQty === 1) {
-                await fetch(`${window.API_BASE}/cart`, {
+            });
+            const cartData = await cartRes.json();
+            const cart = cartData.data;
+            const item = cart.items.find(i => (i.menuItem._id || i.menuItemId || i.id) === id);
+            if (!item) {
+                showToast('Item not found!', 'error');
+                return;
+            }
+            let newQty = (item.quantity || 1) + change;
+            if (newQty < 1) {
+                // Remove instead
+                await fetch(`${window.API_BASE}/cart/${id}`, {
                     method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ menuItemId: id })
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
             } else {
-                await fetch(`${window.API_BASE}/cart`, {
+                await fetch(`${window.API_BASE}/cart/${id}`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ menuItemId: id, quantity: newQty })
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ quantity: newQty })
                 });
             }
         } else {
-            cartData.items = cartData.items.map(i => 
-                (i.menuItemId || i.id) === id ? { ...i, quantity: newQty } : i
-            );
-            if (newQty === 1) {
-                cartData.items = cartData.items.filter(i => (i.menuItemId || i.id) !== id);
+            // Guest
+            let guestCart = JSON.parse(localStorage.getItem('guestCart') || '{"items":[]}');
+            const itemIndex = guestCart.items.findIndex(i => (i.menuItemId || i.id) === id);
+            if (itemIndex === -1) {
+                showToast('Item not found!', 'error');
+                return;
             }
-            localStorage.setItem('guestCart', JSON.stringify(cartData));
+            let newQty = (guestCart.items[itemIndex].quantity || 1) + change;
+            if (newQty < 1) {
+                guestCart.items.splice(itemIndex, 1);
+            } else {
+                guestCart.items[itemIndex].quantity = newQty;
+            }
+            localStorage.setItem('guestCart', JSON.stringify(guestCart));
         }
 
         showToast('Quantity updated!', 'success');
@@ -177,12 +184,15 @@ window.removeFromCart = async function(id) {
     if (confirm('Remove this item from cart?')) {
         try {
             const isAuth = !!localStorage.getItem('token');
-            if (isAuth) {
-                const token = localStorage.getItem('token');
-                await fetch(`${window.API_BASE}/cart`, { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ menuItemId: id }) });
+            const token = localStorage.getItem('token');
+            if (isAuth && token) {
+                await fetch(`${window.API_BASE}/cart/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
             } else {
                 let cart = JSON.parse(localStorage.getItem('guestCart') || '{"items":[]}');
-                cart.items = cart.items.filter(item => (item.menuItemId || item.id) !== id);
+                cart.items = cart.items.filter(item => (item.menuItemId || item.id || item.menuItem === id));
                 localStorage.setItem('guestCart', JSON.stringify(cart));
             }
             showToast('Item removed from cart!', 'success');
@@ -199,20 +209,12 @@ window.clearCart = async function() {
 
     try {
         const isAuth = !!localStorage.getItem('token');
-        if (isAuth) {
-            const token = localStorage.getItem('token');
-            // Assume API supports clearing all, or loop delete - fallback to loop
-            const cartData = await fetch(`${window.API_BASE}/cart`, {
+        const token = localStorage.getItem('token');
+        if (isAuth && token) {
+            await fetch(`${window.API_BASE}/cart/clear`, {
+                method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
-            }).then(r => r.json());
-            const items = cartData.data?.items || cartData.items || [];
-            for (const item of items) {
-                await fetch(`${window.API_BASE}/cart`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ menuItemId: item.menuItemId || item.id })
-                });
-            }
+            });
         } else {
             localStorage.removeItem('guestCart');
         }
