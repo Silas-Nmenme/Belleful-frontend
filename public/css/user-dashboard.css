@@ -1,4 +1,21 @@
 @import url('index.css');
 
+/* User dashboard responsive layout */
+.row.g-4#statsCards > div { min-height: 120px; }
+#statsCards .card { height: 100%; }
+#statsCards .card-body { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+.menu-grid { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+.menu-grid .menu-card { flex: 1 1 300px; max-width: 100%; }
+@media (max-width: 768px) {
+  .menu-grid .menu-card { flex: 1 1 100%; max-width: 100%; }
+}
+
+/* Orders table mobile */
+.table-responsive { -webkit-overflow-scrolling: touch; }
+@media (max-width: 576px) {
+  #ordersTableBody td { padding: 0.75rem 0.25rem; font-size: 0.875rem; }
+}
+
 /* User dashboard overrides */
 .menu-loading .spinner-lg { width: 4rem; height: 4rem; }
