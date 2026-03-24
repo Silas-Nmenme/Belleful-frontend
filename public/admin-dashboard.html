@@ -97,7 +97,7 @@
                                         <input type="text" class="form-control" id="ordersSearch" placeholder="Search orders..." oninput="loadAdminDashboard()">
                                     </div>
                                     <div class="col-md-3">
-                                        <select class="form-select" id="statusFilter" onchange="loadAdminDashboard()" title="option">
+
                                             <option value="">All Status</option>
                                             <option value="pending_approval">Pending Approval</option>
                                             <option value="vendor_approved">Approved</option>
@@ -106,7 +106,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <button class="btn btn-primary" onclick="loadAdminDashboard()">
+onclick="window.DashboardManager?.loadAdminDashboard?.() || loadAdminDashboard?.() || console.warn('Dashboard unavailable')">
                                             <i class="fas fa-refresh"></i> Refresh
                                         </button>
                                     </div>
@@ -152,10 +152,11 @@
                             <div class="p-4 border-bottom">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="usersSearch" placeholder="Search users by name/email..." oninput="DashboardManager.loadAdminStats(1,10,1,10,this.value,'')">
+oninput="window.DashboardManager?.loadAdminStats?.(1,10,1,10,this.value,'') || console.warn('Dashboard unavailable')"
+
                                     </div>
                                     <div class="col-md-3">
-                                        <button class="btn btn-primary" onclick="DashboardManager.loadAdminDashboard()">
+onclick="window.DashboardManager?.loadAdminDashboard?.() || console.warn('Dashboard unavailable')">
                                             <i class="fas fa-refresh"></i> Refresh
                                         </button>
                                     </div>
@@ -206,10 +207,9 @@
                                     </div>
                                     <div class="col-md-3">
                                         <select class="form-select" id="categoryFilter" 
-                                        onchange="loadAdminMenu(1, document.getElementById('menuSearch').value, this.value)" title='option'>
+
                                             <option value="">All Categories</option>
-                                            <option value="food">Food</option>
-                                            <option value="drink">Drink</option>
+
 <option value="food">Food</option>
                                     <option value="drink">Drink</option>
                                     <option value="side">Side</option>
@@ -403,9 +403,8 @@
 
             
             // Load real admin dashboard stats
-            if (typeof DashboardManager !== 'undefined') {
-                DashboardManager.loadAdminDashboard(1, '');
-            } else {
+            (window.DashboardManager?.loadAdminDashboard?.(1, '') || loadAdminDashboard?.(1, '') || null);
+            if (!window.DashboardManager && !loadAdminDashboard) {
                 console.error('DashboardManager not loaded');
                 document.getElementById('adminStats').innerHTML = 
                     '<div class="col-12 text-center py-5"><h5>Dashboard JS not loaded</h5><p class="text-muted">Check js/dashboard.js</p></div>';
