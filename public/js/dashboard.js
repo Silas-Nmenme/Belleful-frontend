@@ -483,8 +483,24 @@ window.markRead = async function(id) {
 
 window.markAllRead = async function() {
   if (!confirm('Mark all unread contacts as read?')) return;
-  // Bulk endpoint if available
-  showToast('Bulk mark read requires backend endpoint', 'info');
+  const token = localStorage.getItem('token');
+  try {
+    const res = await fetch(`${window.API_BASE}/api/contact/read-all`, {
+      method: 'PATCH',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      }
+    });
+    if (res.ok) {
+      showToast('All contacts marked as read', 'success');
+      loadAdminContacts(1);
+    } else {
+      showToast('Bulk mark failed', 'error');
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
 };
 
 // Polling
@@ -897,7 +913,12 @@ document.getElementById('menuImage')?.addEventListener('change', function(e) {
   }
 });
 
-// Make globally available
+// Expose local functions globally for inline handlers
+window.loadAdminDashboard = loadAdminDashboard;
+window.loadAdminMenu = loadAdminMenu;
+window.loadAdminContacts = loadAdminContacts;
+
+// Make DashboardManager available
 window.DashboardManager = {
   loadUserStats,
   loadAdminStats,
