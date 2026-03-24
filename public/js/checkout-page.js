@@ -18,11 +18,27 @@ async function loadCheckoutData() {
             return;
         }
         const cart = await cartRes.json();
-        renderCheckoutItems(cart.data.items);
-        document.getElementById('checkoutTotal').textContent = `₦${cart.data.totalAmount.toLocaleString()}`;
-        document.getElementById('paymentAmount').textContent = `₦${cart.data.totalAmount.toLocaleString()}`;
+        renderCheckoutItems(cart.data.items || cart.data);
+        const total = cart.data.totalAmount || cart.totalAmount || 0;
+        document.getElementById('checkoutTotal').textContent = `₦${total.toLocaleString()}`;
+        document.getElementById('paymentAmount').textContent = `₦${total.toLocaleString()}`;
+        
+        // Add delivery toggle
+        document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
+            radio.addEventListener('change', toggleDeliveryAddress);
+        });
+        toggleDeliveryAddress();
     } catch (e) {
         console.error('Checkout load failed', e);
+        showToast('Failed to load cart', 'error');
+    }
+}
+
+function toggleDeliveryAddress() {
+    const deliverySelected = document.getElementById('delivery').checked;
+    const addressGroup = document.querySelector('#deliveryAddressGroup, [name="deliveryAddress"]').closest('.mb-3, .mb-4');
+    if (addressGroup) {
+        addressGroup.style.display = deliverySelected ? 'block' : 'none';
     }
 }
 
@@ -41,16 +57,38 @@ function renderCheckoutItems(items) {
 }
 
 document.getElementById('createOrderBtn').onclick = async () => {
+    const form = document.getElementById('checkoutForm');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    
+    // Validate delivery address if delivery selected
+    if (data.deliveryMethod === 'delivery' && !data.deliveryAddress.trim()) {
+        showToast('Delivery address required for delivery orders', 'error');
+        return;
+    }
+    
     const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`${window.API_BASE}/orders/checkout`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } });
-        if (res.ok) {
-            currentOrder = await res.json();
-            document.getElementById('accountNumber').textContent = currentOrder.data.accountNumber;
-            document.getElementById('uploadSection')?.classList.remove('hidden');
-            document.getElementById('createOrderBtn')?.classList.add('hidden');
-            showToast(`Order #${currentOrder.data._id.slice(-6).toUpperCase()} created! Upload receipt.`, 'success');
+        const res = await fetch(`${window.API_BASE}/orders/checkout`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${token}`, 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.message || 'Checkout failed');
         }
+        
+        currentOrder = await res.json();
+        document.getElementById('uploadOrderId').textContent = currentOrder.data.displayId || currentOrder.data._id.slice(-6).toUpperCase();
+        document.getElementById('uploadSection').classList.remove('hidden');
+        document.getElementById('checkoutForm').classList.add('hidden');
+        document.getElementById('createOrderBtn').classList.add('hidden');
+        showToast(`Order ${currentOrder.data.displayId || '#' + currentOrder.data._id.slice(-6).toUpperCase()} created successfully! Upload payment proof.`, 'success');
     } catch (error) {
         showToast('Checkout failed: ' + error.message, 'error');
     }
@@ -58,18 +96,54 @@ document.getElementById('createOrderBtn').onclick = async () => {
 
 document.getElementById('paymentUploadForm').onsubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('orderId', currentOrder.data._id);
-    formData.append('receipt', document.getElementById('receiptFile').files[0]);
+    const file = document.getElementById('receiptFile').files[0];
+    if (!file) {
+        showToast('Please select a receipt image', 'error');
+        return;
+    }
+    
     const token = localStorage.getItem('token');
     try {
-        const res = await fetch(`${window.API_BASE}/payments/upload-receipt`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData });
-        if (res.ok) {
-            showToast('Receipt uploaded! Waiting verification...', 'success');
-            setTimeout(() => window.location.href = 'user-dashboard.html', 2000);
+        // Step 1: Get Cloudinary upload URL
+        const urlRes = await fetch(`${window.API_BASE}/payments/receipt-upload-url?folder=order-receipts`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const { uploadUrl, publicId } = await urlRes.json();
+        
+        // Step 2: Upload to Cloudinary
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'belleful-receipts'); // Backend preset
+        
+        const cloudRes = await fetch(uploadUrl, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!cloudRes.ok) throw new Error('Cloudinary upload failed');
+        
+        const cloudResult = await cloudRes.json();
+        const receiptUrl = cloudResult.secure_url;
+        
+        // Step 3: Submit receipt URL to backend
+        const submitRes = await fetch(`${window.API_BASE}/payments/receipt`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ receiptUrl })
+        });
+        
+        if (!submitRes.ok) {
+            const error = await submitRes.json();
+            throw new Error(error.message || 'Receipt submission failed');
         }
+        
+        showToast('Payment receipt submitted! Admin will verify shortly.', 'success');
+        setTimeout(() => window.location.href = 'user-dashboard.html', 2000);
     } catch (error) {
-        showToast('Upload failed', 'error');
+        showToast('Upload failed: ' + error.message, 'error');
     }
 };
 
