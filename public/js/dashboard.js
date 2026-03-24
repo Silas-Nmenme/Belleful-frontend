@@ -1074,3 +1074,45 @@ function safeHideLoading(selector) {
   if (el) hideLoading(el);
   else console.warn('safeHideLoading: Element not found:', selector);
 }
+
+// ===== PROFILE FUNCTIONS =====
+async function loadProfile() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  
+  try {
+    const response = await fetch(`${window.API_BASE}/auth/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Profile fetch failed');
+    const result = await response.json();
+    return result.user || result.data?.user;
+  } catch (error) {
+    console.error('Profile load error:', error);
+    return null;
+  }
+}
+
+function renderProfileCard(user) {
+  const containerId = user.role === 'admin' ? 'adminProfileCard' : 'userProfileCard';
+  const container = document.getElementById(containerId);
+  if (!container || !user) {
+    console.warn('Profile container not found or no user data:', containerId);
+    return;
+  }
+  
+  const avatarUrl = user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=007bff&color=fff&size=128&font-size=0.6';
+  
+  container.innerHTML = `
+    <div class="card shadow-lg border-0 rounded-4 mb-4" data-aos="fade-up">
+      <div class="card-body text-center p-4">
+        <img src="${avatarUrl}" alt="${user.name}" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover; border: 4px solid #007bff;">
+        <h4 class="card-title fw-bold mb-1">${user.name}</h4>
+        <p class="text-muted mb-2">${user.email}</p>
+        <span class="badge bg-${user.role === 'admin' ? 'danger' : 'primary'} fs-6 px-3 py-2 mb-3">${user.role?.toUpperCase()}</span>
+        <small class="text-muted d-block">ID: ${user.id?.slice(-8) || user._id?.slice(-8) || 'N/A'}</small>
+      </div>
+    </div>
+  `;
+}
+

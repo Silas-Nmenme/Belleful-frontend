@@ -1,6 +1,10 @@
 @import url('index.css');
 
-/* Cart page overrides */
+/* Cart page responsive */
+@media (max-width: 991px) {
+  .col-lg-8.col-lg-4 { flex: 0 0 100%; max-width: 100%; }
+  .card.sticky-top { position: relative !important; top: 0 !important; }
+}
 
 .empty-cart { text-align: center; }
 
@@ -11,3 +15,9 @@
 .page-toast--info { background: #d1ecf1; color: #0c5460; }
 
 .btn-close-invert { filter: invert(1); }
+
+/* Cart cards mobile */
+@media (max-width: 576px) {
+  #cartItemsList .card { margin-bottom: 1rem; }
+  .input-group.w-75 { width: 100%; }
+}
