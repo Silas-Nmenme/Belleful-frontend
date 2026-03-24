@@ -4,15 +4,17 @@ AOS.init({ duration: 1000, once: true });
 async function loadCartPage() {
     try {
         await window.checkAuthStatus?.() || Promise.resolve();
-        const isAuth = !!localStorage.getItem('token');
+        const token = localStorage.getItem('token');
         let cartData;
-        if (isAuth) {
+        if (token) {
+            // Logged in - use ONLY auth cart, no guest fallback
             cartData = await loadAuthCart();
-            if ((cartData.items || []).length === 0) cartData = getLocalCart();
+            // Clear guest cart to prevent stale data
+            localStorage.removeItem('guestCart');
         } else {
             cartData = getLocalCart();
         }
-        if (((cartData.items || []).length) === 0) {
+        if ((cartData.items || []).length === 0) {
             document.querySelector('.empty-cart')?.classList.remove('hidden');
             document.getElementById('checkoutBtn').disabled = true;
             return;
@@ -92,6 +94,7 @@ function renderSummary(cartData) {
     const total = items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
     document.getElementById('cartTotal').textContent = `₦${total.toLocaleString()}`;
     document.getElementById('checkoutBtn').disabled = items.length === 0;
+    window.CartManager?.updateCartUI?.(); // Ensure navbar cart count updates
     const summaryItems = document.getElementById('summaryItems');
     summaryItems.innerHTML = items.map(item => `
         <div class="d-flex justify-content-between small mb-2">
