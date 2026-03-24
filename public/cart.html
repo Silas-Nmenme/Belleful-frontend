@@ -24,8 +24,8 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto" id="cartNavbarNav">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#menu">Menu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="user-dashboard.html#menu" id="loggedInHomeNav">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="user-dashboard.html#menu" id="loggedInMenuNav">Menu</a></li>
                     <li class="nav-item">
                         <a class="nav-link active" href="cart.html">
                             <i class="fas fa-shopping-cart"></i> Cart 
@@ -46,7 +46,7 @@
                         <i class="fas fa-shopping-cart text-primary me-3"></i>
                         Your Cart
                     </h1>
-                    <a href="index.html#menu" class="btn btn-outline-primary btn-lg">
+                    <a id="continueShoppingBtn" href="index.html#menu" class="btn btn-outline-primary btn-lg">
                         <i class="fas fa-plus me-2"></i>Continue Shopping
                     </a>
                 </div>
@@ -56,7 +56,7 @@
                         <i class="fas fa-shopping-cart fa-8x text-muted mb-4"></i>
                         <h3 class="text-muted mb-4">Your cart is empty</h3>
                         <p class="lead text-muted mb-4">Add some delicious items to get started</p>
-                        <a href="index.html#menu" class="btn btn-primary btn-lg px-5 py-3">
+                        <a id="browseMenuEmptyBtn" href="index.html#menu" class="btn btn-primary btn-lg px-5 py-3">
                             <i class="fas fa-utensils me-2"></i>Browse Menu
                         </a>
                     </div>
@@ -121,6 +121,20 @@
 
             // Clear cart button
             document.getElementById('clearCartBtn')?.addEventListener('click', clearCart);
+
+            // Dynamic logged-in navigation
+            function updateLoggedInLinks() {
+                const loggedIn = !!token;
+                const continueBtn = document.getElementById('continueShoppingBtn');
+                const browseBtn = document.getElementById('browseMenuEmptyBtn');
+                if (loggedIn && continueBtn) {
+                    continueBtn.href = 'user-dashboard.html#menu';
+                }
+                if (loggedIn && browseBtn) {
+                    browseBtn.href = 'user-dashboard.html#menu';
+                }
+            }
+            updateLoggedInLinks();
         });
     </script>
 
