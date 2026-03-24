@@ -108,6 +108,75 @@ function renderAdminStats(statsData) {
   `;
 }
 
+function renderStats(statsData) {
+  const stats = statsData || {};
+  const container = document.getElementById('statsCards');
+  if (!container) return;
+  
+  container.innerHTML = `
+    <div class="col-xl-3 col-md-6 mb-4" data-aos="zoom-in">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Orders</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">${stats.totalOrders || 0}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-shopping-bag fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Spent</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">₦${(stats.totalSpent || 0).toLocaleString()}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-wallet fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="200">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Avg Order</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">₦${(stats.avgOrderValue || 0).toLocaleString()}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="300">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Orders This Month</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">${stats.monthlyOrders || 0}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-calendar fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderOrders(orders) {
   const tbody = document.getElementById('ordersTableBody');
   if (!tbody) return;
