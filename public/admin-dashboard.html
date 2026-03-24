@@ -56,9 +56,14 @@
                                     <i class="fas fa-users me-2"></i>Users
                                 </a>
                             </li>
-                            <li class="nav-item">
+<li class="nav-item">
                                 <a class="nav-link" href="#menu-admin">
                                     <i class="fas fa-utensils me-2"></i>Menu Items
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#contacts-admin">
+                                    <i class="fas fa-envelope me-2"></i>Contacts
                                 </a>
                             </li>
                         </ul>
@@ -239,6 +244,68 @@
                             </div>
                             <div id="menuPagination" class="p-3 bg-light">
                                 <!-- Pagination loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contacts Admin -->
+                <section id="contacts-admin" class="mb-5">
+                    <div class="card shadow-xl border-0 rounded-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h4 class="mb-0 fw-bold">
+                                <i class="fas fa-envelope-open me-2"></i>Customer Contacts
+                                <small class="badge bg-light text-warning ms-2" id="contactsCount">0</small>
+                            </h4>
+                        </div>
+                        <div class="card-body p-0">
+                            <!-- Contacts Filter -->
+                            <div class="p-4 border-bottom">
+                                <div class="row g-3">
+                                    <div class="col-md-5">
+                                        <input type="text" class="form-control" id="contactsSearch" placeholder="Search by name, email, phone, subject..." oninput="loadAdminContacts(1, this.value)">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="statusFilterContacts" onchange="loadAdminContacts(1, '', this.value)">
+                                            <option value="">All</option>
+                                            <option value="unread">Unread</option>
+                                            <option value="read">Read</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-warning" onclick="loadAdminContacts(1)">
+                                            <i class="fas fa-refresh"></i> Refresh
+                                        </button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-outline-danger btn-sm" onclick="markAllRead()" id="markAllBtn" style="display:none;">
+                                            <i class="fas fa-eye me-1"></i>Mark All Read
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Email/Phone</th>
+                                            <th>Subject</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="contactsTable">
+                                        <!-- Contacts loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Pagination -->
+                            <div id="contactsPagination" class="p-3 bg-light">
+                                <!-- Dynamic pagination -->
                             </div>
                         </div>
                     </div>

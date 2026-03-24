@@ -288,6 +288,7 @@ async function loadAdminDashboard(pageOrders = 1, statusFilter = '') {
     renderPendingOrders(data.orders.data || [], data.stats.data?.pendingOrders || 0);
     renderAdminUsers(data.users.data || []);
     loadAdminMenu(1);
+    loadAdminContacts(1);
   } catch (err) {
     console.error('Dashboard load error:', err);
     showToast('Failed to load dashboard: ' + err.message, 'error');
@@ -295,6 +296,196 @@ async function loadAdminDashboard(pageOrders = 1, statusFilter = '') {
     document.body.classList.remove('loading');
   }
 }
+
+// Load admin contacts (page, search, status)
+async function loadAdminContacts(page = 1, search = '', status = '') {
+  try {
+    document.body.classList.add('loading');
+    const params = new URLSearchParams({ page, limit: 15 });
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${window.API_BASE}/api/contact?${params}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    renderAdminContacts(result.data || [], result.pagination || {});
+    document.getElementById('contactsCount').textContent = result.pagination.total || 0;
+  } catch (error) {
+    console.error('Contacts load error:', error);
+    showToast('Failed to load contacts: ' + error.message, 'error');
+    renderAdminContacts([], {});
+  } finally {
+    document.body.classList.remove('loading');
+  }
+}
+
+// Render contacts table
+function renderAdminContacts(contacts, pagination) {
+  const tbody = document.getElementById('contactsTable');
+  if (!tbody) return;
+  
+  if (contacts.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-5">No contacts found</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = contacts.map(contact => {
+    const safeId = contact._id?.slice(-8).toUpperCase() || 'N/A';
+    const hasUnread = !contact.read; // Assume backend adds 'read' field or use createdAt logic
+    return `
+      <tr class="${hasUnread ? 'table-info fw-bold' : ''}">
+        <td><strong>#${safeId}</strong></td>
+        <td>${contact.name || 'N/A'}</td>
+        <td>
+          <div><strong>${contact.email || ''}</strong></div>
+          ${contact.phone ? `<small class="text-muted">${contact.phone}</small>` : ''}
+        </td>
+        <td>${contact.subject || 'No subject'}</td>
+        <td>
+          <span class="badge bg-${contact.read ? 'success' : 'warning'} fs-6 px-3 py-2">
+            ${contact.read ? 'Read' : 'Unread'}
+          </span>
+        </td>
+        <td>${new Date(contact.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+        <td>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" onclick="viewContact('${contact._id}')" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            ${!contact.read ? `<button class="btn btn-outline-success btn-sm" onclick="markRead('${contact._id}')" title="Mark Read">
+              <i class="fas fa-check"></i>
+            </button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+  
+  renderContactsPagination(pagination.pages || 1, pagination.current || 1, '', '');
+}
+
+// Pagination renderer
+function renderContactsPagination(pages, currentPage, search, status) {
+  const container = document.getElementById('contactsPagination');
+  if (!container || pages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+  
+  let paginationHTML = '<nav><ul class="pagination justify-content-center mb-0">';
+  const maxVisible = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(pages, startPage + maxVisible - 1);
+  if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
+  
+  if (startPage > 1) {
+    paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadAdminContacts(1,'${search}','${status}');return false;">1</a></li>`;
+    if (startPage > 2) paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    paginationHTML += `
+      <li class="page-item ${i === currentPage ? 'active' : ''}">
+        <a class="page-link" href="#" onclick="loadAdminContacts(${i}, '${search}', '${status}');return false;">${i}</a>
+      </li>
+    `;
+  }
+  
+  if (endPage < pages) {
+    if (endPage < pages - 1) paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+    paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadAdminContacts(${pages},'${search}','${status}');return false;">${pages}</a></li>`;
+  }
+  paginationHTML += '</ul></nav>';
+  container.innerHTML = paginationHTML;
+}
+
+// Contact actions (global window functions)
+window.viewContact = async function(id) {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${window.API_BASE}/api/contact/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Contact not found');
+    const data = await res.json();
+    const contact = data.data;
+    
+    // Simple Bootstrap modal
+    const modalHTML = `
+      <div class="modal fade" id="contactModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title">#${id.slice(-8)} ${contact.subject || 'Contact'}</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Name:</strong> ${contact.name || 'N/A'}</p>
+                  <p><strong>Email:</strong> <a href="mailto:${contact.email}">${contact.email}</a></p>
+                  ${contact.phone ? `<p><strong>Phone:</strong> ${contact.phone}</p>` : ''}
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Subject:</strong> ${contact.subject}</p>
+                  <p><strong>Date:</strong> ${new Date(contact.createdAt).toLocaleString()}</p>
+                  <p><strong>Status:</strong> <span class="badge bg-${contact.read ? 'success' : 'warning'}">${contact.read ? 'Read' : 'Unread'}</span></p>
+                </div>
+              </div>
+              <hr>
+              <div><strong>Message:</strong></div>
+              <div class="p-3 bg-light rounded">${contact.message || 'No message'}</div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              ${!contact.read ? `<button type="button" class="btn btn-success" onclick="markRead('${id}'); bootstrap.Modal.getInstance(document.getElementById('contactModal')).hide();">Mark as Read</button>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+    modal.show();
+    modal._element.addEventListener('hidden.bs.modal', () => modal._element.remove(), { once: true });
+  } catch (err) {
+    showToast('Failed to load contact: ' + err.message, 'error');
+  }
+};
+
+window.markRead = async function(id) {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${window.API_BASE}/api/contact/${id}/read`, {
+      method: 'PATCH',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      }
+    });
+    if (res.ok) {
+      showToast('Marked as read', 'success');
+      loadAdminContacts(1); // Refresh
+    } else {
+      showToast('Failed to mark as read', 'error');
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+};
+
+window.markAllRead = async function() {
+  if (!confirm('Mark all unread contacts as read?')) return;
+  // Bulk endpoint if available
+  showToast('Bulk mark read requires backend endpoint', 'info');
+};
 
 // Polling
 setInterval(() => {
