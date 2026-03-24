@@ -50,8 +50,46 @@
                         <h4 class="mb-0 fw-bold">Bank Transfer Payment</h4>
                         <p class="mb-0 opacity-75">Pay directly to our account</p>
                     </div>
-                    <div class="card-body p-4">
+    <div class="card-body p-4">
+                        <form id="checkoutForm">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold mb-2">Delivery Method <span class="text-danger">*</span></label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="deliveryMethod" id="pickup" value="pickup" required>
+                                    <label class="btn btn-outline-primary rounded-start" for="pickup">
+                                        <i class="fas fa-map-marker-alt me-1"></i>Pickup
+                                    </label>
+                                    <input type="radio" class="btn-check" name="deliveryMethod" id="delivery" value="delivery" required checked>
+                                    <label class="btn btn-outline-primary rounded-end" for="delivery">
+                                        <i class="fas fa-truck me-1"></i>Delivery
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold mb-2">Delivery Address <span class="text-danger">*</span></label>
+                                <textarea class="form-control" name="deliveryAddress" rows="3" placeholder="House number, street, area, city, landmarks..." required></textarea>
+                            </div>
+                            
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold mb-2">Phone Number <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" name="phoneNumber" placeholder="080 1234 5678" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold mb-2">Your Bank Account (for reference)</label>
+                                    <input type="text" class="form-control" name="bankAccount" placeholder="Enter your account number">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold mb-2">Bank Name</label>
+                                <input type="text" class="form-control" name="bankName" placeholder="Enter bank name">
+                            </div>
+                        </form>
+                        
                         <div class="payment-details mb-4 p-4 bg-light rounded-3">
+
                             <div class="row text-center">
                                 <div class="col-md-6 mb-3">
                                     <div class="h2 fw-bold text-primary mb-1" id="accountNumber">8107586167</div>
@@ -80,8 +118,9 @@
                                 <div class="text-center">
                                     <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-4"></i>
                                     <h5 class="fw-bold mb-3">Upload Payment Receipt</h5>
-                                    <p class="text-muted mb-4">Take photo or screenshot of your transfer</p>
-                                    <input type="file" id="receiptFile" class="form-control form-control-lg" accept="image/*"placeholder="Upload payment receipt" required/>
+                                    <p class="text-muted mb-4">Take photo/screenshot of transfer to Opay 8107586167 (Order #<span id="uploadOrderId"></span>)</p>
+                                    <input type="file" id="receiptFile" class="form-control form-control-lg" accept="image/*" placeholder="Choose receipt image" required>
+
                                     <div class="invalid-feedback"></div>
                                     <button type="submit" class="btn btn-success w-100 mt-4 btn-lg fw-bold py-3">
                                         <i class="fas fa-upload me-2"></i>Upload & Submit Order
@@ -98,9 +137,10 @@
                             </div>
                         </div>
 
-                        <button id="createOrderBtn" class="btn btn-warning w-100 btn-lg py-4 fw-bold shadow-lg">
-                            <i class="fas fa-credit-card me-2"></i>I've Made Payment - Create Order
+                        <button type="submit" form="checkoutForm" id="createOrderBtn" class="btn btn-primary w-100 btn-lg py-4 fw-bold shadow-lg">
+                            <i class="fas fa-shopping-cart me-2"></i>Create Pending Order
                         </button>
+
 
                         <div class="mt-4 p-3 bg-light rounded-3 small">
                             <strong>Instructions:</strong>
