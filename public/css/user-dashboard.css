@@ -2,7 +2,7 @@
 
 /* Professional User Dashboard Styles */
 :root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+--primary-gradient: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
   --sidebar-width: 280px;
   --header-height: 70px;
   --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
