@@ -25,16 +25,19 @@ function getMenuElements() {
   
   // Load menu items - main entry point
 window.loadMenu = async function() {
-  const { menuGrid, menuLoading } = getMenuElements();
-  // Defensive null checks - elements may not exist on all pages
-  if (!menuGrid || !menuLoading) {
-    console.warn('Menu elements not found on this page');
+  const elements = getMenuElements();
+  const { menuGrid, menuLoading } = elements;
+  
+  // Ultimate defensive check - skip if ANY required element missing
+  if (!safeElementAccess(menuGrid, 'menuGrid existence') || !safeElementAccess(menuLoading, 'menuLoading existence')) {
+    console.warn('Required menu elements missing - skipping loadMenu');
     return;
   }
 
   try {
-    menuGrid.style.display = 'none';
-    menuLoading.style.display = 'flex';
+    // Safe hide/show with double-check
+    safeElementAccess(menuGrid, 'hide grid', () => menuGrid.style.display = 'none');
+    safeElementAccess(menuLoading, 'show loading', () => menuLoading.style.display = 'flex');
     
     const response = await fetch(`${window.API_BASE}/menu?page=1&limit=1000&available=true`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -46,17 +49,21 @@ window.loadMenu = async function() {
     const itemsToShow = menuItems.filter(item => item && item.name); // Filter invalid
     console.log('Items to display:', itemsToShow.length);
     
-    displayMenuItems(itemsToShow, getMenuElements());
+    displayMenuItems(itemsToShow, elements);
   } catch (error) {
     console.error('Menu API failed (no fallback):', error);
-    menuGrid.innerHTML = `
-      <div class="col-12 text-center py-5">
-        <i class="fas fa-utensils fa-4x text-muted mb-4"></i>
-        <h4 class="text-warning mb-3">Menu Unavailable</h4>
-        <p class="text-muted mb-4">Please refresh or check connection</p>
-        <button class="btn btn-primary" onclick="loadMenu()">Reload Menu</button>
-      </div>`;
-    menuLoading.style.display = 'none';
+    
+    // Safe error UI update
+    if (safeElementAccess(menuGrid, 'error UI')) {
+      menuGrid.innerHTML = `
+        <div class="col-12 text-center py-5">
+          <i class="fas fa-utensils fa-4x text-muted mb-4"></i>
+          <h4 class="text-warning mb-3">Menu Unavailable</h4>
+          <p class="text-muted mb-4">Please refresh or check connection</p>
+          <button class="btn btn-primary" onclick="loadMenu()">Reload Menu</button>
+        </div>`;
+    }
+    safeElementAccess(menuLoading, 'hide loading on error', () => menuLoading.style.display = 'none');
   }
 }
 
