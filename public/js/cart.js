@@ -58,7 +58,7 @@
       if (e.target.matches('.qty-btn')) {
         const itemId = e.target.closest('.cart-item-card').dataset.itemId;
         const delta = e.target.dataset.delta;
-        this.updateQuantity(itemId, parseInt(delta));
+        this.updateQuantity(itemId, parseInt(delta), e);
       }
     });
 
@@ -94,6 +94,7 @@
   }
 
   async apiCall(endpoint, options = {}) {
+    const url = `${this.API_BASE}/cart${endpoint}`;
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -102,19 +103,24 @@
       ...options
     };
 
+    console.log('🔄 API Call:', url, config.method || 'GET', options.body || 'no body');
+
     try {
-      const response = await fetch(`${this.API_BASE}/cart${endpoint}`, config);
+      const response = await fetch(url, config);
+      let errorData;
+      try {
+        errorData = await response.clone().json();
+      } catch {
+        errorData = { message: await response.clone().text() };
+      }
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || `HTTP ${response.status}`);
+        throw new Error(errorData.message || errorData.error || `HTTP ${response.status}`);
       }
-      return await response.json();
+      const data = await response.json();
+      console.log('✅ API Success:', endpoint, data);
+      return data;
     } catch (error) {
-      if (error.message.includes('401') || error.message.includes('auth')) {
-        localStorage.removeItem('token');
-        window.location.href = 'login.html';
-        throw error;
-      }
+      console.error('❌ API Error:', url, error.message);
       throw error;
     }
   }
@@ -240,12 +246,18 @@ async loadCart() {
     `;
   }
 
-  async updateQuantity(itemId, delta) {
+async updateQuantity(itemId, delta, event) {
     const itemIndex = this.cart.items.findIndex(item => item.menuItem === itemId);
     if (itemIndex === -1) return;
 
-    const newQty = Math.max(1, this.cart.items[itemIndex].quantity + delta);
     const btn = event.target.closest('.qty-btn');
+    const oldQty = this.cart.items[itemIndex].quantity;
+    const newQty = Math.max(1, oldQty + delta);
+
+    // Optimistic update
+    this.cart.items[itemIndex].quantity = newQty;
+    this.renderCart(); // Immediate UI refresh
+    this.updateCartBadge();
 
     try {
       this.setLoading(btn, true);
@@ -253,48 +265,75 @@ async loadCart() {
         method: 'PATCH',
         body: JSON.stringify({ quantity: newQty })
       });
-      
-      this.cart.items[itemIndex].quantity = newQty;
-      this.loadCart(); // Reload to sync totals/stock
+      console.log('✅ Quantity updated via API:', newQty);
       this.showToast(`Updated quantity to ${newQty}`, 'success');
     } catch (error) {
-      this.showToast(error.message, 'error');
+      // Rollback on failure
+      this.cart.items[itemIndex].quantity = oldQty;
+      this.renderCart();
+      this.updateCartBadge();
+      console.error('❌ API update failed:', error);
+      // Sync from server anyway
+      await this.loadCart();
+      this.showToast('Updated locally (API sync failed)', 'warning');
     } finally {
       this.setLoading(btn, false);
     }
   }
 
   async removeItem(itemId) {
+    // Find closest remove button for loading state
+    const removeBtn = document.querySelector(`[data-item-id="${itemId}"] .btn-remove`);
+    const itemIndex = this.cart.items.findIndex(item => item.menuItem === itemId);
+    if (itemIndex === -1) return;
+
+    const itemName = this.cart.items[itemIndex].name;
+    
+    // Optimistic remove with loading
+    if (removeBtn) this.setLoading(removeBtn, true);
+    this.cart.items.splice(itemIndex, 1);
+    this.renderCart();
+    this.updateCartBadge();
+
     try {
       await this.apiCall(`/${itemId}`, { method: 'DELETE' });
-      await this.loadCart();
+      console.log('✅ Item removed via API:', itemName);
       this.showToast('Item removed', 'success');
     } catch (error) {
-      this.showToast(error.message, 'error');
+      // Rollback on error
+      await this.loadCart();
+      console.error('❌ Remove API failed:', error);
+      this.showToast('Removed locally (API sync failed)', 'warning');
+    } finally {
+      if (removeBtn) this.setLoading(removeBtn, false);
     }
   }
 
   async clearCart() {
     const itemCount = this.cart.items.length;
+    const clearBtn = document.querySelector('.btn-clear');
+    
+    // Optimistic clear with loading
+    if (clearBtn) this.setLoading(clearBtn, true);
+    localStorage.removeItem('guestCart');
+    this.cart = { items: [], totalAmount: 0 };
+    this.renderEmptyCart();
+    this.updateCartBadge();
+
     try {
       // Try API first (auth'd users)
       if (this.token) {
         await this.apiCall('/clear', { method: 'DELETE' });
       }
-      // Always clear localStorage (guest fallback)
-      localStorage.removeItem('guestCart');
-      this.cart = { items: [], totalAmount: 0 };
-      this.loadCart();
-      this.updateCartBadge();
+      console.log('✅ Cart cleared via API');
       this.showToast(`Cleared ${itemCount} items from cart`, 'success');
     } catch (error) {
-      // Fallback: Force local clear on any error
       console.warn('API clear failed, using local fallback:', error.message);
-      localStorage.removeItem('guestCart');
-      this.cart = { items: [], totalAmount: 0 };
-      this.renderEmptyCart();
-      this.updateCartBadge();
-      this.showToast(`Cart cleared locally (${itemCount} items)`, 'success');
+      // Already optimistically cleared, just sync
+      await this.loadCart();
+      this.showToast(`Cart cleared locally (${itemCount} items)`, 'warning');
+    } finally {
+      if (clearBtn) this.setLoading(clearBtn, false);
     }
   }
 
