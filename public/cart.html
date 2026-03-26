@@ -1,142 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - Belleful</title>
-    <!-- Same CDNs -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/cart.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - Belleful</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/index.css" rel="stylesheet">
+  <link href="css/cart.css" rel="stylesheet">
 </head>
-<body>
-    <!-- Navbar will be included or copied from index.html -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-primary shadow-lg">
-        <!-- Same navbar as index.html -->
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-3" href="index.html">
-                <i class="fas fa-utensils me-2"></i>Belleful
+<body class="bg-light">
+  <!-- Navbar - Matches other pages -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold fs-3" href="index.html">
+        <img src="asset/logo.jpeg" alt="Belleful" width="40" height="40" class="rounded-circle me-2">
+        Belleful
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="user-dashboard.html">Dashboard</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item position-relative">
+            <a class="nav-link position-relative" href="cart.html" title="Shopping Cart" aria-label="Shopping Cart">
+              <i class="fas fa-shopping-cart fs-5" aria-hidden="true"></i>
+              <span class="badge bg-danger cart-badge cart-count hidden position-absolute top-0 start-100 translate-middle" id="cartBadge">0</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav;" 
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto" id="cartNavbarNav">
-                    <li class="nav-item"><a class="nav-link" href="user-dashboard.html#menu" id="loggedInHomeNav">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="user-dashboard.html#menu" id="loggedInMenuNav">Menu</a></li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="cart.html">
-                            <i class="fas fa-shopping-cart"></i> Cart 
-                            <span class="badge bg-danger cart-count">0</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="user-dashboard.html"><i class="fas fa-user"></i> Account</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-    <div class="container-fluid py-5 page-offset">
-        <div class="row">
-            <!-- Cart Items -->
-            <div class="col-lg-8">
-                <div class="d-flex justify-content-between align-items-center mb-5">
-                    <h1 class="display-4 fw-bold">
-                        <i class="fas fa-shopping-cart text-primary me-3"></i>
-                        Your Cart
-                    </h1>
-                    <a id="continueShoppingBtn" href="index.html#menu" class="btn btn-outline-primary btn-lg">
-                        <i class="fas fa-plus me-2"></i>Continue Shopping
-                    </a>
-                </div>
-                
-                <div id="cartItemsContainer" data-aos="fade-up">
-                    <div class="empty-cart text-center py-5 hidden">
-                        <i class="fas fa-shopping-cart fa-8x text-muted mb-4"></i>
-                        <h3 class="text-muted mb-4">Your cart is empty</h3>
-                        <p class="lead text-muted mb-4">Add some delicious items to get started</p>
-                        <a id="browseMenuEmptyBtn" href="index.html#menu" class="btn btn-primary btn-lg px-5 py-3">
-                            <i class="fas fa-utensils me-2"></i>Browse Menu
-                        </a>
-                    </div>
-                    
-                    <!-- Cart items loaded here -->
-                    <div id="cartItemsList"></div>
-                </div>
-            </div>
-            
-            <!-- Order Summary -->
-            <div class="col-lg-4">
-                <div class="card sticky-top sticky-top-offset" data-aos="fade-left">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="fas fa-receipt me-2"></i>Order Summary
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="summaryItems"></div>
-                        <hr>
-                        <div class="d-flex justify-content-between fs-5 fw-bold mb-4">
-                            <span>Total:</span>
-                            <span id="cartTotal" class="text-success">₦0</span>
-                        </div>
-                        <button id="clearCartBtn" class="btn btn-outline-danger w-100 py-3 fw-bold mb-3" style="border: 2px solid #dc3545;">
-                            <i class="fas fa-trash-alt me-2"></i>Clear Cart
-                        </button>
-                        <button id="checkoutBtn" class="btn btn-success w-100 btn-lg py-3 fw-bold mb-3" disabled>
-                            <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
-                        </button>
-                        <p class="text-muted small text-center mb-0">
-                            Secure bank transfer | No extra fees
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="cart-container">
+    <!-- Header -->
+    <div class="cart-header pt-5 pb-4">
+      <a href="user-dashboard.html" class="btn btn-back">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+      </a>
+      <h1>My Cart</h1>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="js/constants.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/cart-page.js"></script>
-    <script>
-        AOS.init();
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Dynamic navbar for logged-in users
-            const token = localStorage.getItem('token');
-            const navList = document.getElementById('cartNavbarNav');
-            if (token && navList) {
-                navList.innerHTML += `
-                    <li class="nav-item"><a class="nav-link" href="user-dashboard.html">Dashboard</a></li>
-                    <li class="nav-item"><button class="nav-link btn btn-link p-0 text-white" onclick="logout()">Logout</button></li>
-                `;
-            } else {
-                navList.innerHTML += '<li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>';
-            }
+    <div class="row g-4">
+      <!-- Cart Items -->
+      <div class="col-lg-8">
+        <div class="cart-items-grid" id="cartItems"></div>
+      </div>
 
-            // Clear cart button
-            document.getElementById('clearCartBtn')?.addEventListener('click', clearCart);
+      <!-- Summary Sidebar -->
+      <div class="col-lg-4">
+        <div class="cart-summary"></div>
+      </div>
+    </div>
+  </div>
 
-            // Dynamic logged-in navigation
-            function updateLoggedInLinks() {
-                const loggedIn = !!token;
-                const continueBtn = document.getElementById('continueShoppingBtn');
-                const browseBtn = document.getElementById('browseMenuEmptyBtn');
-                if (loggedIn && continueBtn) {
-                    continueBtn.href = 'user-dashboard.html#menu';
-                }
-                if (loggedIn && browseBtn) {
-                    browseBtn.href = 'user-dashboard.html#menu';
-                }
-            }
-            updateLoggedInLinks();
-        });
-    </script>
-
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Project JS -->
+  <script src="js/constants.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cart.js"></script>
 </body>
 </html>
