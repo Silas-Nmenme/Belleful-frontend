@@ -1,9 +1,21 @@
-# Fix showToast ReferenceError & Dashboard Load
+# Fix Orders Loading Error - Progress Tracker
 
-## Status: ✅ In Progress
+## Plan Status: ✅ APPROVED
 
-### Step 1: ✅ Add global showToast to constants.js
-### Step 2: ✅ Update orders.js for defensive toast handling
-### Step 3: ✅ Improve dashboard.js error handling
-### Step 4: [PENDING] Test dashboard load (empty orders graceful fallback)
-### Step 5: [PENDING] Complete & verify no crashes
+**Original Issue**: Orders load failed: Failed to fetch orders (orders.js:13)
+
+**Files to Update**: 
+- [ ] `public/js/orders.js` - Fix endpoint + error handling
+- [ ] `public/js/dashboard.js` - Ensure consistency
+
+**Next Steps**:
+1. [ ] Edit `public/js/orders.js`
+2. [ ] Edit `public/js/dashboard.js` 
+3. [ ] Test in browser console/network tab
+4. [ ] ✅ Complete - attempt_completion
+
+**Testing**:
+- Open `user-dashboard.html`
+- Check no "Failed to fetch orders" error
+- Verify orders table renders (empty OK if no orders)
+

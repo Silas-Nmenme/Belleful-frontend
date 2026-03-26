@@ -1020,7 +1020,10 @@ async function loadUserDashboard() {
     // Load orders
     const ordersTableBody = document.getElementById('ordersTableBody');
     if (ordersTableBody) ordersTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div></td></tr>';
-    const orders = await OrderManager.getUserOrders();
+    const orders = await OrderManager.getUserOrders().catch(err => {
+      console.error('Dashboard orders fetch error:', err);
+      return { data: [] };
+    });
     if (ordersTableBody) renderOrders(orders.data || []);
 
     // Defensive menu load with global elements & retry

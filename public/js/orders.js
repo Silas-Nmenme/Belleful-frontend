@@ -2,11 +2,15 @@
 async function getUserOrders() {
   try {
     const token = localStorage.getItem('token');
-const response = await fetch(`${window.API_BASE}/orders/my-orders`, {
+const response = await fetch(`${window.API_BASE}/dashboard/user/orders`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    if (!response.ok) throw new Error('Failed to fetch orders');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Orders API failed:', response.status, errorText);
+      throw new Error(`Orders fetch failed: ${response.status} - ${errorText.slice(0,100)}`);
+    }
     return await response.json();
   } catch (error) {
     if (typeof showToast === 'function') showToast('Failed to load orders: ' + error.message, 'error');
