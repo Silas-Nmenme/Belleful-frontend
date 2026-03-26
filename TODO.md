@@ -1,11 +1,13 @@
-# Signup Flow Backend Integration TODO
+# Cart Error Fix - TODO
 
-## Plan Breakdown
-1. ✅ [Complete] Create this TODO.md
-2. ✅ [Complete] Update public/js/auth.js: Implement real handleRegister() and handleVerifyOTP()
-3. ✅ [Complete] Update public/js/signup.js: Ensure calls real AuthManager.register()
-4. ✅ [Complete] Update public/js/otp-verify.js: Make generic real API, read email from query/localStorage, update verify/resend
-5. ✅ [Complete] Update public/otp-verify.html: Add auth.js script, hidden email input
-6. ✅ [Complete] Verified code changes, flow ready (test with backend running)
-7. ✅ [Complete] Task done
+## Plan Breakdown:
+- [x] Step 1: Update renderEmptyCart() selector to use specific #cartItems only with null check
+- [x] Step 2: Add null checks to renderCart(), renderSummary(), renderEmptyCart()
+- [x] Step 3: Make init() more defensive - wait for #cartItems to exist before loadCart()
+- [x] Step 4: Improve error handling in loadCart() - don't render if DOM not ready
+- [ ] Step 5: Test cart.html with network fail simulation
+- [ ] Step 6: Verify normal flow, empty cart, summary rendering
 
+**Current Progress:** Code fixes complete [x]. Testing phase.
+
+**Status:** Testing
