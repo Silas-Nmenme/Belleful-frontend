@@ -2,8 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+  --primary-gradient: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  --success-gradient: linear-gradient(135deg, #2ec4b6 0%, #28a745 100%);
   --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
   --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -53,8 +53,8 @@
 
 .btn-back:hover {
   background: white;
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #ff6b35;
+  color: #ff6b35;
   transform: translateY(-2px);
   box-shadow: var(--card-shadow);
 }
@@ -72,7 +72,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 1.5rem;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .cart-empty h2 {

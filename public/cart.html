@@ -11,37 +11,83 @@
 </head>
 <body class="bg-light">
   <!-- Navbar - Matches other pages -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold fs-3" href="index.html">
-        <img src="asset/logo.jpeg" alt="Belleful" width="40" height="40" class="rounded-circle me-2">
-        Belleful
+  <!-- Navbar - Conditional based on auth -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-warm shadow-lg" id="cartNavbar">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-utensils me-2"></i>Belleful
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
+        <!-- Guest Navbar (default) -->
+        <ul class="navbar-nav me-auto guest-nav" id="guestNav">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#menu" id="menuLink">Menu</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav" id="guestRightNav">
+          <li class="nav-item">
+            <a class="nav-link" href="cart.html">
+              <i class="fas fa-shopping-cart"></i> Cart 
+              <span class="badge bg-danger cart-count hidden">0</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="contact-us.html">Contact</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user"></i> Account
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="login.html">Login</a></li>
+              <li><a class="dropdown-item" href="signup.html">Sign Up</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="admin-login.html">Admin Login</a></li>
+            </ul>
+          </li>
+        </ul>
+        
+        <!-- Logged-in Navbar (hidden by default) -->
+        <ul class="navbar-nav me-auto logged-nav d-none" id="loggedNav">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="user-dashboard.html">Dashboard</a></li>
         </ul>
-        <ul class="navbar-nav">
+        <ul class="navbar-nav logged-right-nav d-none" id="loggedRightNav">
           <li class="nav-item position-relative">
-            <a class="nav-link position-relative" href="cart.html" title="Shopping Cart" aria-label="Shopping Cart">
-              <i class="fas fa-shopping-cart fs-5" aria-hidden="true"></i>
+            <a class="nav-link" href="cart.html">
+              <i class="fas fa-shopping-cart fs-5"></i>
               <span class="badge bg-danger cart-badge cart-count hidden position-absolute top-0 start-100 translate-middle" id="cartBadge">0</span>
             </a>
           </li>
-          <li class="nav-item"><a class="nav-link" href="user-dashboard.html"><i class="fas fa-user"></i> Account</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+              <img class="rounded-circle me-2" src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff&size=32" width="32" height="32" alt="Profile">
+              Welcome Back
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="user-dashboard.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item text-danger" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</button></li>
+            </ul>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <div class="cart-container">
-    <!-- Header -->
-    <div class="cart-header pt-5 pb-4">
-      <a href="user-dashboard.html" class="btn btn-back">
+  <div class="cart-container pt-5">
+    <!-- Header - Conditional -->
+    <div class="cart-header pb-4 mb-4">
+      <a href="index.html" class="btn btn-back guest-back d-block" id="guestBack">
+        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+      </a>
+      <a href="user-dashboard.html" class="btn btn-back logged-back d-none" id="loggedBack">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
       </a>
       <h1>My Cart</h1>
@@ -60,8 +106,33 @@
     </div>
   </div>
 
+  <!-- Auth Check & Navbar Setup -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // Guest: show public navbar
+        document.getElementById('guestNav')?.classList.remove('d-none');
+        document.getElementById('guestRightNav')?.classList.remove('d-none');
+        document.getElementById('guestBack')?.classList.remove('d-none');
+        return;
+      }
+      
+      // Logged-in: show private navbar + update profile
+      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      document.querySelector('#loggedRightNav .dropdown-toggle span')?.textContent.replace('Welcome Back', user.name || 'User');
+      
+      document.getElementById('loggedNav')?.classList.remove('d-none');
+      document.getElementById('loggedRightNav')?.classList.remove('d-none');
+      document.getElementById('loggedBack')?.classList.remove('d-none');
+      document.getElementById('guestNav')?.classList.add('d-none');
+      document.getElementById('guestRightNav')?.classList.add('d-none');
+      document.getElementById('guestBack')?.classList.add('d-none');
+    });
+  </script>
+  
   <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   
   <!-- Project JS -->
   <script src="js/constants.js"></script>
