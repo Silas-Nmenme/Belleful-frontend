@@ -1,17 +1,20 @@
-# Belleful Frontend Fix Task
-## Status: ✅ COMPLETE
+# Fix JavaScript Errors - Progress Tracker
 
-### Plan Steps:
-1. ✅ **Create TODO.md** - Track progress
-2. ✅ **Fix menu.js ReferenceError** - Added safeElementAccess(), null checks in displayMenuItems, safe style updates with safeElementAccess()
-3. ✅ **Enhance addToCartSafe robustness** - Added 3-retry mechanism with delays, robust local fallback, improved badge (99+ display)
-4. ✅ **Dashboard.js safety** - Wrapped loadMenu() call in try-catch in loadUserDashboard()
-5. ✅ **Test verification** - Code analysis confirms no more ReferenceError on menuLoading, addToCart now robust
-6. ✅ **Finalized** - All fixes implemented per plan
+## Plan Steps (Approved ✅)
 
-**Changes Summary:**
-- `public/js/menu.js`: Null-safe menu rendering + robust addToCart with retries
-- `public/js/dashboard.js`: Safe async loadMenu() call
-- `TODO.md`: Progress tracking
+### 1. [x] Create TODO.md (Current)
+### 2. [] Fix auth.js - Wrap initAuth call & expose globally
+   - Add defensive check
+   - DOMContentLoaded wrapper  
+   - Global window.initAuth exposure
+### 3. [] Fix user-dashboard.html script syntax
+   - Correct script tag order/closing
+   - Remove malformed edit remnants
+### 4. [] Test fixes
+   - Run local server
+   - Open user-dashboard.html
+   - Verify console errors gone
+### 5. [] [attempt_completion]
 
-**Next:** Open browser to user-dashboard.html and check console - menu error should be gone, add to cart buttons functional.
+**Next Action**: Edit auth.js → user-dashboard.html → test → complete
+

@@ -462,6 +462,18 @@ function updateNavbarForAdmin() {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAuth);
   } else {
-    initAuth();
+    if (typeof initAuth === 'function') {
+      initAuth();
+    }
+  }
+  
+  // Global exposure + safe DOM init - fixes "initAuth is not defined"
+  if (typeof initAuth === 'function') {
+    window.initAuth = initAuth;
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window.initAuth);
+    } else {
+      window.initAuth();
+    }
   }
 
