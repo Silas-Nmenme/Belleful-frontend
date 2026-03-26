@@ -15,7 +15,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-warm shadow-lg">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
-                <button class="navbar-toggler d-lg-none me-3 mobile-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Toggle navigation menu">
+                <button class="navbar-toggler d-lg-none me-3 mobile-menu-toggle" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
                     <i class="fas fa-bars text-white fs-4"></i>
                 </button>
                 <a class="navbar-brand fw-bold" href="#">
@@ -44,13 +44,10 @@
         </div>
     </nav>
 
-    <!-- Sidebar Offcanvas -->
-    <div class="offcanvas offcanvas-start sidebar" tabindex="-1" id="sidebarOffcanvas">
-        <div class="offcanvas-header border-bottom">
-            <h5 class="offcanvas-title fw-bold"><i class="fas fa-user-circle me-2"></i>Profile</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close menu"></button>
-        </div>
-        <div class="offcanvas-body p-0">
+    <!-- Persistent Sidebar -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="userSidebar">
+        <div class="sidebar-content">
             <div id="sidebarProfile" class="profile-card">
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
@@ -70,13 +67,13 @@
                 <a href="#menu" class="nav-link" onclick="setActiveNav('menu')">
                     <i class="fas fa-utensils"></i> Menu
                 </a>
-                <a href="cart.html" class="nav-link">
+                <a href="cart.html" class="nav-link" onclick="closeSidebar()">
                     <i class="fas fa-shopping-cart"></i> Cart
                 </a>
-                <a href="#" class="nav-link">
+                <a href="#" class="nav-link" onclick="closeSidebar()">
                     <i class="fas fa-heart"></i> Favorites
                 </a>
-                <a href="#" class="nav-link">
+                <a href="#" class="nav-link" onclick="closeSidebar()">
                     <i class="fas fa-cog"></i> Settings
                 </a>
             </nav>
@@ -368,8 +365,21 @@
             }
             
             // Close mobile sidebar
-            const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('sidebarOffcanvas'));
-            if (offcanvas) offcanvas.hide();
+            closeSidebar();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('userSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.toggle('show');
+            backdrop.style.display = sidebar.classList.contains('show') ? 'block' : 'none';
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('userSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.remove('show');
+            backdrop.style.display = 'none';
         }
 
         // Navbar cart count update
