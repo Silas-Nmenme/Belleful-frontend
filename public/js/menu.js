@@ -105,7 +105,7 @@ function createMenuCard(item, delayIndex = 0) {
             ${item.category}
           </span>
         </div>
-        <button class="btn btn-success w-100 add-to-cart-btn" onclick="addToCart('${item._id}', 1)" ${!item.available ? 'disabled' : ''}>
+        <button class="btn btn-success w-100 add-to-cart-btn" onclick="addToCartSafe('${item._id}', 1)" ${!item.available ? 'disabled' : ''}>
           ${item.available ? '<i class="fas fa-plus me-2"></i>Add to Cart' : '<i class="fas fa-ban me-2"></i>Unavailable'}
         </button>
       </div>
@@ -114,6 +114,19 @@ function createMenuCard(item, delayIndex = 0) {
   
   return card;
 }
+
+// Safe addToCart wrapper - works with/without cart.js
+window.addToCartSafe = async function(menuItemId, quantity = 1) {
+  if (typeof window.addToCart === 'function') {
+    // cart.js loaded
+    await window.addToCart(menuItemId, quantity);
+  } else {
+    // Fallback local cart
+    addToLocalCart(menuItemId, 0, ''); // Price/name from localStorage if needed
+    updateCartCount(getLocalCart().items.reduce((sum, item) => sum + item.quantity, 0));
+    showToast('Added to cart (guest mode)', 'success');
+  }
+};
 
 // Add to cart function (works pre/post auth)
 // Custom addToCart removed - use window.addToCart from cart.js

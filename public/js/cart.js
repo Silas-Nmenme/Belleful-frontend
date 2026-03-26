@@ -6,13 +6,30 @@ class CartManager {
     this.API_BASE = window.API_BASE || '/api';
     this.token = localStorage.getItem('token');
     this.cart = { items: [], totalAmount: 0 };
+    this.isCartPage = this.isCartPage.bind(this);
     this.init();
   }
 
+  isCartPage() {
+    const path = window.location.pathname;
+    return path.includes('cart.html') || 
+           !!document.getElementById('cartItems') || 
+           !!document.querySelector('.cart-summary');
+  }
+
   async init() {
+    // Badge-only mode for non-cart pages
+    if (!this.isCartPage()) {
+      console.log('Initializing cart badge-only mode');
+      this.updateCartBadge();
+      this.bindEvents(); // Still bind global events
+      return;
+    }
+
+    // Full cart page init
     await this.waitForElements();
     this.bindEvents();
-    this.loadCart();
+    await this.loadCart();
     this.updateCartBadge();
   }
 
@@ -98,8 +115,15 @@ class CartManager {
     }
   }
 
-  async loadCart() {
-    // DOM safety check
+async loadCart() {
+    // Skip full load on badge-only pages (menu/dashboard)
+    if (!this.isCartPage()) {
+      console.log('Badge-only page - skipping full cart load');
+      this.updateCartBadge();
+      return;
+    }
+
+    // DOM safety check for cart page
     if (!document.getElementById('cartItems')) {
       console.warn('Cart DOM not ready, retrying...');
       setTimeout(() => this.loadCart(), 100);
