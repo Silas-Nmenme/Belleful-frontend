@@ -459,21 +459,8 @@ function updateNavbarForAdmin() {
   })();
   
   // Init on DOM ready if not already
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAuth);
-  } else {
-    if (typeof initAuth === 'function') {
-      initAuth();
-    }
-  }
+  // Single clean init (moved to global scope above)
+
   
-  // Global exposure + safe DOM init - fixes "initAuth is not defined"
-  if (typeof initAuth === 'function') {
-    window.initAuth = initAuth;
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', window.initAuth);
-    } else {
-      window.initAuth();
-    }
-  }
+// Clean global init - FIXED ReferenceError
 

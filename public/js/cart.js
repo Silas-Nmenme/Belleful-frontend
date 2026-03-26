@@ -177,7 +177,7 @@ async loadCart() {
         <img src="${item.image || '/asset/placeholder-food.jpg'}" alt="${item.name}" class="item-image" loading="lazy">
         <div class="item-details">
           <h3 class="item-name">${item.name}</h3>
-          <div class="item-price">$${item.price.toFixed(2)}</div>
+          <div class="item-price">₦${item.price.toLocaleString()}</div>
           <div class="item-controls">
             <div class="qty-stepper">
               <button class="qty-btn" data-delta="-1" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
@@ -222,14 +222,14 @@ async loadCart() {
     if (!this.cart.items.length) return;
 
     const subtotal = this.cart.totalAmount;
-    const deliveryFee = 5.00;
+    const deliveryFee = 2000; // ₦2k realistic Lagos delivery
     const total = subtotal + deliveryFee;
 
     summary.innerHTML = `
-      <div class="summary-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-      <div class="summary-row"><span>Delivery Fee</span><span>$${deliveryFee.toFixed(2)}</span></div>
+      <div class="summary-row"><span>Subtotal</span><span>₦${subtotal.toLocaleString()}</span></div>
+      <div class="summary-row"><span>Delivery Fee</span><span>₦${deliveryFee.toLocaleString()}</span></div>
       <div class="summary-row summary-total">
-        <span>Total</span><span>$${total.toFixed(2)}</span>
+        <span>Total</span><span>₦${total.toLocaleString()}</span>
       </div>
       <button class="btn-proceed">
         <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
@@ -275,13 +275,26 @@ async loadCart() {
   }
 
   async clearCart() {
+    const itemCount = this.cart.items.length;
     try {
-      await this.apiCall('/clear', { method: 'DELETE' });
+      // Try API first (auth'd users)
+      if (this.token) {
+        await this.apiCall('/clear', { method: 'DELETE' });
+      }
+      // Always clear localStorage (guest fallback)
       localStorage.removeItem('guestCart');
+      this.cart = { items: [], totalAmount: 0 };
       this.loadCart();
-      this.showToast('Cart cleared', 'success');
+      this.updateCartBadge();
+      this.showToast(`Cleared ${itemCount} items from cart`, 'success');
     } catch (error) {
-      this.showToast(error.message, 'error');
+      // Fallback: Force local clear on any error
+      console.warn('API clear failed, using local fallback:', error.message);
+      localStorage.removeItem('guestCart');
+      this.cart = { items: [], totalAmount: 0 };
+      this.renderEmptyCart();
+      this.updateCartBadge();
+      this.showToast(`Cart cleared locally (${itemCount} items)`, 'success');
     }
   }
 
