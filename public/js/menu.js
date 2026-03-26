@@ -14,7 +14,8 @@
   if (window.MenuManager && window.MenuManager.initialized) return;
   
   // Load menu items - main entry point
-  window.loadMenu = async function() {
+window.loadMenu = async function() {
+  const { menuGrid, menuLoading } = getMenuElements();
   // Defensive null checks - elements may not exist on all pages
   if (!menuGrid || !menuLoading) {
     console.warn('Menu elements not found on this page');
