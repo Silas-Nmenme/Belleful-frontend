@@ -9,10 +9,26 @@ class CartManager {
     this.init();
   }
 
-  init() {
+  async init() {
+    await this.waitForElements();
     this.bindEvents();
     this.loadCart();
     this.updateCartBadge();
+  }
+
+  waitForElements() {
+    return new Promise((resolve) => {
+      const checkElements = () => {
+        const cartItems = document.getElementById('cartItems');
+        const summary = document.querySelector('.cart-summary');
+        if (cartItems && summary) {
+          resolve();
+        } else {
+          requestAnimationFrame(checkElements);
+        }
+      };
+      checkElements();
+    });
   }
 
   bindEvents() {
@@ -83,11 +99,19 @@ class CartManager {
   }
 
   async loadCart() {
+    // DOM safety check
+    if (!document.getElementById('cartItems')) {
+      console.warn('Cart DOM not ready, retrying...');
+      setTimeout(() => this.loadCart(), 100);
+      return;
+    }
+
     try {
       const btns = document.querySelectorAll('.btn-proceed, .btn-clear, .qty-btn');
       btns.forEach(btn => this.setLoading(btn, true));
 
       const result = await this.apiCall('/');
+
       this.cart = result.data || { items: [], totalAmount: 0 };
 
       // Fallback guest cart
@@ -108,7 +132,12 @@ class CartManager {
   }
 
   renderCart() {
-    const container = document.querySelector('.cart-items-grid') || document.getElementById('cartItems');
+    const container = document.getElementById('cartItems');
+    if (!container) {
+      console.warn('Cart items container not found');
+      this.renderEmptyCart();
+      return;
+    }
     
     if (!this.cart.items.length) {
       this.renderEmptyCart();
@@ -138,7 +167,11 @@ class CartManager {
   }
 
   renderEmptyCart() {
-    const container = document.querySelector('.cart-items-grid') || document.querySelector('.cart-container');
+    const container = document.getElementById('cartItems');
+    if (!container) {
+      console.warn('Cart container not found');
+      return;
+    }
     container.innerHTML = `
       <div class="cart-empty">
         <div class="empty-icon">🛒</div>
@@ -154,7 +187,11 @@ class CartManager {
 
   renderSummary() {
     const summary = document.querySelector('.cart-summary');
-    if (!summary || !this.cart.items.length) return;
+    if (!summary) {
+      console.warn('Cart summary not found');
+      return;
+    }
+    if (!this.cart.items.length) return;
 
     const subtotal = this.cart.totalAmount;
     const deliveryFee = 5.00;
