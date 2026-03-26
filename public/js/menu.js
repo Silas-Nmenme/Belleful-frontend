@@ -147,7 +147,7 @@ function createMenuCard(item, delayIndex = 0) {
         <h5 class="card-title fw-bold mb-2">${item.name}</h5>
         <p class="card-text text-muted flex-grow-1">${item.description || 'Delicious ' + item.category}</p>
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <span class="menu-price">₦${item.price.toLocaleString()}</span>
+          <span class="menu-price">₦${(item.price || 0).toLocaleString()}</span>
           <span class="badge bg-${item.category === 'food' ? 'primary' : item.category === 'drink' ? 'info' : 'secondary'}">
             ${item.category}
           </span>

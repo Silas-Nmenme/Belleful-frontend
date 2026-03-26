@@ -20,8 +20,8 @@ async function loadCheckoutData() {
         const cart = await cartRes.json();
         renderCheckoutItems(cart.data.items || cart.data);
         const total = cart.data.totalAmount || cart.totalAmount || 0;
-        document.getElementById('checkoutTotal').textContent = `₦${total.toLocaleString()}`;
-        document.getElementById('paymentAmount').textContent = `₦${total.toLocaleString()}`;
+        document.getElementById('checkoutTotal').textContent = `₦${(total || 0).toLocaleString()}`;
+        document.getElementById('paymentAmount').textContent = `₦${(total || 0).toLocaleString()}`;
         
         // Add delivery toggle
         document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
@@ -47,10 +47,10 @@ function renderCheckoutItems(items) {
         <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
             <div>
                 <h6 class="fw-bold">${item.menuItem?.name || item.name}</h6>
-                <small class="text-muted">${item.quantity} × ₦${item.price.toLocaleString()}</small>
+                <small class="text-muted">${item.quantity} × ₦${(item.price || 0).toLocaleString()}</small>
             </div>
             <div class="text-end">
-                <div class="h6 fw-bold">₦${(item.price * item.quantity).toLocaleString()}</div>
+                <div class="h6 fw-bold">₦${((item.price || 0) * item.quantity).toLocaleString()}</div>
             </div>
         </div>
     `).join('');

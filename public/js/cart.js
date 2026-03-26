@@ -151,20 +151,56 @@ async loadCart() {
 
       // Always load/merge guest cart from localStorage
       const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-      if (guestCart.length > 0) {
-        cartData.items = guestCart;
-        cartData.totalAmount = guestCart.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+      
+      // Filter valid items (fix for undefined price bug)
+      const validGuestItems = guestCart.filter(item => 
+        item && item.name && typeof item.quantity === 'number' && item.quantity > 0 && 
+        (typeof item.price === 'number' || typeof item.price === 'string')
+      ).map(item => ({
+        ...item,
+        price: typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0
+      }));
+      
+      if (validGuestItems.length > 0) {
+        // Warn about filtered items
+        if (validGuestItems.length !== guestCart.length) {
+          console.warn(`Filtered ${guestCart.length - validGuestItems.length} invalid cart items`);
+          localStorage.setItem('guestCart', JSON.stringify(validGuestItems));
+        }
+        cartData.items = [...cartData.items, ...validGuestItems];
+        cartData.totalAmount = validGuestItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
       }
+
+      // Filter API items too
+      cartData.items = cartData.items.filter(item => 
+        item && item.name && typeof item.quantity === 'number' && item.quantity > 0 &&
+        typeof item.price === 'number'
+      );
 
       this.cart = cartData;
       this.renderCart();
     } catch (error) {
       console.error('Load cart failed:', error);
       // Fallback to localStorage only
-      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+      const rawGuestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+      
+      // Filter valid items (same logic as above)
+      const validGuestItems = rawGuestCart.filter(item => 
+        item && item.name && typeof item.quantity === 'number' && item.quantity > 0 && 
+        (typeof item.price === 'number' || typeof item.price === 'string')
+      ).map(item => ({
+        ...item,
+        price: typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0
+      }));
+      
+      if (validGuestItems.length !== rawGuestCart.length) {
+        console.warn(`Fallback: Filtered ${rawGuestCart.length - validGuestItems.length} invalid cart items`);
+        localStorage.setItem('guestCart', JSON.stringify(validGuestItems));
+      }
+      
       this.cart = {
-        items: guestCart,
-        totalAmount: guestCart.reduce((sum, item) => sum + (item.quantity * item.price), 0)
+        items: validGuestItems,
+        totalAmount: validGuestItems.reduce((sum, item) => sum + (item.quantity * item.price), 0)
       };
       this.renderCart();
     }
@@ -183,12 +219,18 @@ async loadCart() {
       return;
     }
 
-    container.innerHTML = this.cart.items.map(item => `
+    const validItems = this.cart.items.filter(item => item && item.name && typeof item.price === 'number' && item.price >= 0);
+    
+    if (validItems.length !== this.cart.items.length) {
+      console.warn(`renderCart: Filtered ${this.cart.items.length - validItems.length} invalid items`);
+    }
+    
+    container.innerHTML = validItems.map(item => `
       <div class="cart-item-card" data-item-id="${item.menuItem}">
         <img src="${item.image || '/asset/placeholder-food.jpg'}" alt="${item.name}" class="item-image" loading="lazy">
         <div class="item-details">
           <h3 class="item-name">${item.name}</h3>
-          <div class="item-price">₦${item.price.toLocaleString()}</div>
+          <div class="item-price">₦${(item.price || 0).toLocaleString()}</div>
           <div class="item-controls">
             <div class="qty-stepper">
               <button class="qty-btn" data-delta="-1" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
@@ -263,8 +305,9 @@ async updateQuantity(itemId, delta, event) {
     // Always update local first (optimistic + persistent)
     this.cart.items[itemIndex].quantity = newQty;
     
-    // Save to localStorage immediately (guest cart)
-    localStorage.setItem('guestCart', JSON.stringify(this.cart.items));
+    // Validate before saving
+    const validItems = this.cart.items.filter(item => item && item.name && typeof item.price === 'number');
+    localStorage.setItem('guestCart', JSON.stringify(validItems));
     
     this.renderCart();
     this.updateCartBadge();
@@ -416,6 +459,12 @@ async clearCart() {
     const newItem = { ...itemData, menuItem: menuItemId, quantity };
     
     // Always save to localStorage (guest cart)
+    // Validate item before adding
+    if (!itemData.name || typeof itemData.price !== 'number' || itemData.price < 0) {
+      console.error('Invalid item data:', itemData);
+      return;
+    }
+    
     let cartItems = JSON.parse(localStorage.getItem('guestCart') || '[]');
     const existingIndex = cartItems.findIndex(item => item.menuItem === menuItemId);
     if (existingIndex > -1) {
