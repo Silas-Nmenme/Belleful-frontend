@@ -229,40 +229,88 @@ async function handleLogin(e, submitBtn = null) {
 
 }
 
-// Register handler
+// Register handler - REAL BACKEND
 async function handleRegister(e) {
   e.preventDefault();
   
-  const name = document.getElementById('registerName')?.value.trim();
-  const email = document.getElementById('registerEmail')?.value.trim().toLowerCase();
-  const password = document.getElementById('registerPassword')?.value;
-  const endpoint = authMode === 'admin' ? '/auth/admin-signup' : '/auth/signup';
+  const name = document.getElementById('signupName')?.value?.trim() || document.getElementById('registerName')?.value?.trim();
+  const email = (document.getElementById('signupEmail')?.value || document.getElementById('registerEmail')?.value)?.trim().toLowerCase();
+  const password = document.getElementById('signupPassword')?.value || document.getElementById('registerPassword')?.value;
   
-  if (!name || !email || !password) {
-    showToast('Please fill all fields', 'error');
+  if (!name || !email || !password || password.length < 6) {
+    showToast('Please fill all fields correctly (password min 6 chars)', 'error');
     return;
   }
   
-  // Mock register (in real app, save to DB)
-  showToast('Registration temporarily disabled. Please login with existing account or contact admin@belleful.com', 'info');
+  const submitBtn = e.target?.querySelector('button[type="submit"]') || document.getElementById('signupFormSubmit');
+  showLoading(submitBtn, 'Creating account...');
+  
+  try {
+    const response = await apiPost('/api/auth/register', { name, email, password });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Registration failed');
+    }
+    const result = await response.json();
+    localStorage.setItem('pendingEmail', email);
+    showToast(result.message || 'Account created! Check your email for OTP.', 'success');
+    hideLoading(submitBtn);
+    setTimeout(() => {
+      window.location.href = `otp-verify.html?email=${encodeURIComponent(email)}`;
+    }, 1500);
+  } catch (error) {
+    hideLoading(submitBtn);
+    showToast(error.message, 'error');
+  }
 }
 
-// OTP Verification
-async function handleOTP(e) {
+// OTP Verification - REAL BACKEND
+async function handleVerifyOTP(e, emailOverride = null) {
   e.preventDefault();
   
-  const otpEmailEl = document.getElementById('otpEmail');
-  const otpCodeEl = document.getElementById('otpCode');
+  // Get email from override, hidden input, query param, or localStorage
+  let email = emailOverride;
+  if (!email) {
+    const hiddenEmail = document.getElementById('otpEmail');
+    email = hiddenEmail?.value?.trim().toLowerCase();
+  }
+  if (!email) {
+    const urlParams = new URLSearchParams(window.location.search);
+    email = urlParams.get('email');
+  }
+  if (!email) {
+    email = localStorage.getItem('pendingEmail') || localStorage.getItem('resetEmail');
+  }
+  const otpEl = document.getElementById('otpCode') || Array.from(document.querySelectorAll('.otp-input')).map(i => i.value).join('');
+  const otp = (typeof otpEl === 'string' ? otpEl : otpEl?.trim()) || '';
   
-  const email = otpEmailEl?.value || '';
-  const otp = otpCodeEl?.value.trim() || '';
-  
-  if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
-    showToast('Please enter valid 6-digit OTP (Demo: 123456)', 'error');
+  if (!email || !otp || otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+    showToast('Please enter valid email and 6-digit OTP', 'error');
     return;
   }
   
-  showToast('Registration temporarily disabled. Please login with existing account.', 'info');
+  const submitBtn = e.target?.querySelector('button[type="submit"]') || document.getElementById('verifyBtn');
+  showLoading(submitBtn, 'Verifying OTP...');
+  
+  try {
+    const response = await apiPost('/api/auth/verify-otp', { email, otp });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Invalid or expired OTP');
+    }
+    const result = await response.json();
+    saveAuth(result);
+    localStorage.removeItem('pendingEmail');
+    localStorage.removeItem('resetEmail');
+    showToast('Account verified! Redirecting to dashboard...', 'success');
+    hideLoading(submitBtn);
+    setTimeout(() => {
+      window.location.href = localStorage.getItem('userRole') === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
+    }, 1500);
+  } catch (error) {
+    hideLoading(submitBtn);
+    showToast(error.message, 'error');
+  }
 }
 
 // Save auth data
@@ -390,11 +438,15 @@ window.checkAuth = checkAuthStatus;
 window.logout = logout;
 window.AuthManager = {
   login: handleLogin,
+  register: handleRegister,
+  verifyOTP: handleVerifyOTP,
   currentUser,
   checkAuthStatus,
   updateNavbarForAdmin
 };
 AuthManager.login = handleLogin;
+AuthManager.register = handleRegister;
+AuthManager.verifyOTP = handleVerifyOTP;
 
 // Auto-init if on login/register page
 if (document.querySelector('#loginForm, #registerForm, #otpForm')) {

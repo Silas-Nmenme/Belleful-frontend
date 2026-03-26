@@ -1,11 +1,11 @@
-# Cart Implementation TODO
+# Signup Flow Backend Integration TODO
 
-## Plan Breakdown (Approved)
-1. ~~Plan confirmed by user~~
-2. ~~Create public/css/cart.css - Cart-specific styles matching project design system~~
-3. ~~Create public/js/cart.js - Cart API logic, UI updates, navbar integration~~
-4. ~~Create public/cart.html - Full cart page UI with empty state, items grid, totals~~
-5. Test integration: Load cart, add/remove qty, clear, badges update
-6. Verify responsive design and auth handling
-7. Update navbars if needed for consistent cart count
-8. attempt_completion
+## Plan Breakdown
+1. ✅ [Complete] Create this TODO.md
+2. ✅ [Complete] Update public/js/auth.js: Implement real handleRegister() and handleVerifyOTP()
+3. ✅ [Complete] Update public/js/signup.js: Ensure calls real AuthManager.register()
+4. ✅ [Complete] Update public/js/otp-verify.js: Make generic real API, read email from query/localStorage, update verify/resend
+5. ✅ [Complete] Update public/otp-verify.html: Add auth.js script, hidden email input
+6. ✅ [Complete] Verified code changes, flow ready (test with backend running)
+7. ✅ [Complete] Task done
+

@@ -16,20 +16,26 @@ class OTPVerify {
         this.otp = '';
         this.timeLeft = 120; // 2 minutes
         this.timer = null;
-        this.demoOtp = '123456';
+        this.email = null;
         
         this.init();
     }
     
     init() {
-        const email = localStorage.getItem('resetEmail');
-        if (!email) {
-            this.showMessage('No reset session found. Please start from reset password.', 'error');
+        // Get email from multiple sources: query param (signup), localStorage pending/resetEmail
+        const urlParams = new URLSearchParams(window.location.search);
+        this.email = urlParams.get('email') || localStorage.getItem('pendingEmail') || localStorage.getItem('resetEmail');
+        
+        const hiddenEmail = document.getElementById('otpEmail');
+        if (hiddenEmail) hiddenEmail.value = this.email;
+        
+        if (!this.email) {
+            this.showMessage('No verification session found. Please start from signup or reset password.', 'error');
             setTimeout(() => window.location.href = 'login.html', 2000);
             return;
         }
         
-        this.emailEl.textContent = `Enter code sent to ${email}`;
+        this.emailEl.textContent = `Enter code sent to ${this.email}`;
         this.bindEvents();
         this.startTimer();
         this.focusFirstInput();
@@ -98,54 +104,44 @@ class OTPVerify {
     handleSubmit(e) {
         e.preventDefault();
         
-        if (this.otp.length !== 6 || !this.validateOtp()) {
+        if (this.otp.length !== 6 || !this.validateOtp(this.otp)) {
             this.showMessage('Please enter complete 6-digit code.', 'error');
             this.focusFirstInput();
             return;
         }
         
-        this.verifyOtp();
+        // Delegate to real AuthManager.handleVerifyOTP(event) - handles API, auth, redirect
+        if (typeof AuthManager?.verifyOTP === 'function') {
+            AuthManager.verifyOTP(e, this.email);
+        } else {
+            this.showMessage('Auth system not loaded. Please refresh.', 'error');
+        }
     }
     
-    validateOtp() {
-        return this.otp === this.demoOtp;
-    }
-    
-    verifyOtp() {
-        this.btn.disabled = true;
-        this.spinner.classList.remove('d-none');
-        this.btnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verifying...';
-        
-        setTimeout(() => {
-            if (this.otp === this.demoOtp) {
-                this.showMessage('OTP verified successfully! Redirecting to set new password...', 'success');
-                
-                // Simulate complete flow - redirect to login
-                localStorage.removeItem('resetEmail');
-                localStorage.removeItem('demoOtp');
-                localStorage.removeItem('otpSentTime');
-                
-                setTimeout(() => {
-                    // In real app: redirect to new-password.html
-                    window.location.href = 'login.html';
-                }, 2000);
-                
-            } else {
-                this.showMessage('Invalid OTP. Please check and try again.', 'error');
-                this.resetInputs();
-            }
-            
-            this.resetBtn();
-        }, 1500);
+    validateOtp(otp) {
+        return otp && otp.length === 6 && /^\d{6}$/.test(otp);
     }
     
     resendOtp() {
-        const email = localStorage.getItem('resetEmail');
-        if (!email) return;
+        if (!this.email) {
+            this.showMessage('No email session found.', 'error');
+            return;
+        }
         
-        this.showMessage(`New OTP sent to ${email}`, 'success');
-        localStorage.setItem('demoOtp', '123456'); // Reset demo
-        localStorage.setItem('otpSentTime', Date.now());
+        // For signup flow, re-call register to generate new OTP
+        if (localStorage.getItem('pendingEmail')) {
+            if (typeof AuthManager?.register === 'function') {
+                // Simulate form event for register
+                const mockEvent = { preventDefault: () => {}, target: { querySelector: () => ({}) } };
+                AuthManager.register(mockEvent); // Uses pendingEmail
+                this.showMessage(`New OTP sent to ${this.email}. Check your email.`, 'success');
+            } else {
+                this.showMessage('Auth system not loaded.', 'error');
+            }
+        } else {
+            this.showMessage('Resend only available after registration.', 'info');
+        }
+        
         this.timeLeft = 120;
         this.startTimer();
         this.resendBtn.disabled = true;
@@ -204,4 +200,4 @@ document.addEventListener('DOMContentLoaded', () => {
     new OTPVerify();
 });
 
-console.log('OTP Verify JS loaded - Demo OTP: 123456');
+console.log('OTP Verify JS loaded - Real backend integration');

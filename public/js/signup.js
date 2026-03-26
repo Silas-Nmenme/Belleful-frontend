@@ -48,31 +48,11 @@ const SignupManager = {
     async register(event) {
         event.preventDefault();
 
-        const name = document.getElementById('signupName')?.value.trim();
-        const email = document.getElementById('signupEmail')?.value.trim().toLowerCase();
-        const password = document.getElementById('signupPassword')?.value;
-
-        if (!name || !email || !password || password.length < 6) {
-            showToast('Please fill all fields correctly (password min 6 chars)', 'error');
-            return;
-        }
-
-        const submitBtn = document.getElementById('signupFormSubmit');
-        showLoading(submitBtn, 'Creating account...');
-
-        try {
-            // Call extended register from auth.js
-            if (typeof AuthManager.register === 'function') {
-                await AuthManager.register({ name, email, password });
-            } else {
-                // Fallback mock - enable real in auth.js
-                showToast('Registration temporarily disabled. Use demo login: customer@belleful.com / password123', 'info');
-                setTimeout(() => window.location.href = 'login.html', 2000);
-            }
-        } catch (error) {
-            showToast(error.message || 'Registration failed', 'error');
-        } finally {
-            hideLoading(submitBtn);
+        // Delegate to real AuthManager.register (handles everything)
+        if (typeof AuthManager.register === 'function') {
+            await AuthManager.register(event);
+        } else {
+            showToast('Auth system not loaded', 'error');
         }
     }
 };
