@@ -37,7 +37,8 @@ const SignupManager = {
 
         let isValid = true;
         if (!name || name.length < 2) isValid = false;
-        if (!email || !/^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/i.test(email)) isValid = false;
+        if (!email || !/^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$/i.test(email)) isValid = false;
+
         if (!password || password.length < 6) isValid = false;
 
         submitBtn.disabled = !isValid;
