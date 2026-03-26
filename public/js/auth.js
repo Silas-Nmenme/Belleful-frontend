@@ -180,8 +180,6 @@ async function apiGet(endpoint) {
   return apiCall(endpoint, { method: 'GET' });
 }
 
-// Mock users for frontend demo (real users saved in DB later)
-
 
 // Login handler - FIXED mock logic
 async function handleLogin(e, submitBtn = null) {
@@ -246,7 +244,7 @@ async function handleRegister(e) {
   showLoading(submitBtn, 'Creating account...');
   
   try {
-    const response = await apiPost('/api/auth/register', { name, email, password });
+    const response = await apiPost('/auth/register', { name, email, password });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || 'Registration failed');
@@ -293,7 +291,7 @@ async function handleVerifyOTP(e, emailOverride = null) {
   showLoading(submitBtn, 'Verifying OTP...');
   
   try {
-    const response = await apiPost('/api/auth/verify-otp', { email, otp });
+    const response = await apiPost('/auth/verify-otp', { email, otp });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || 'Invalid or expired OTP');
