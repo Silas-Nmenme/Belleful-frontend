@@ -36,7 +36,7 @@ window.loadMenu = async function() {
     const itemsToShow = menuItems.filter(item => item && item.name); // Filter invalid
     console.log('Items to display:', itemsToShow.length);
     
-    displayMenuItems(itemsToShow);
+    displayMenuItems(itemsToShow, getMenuElements());
   } catch (error) {
     console.error('Menu API failed (no fallback):', error);
     menuGrid.innerHTML = `
@@ -51,12 +51,18 @@ window.loadMenu = async function() {
 }
 
 // Display menu items with animations
-function displayMenuItems(items) {
+function displayMenuItems(items, elements) {
   console.log('🎨 Rendering', items.length, 'menu cards');
-  menuGrid.innerHTML = '';
+  
+  if (!elements.menuGrid || !elements.menuLoading) {
+    console.warn('Menu elements missing in displayMenuItems');
+    return;
+  }
+  
+  elements.menuGrid.innerHTML = '';
   
   if (items.length === 0) {
-    menuGrid.innerHTML = `
+    elements.menuGrid.innerHTML = `
       <div class="col-12 text-center py-5 col-span-full">
         <i class="fas fa-utensils fa-3x text-muted mb-4"></i>
         <h5>No menu items available</h5>
@@ -64,7 +70,7 @@ function displayMenuItems(items) {
         <button class="btn btn-primary" onclick="loadMenu()">Refresh Menu</button>
       </div>
     `;
-    menuGrid.style.display = 'block';
+    elements.menuGrid.style.display = 'block';
     return;
   }
   
@@ -72,7 +78,7 @@ function displayMenuItems(items) {
   items.forEach((item, index) => {
     try {
       const card = createMenuCard(item, index);
-      menuGrid.appendChild(card);
+      elements.menuGrid.appendChild(card);
       renderCount++;
     } catch (e) {
       console.error('Failed to render item', index, item, e);
@@ -80,8 +86,8 @@ function displayMenuItems(items) {
   });
   console.log('Successfully rendered', renderCount, '/', items.length, 'cards');
   
-  menuGrid.style.display = 'grid'; // Ensure grid layout
-  menuLoading.style.display = 'none';
+  elements.menuGrid.style.display = 'grid'; // Ensure grid layout
+  elements.menuLoading.style.display = 'none';
   
   // Update count display
   const countDisplay = document.getElementById('menuCountDisplay');
