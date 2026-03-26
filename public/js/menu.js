@@ -2,12 +2,22 @@
 
 (function() {
   // DOM Elements - get dynamically to avoid const redeclaration
-  function getMenuElements() {
+function getMenuElements() {
     return {
       menuGrid: document.getElementById('menuGrid'),
       menuLoading: document.querySelector('.menu-loading'),
       menuLink: document.getElementById('menuLink')
     };
+  }
+  
+  // Safe element accessor
+  function safeElementAccess(element, action, fallback = () => {}) {
+    if (!element) {
+      console.warn(`Menu element missing for ${action}`);
+      fallback();
+      return false;
+    }
+    return true;
   }
   
   // Check if already initialized
@@ -54,12 +64,17 @@ window.loadMenu = async function() {
 function displayMenuItems(items, elements) {
   console.log('🎨 Rendering', items.length, 'menu cards');
   
-  if (!elements.menuGrid || !elements.menuLoading) {
-    console.warn('Menu elements missing in displayMenuItems');
+  // Enhanced null checks
+  if (!safeElementAccess(elements.menuGrid, 'grid rendering')) return;
+  if (!safeElementAccess(elements.menuLoading, 'loading hide')) return;
+  
+  // Safe grid clear
+  try {
+    elements.menuGrid.innerHTML = '';
+  } catch (e) {
+    console.error('Failed to clear menuGrid:', e);
     return;
   }
-  
-  elements.menuGrid.innerHTML = '';
   
   if (items.length === 0) {
     elements.menuGrid.innerHTML = `
@@ -86,8 +101,9 @@ function displayMenuItems(items, elements) {
   });
   console.log('Successfully rendered', renderCount, '/', items.length, 'cards');
   
-  elements.menuGrid.style.display = 'grid'; // Ensure grid layout
-  elements.menuLoading.style.display = 'none';
+  // Safe display updates
+  safeElementAccess(elements.menuGrid, 'show grid', () => elements.menuGrid.style.display = 'grid');
+  safeElementAccess(elements.menuLoading, 'hide loading', () => elements.menuLoading.style.display = 'none');
   
   // Update count display
   const countDisplay = document.getElementById('menuCountDisplay');
@@ -132,15 +148,35 @@ function createMenuCard(item, delayIndex = 0) {
 
 // Safe addToCart wrapper - works with/without cart.js
 window.addToCartSafe = async function(menuItemId, quantity = 1) {
-  if (typeof window.addToCart === 'function') {
-    // cart.js loaded
-    await window.addToCart(menuItemId, quantity);
-  } else {
-    // Fallback local cart
-    addToLocalCart(menuItemId, 0, ''); // Price/name from localStorage if needed
-    updateCartCount(getLocalCart().items.reduce((sum, item) => sum + item.quantity, 0));
-    showToast('Added to cart (guest mode)', 'success');
+  // Robust retry mechanism for cart.js loading
+  const maxRetries = 3;
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      if (typeof window.addToCart === 'function') {
+        // cart.js loaded - use API cart
+        await window.addToCart(menuItemId, quantity);
+        showToast('Added to cart!', 'success');
+        updateCartCount(); // Trigger badge update
+        return;
+      } else if (attempt === 1) {
+        // First attempt failed, wait for cart.js
+        await new Promise(resolve => setTimeout(resolve, 200 * attempt));
+      }
+    } catch (error) {
+      lastError = error;
+      console.warn(`addToCart attempt ${attempt} failed:`, error);
+      await new Promise(resolve => setTimeout(resolve, 300 * attempt));
+    }
   }
+  
+  // All retries failed - use robust local fallback
+  console.log('Using local cart fallback after retries');
+  addToLocalCart(menuItemId, 0, '');
+  const totalItems = getLocalCart().items.reduce((sum, item) => sum + item.quantity, 0);
+  updateCartCount(totalItems);
+  showToast('Added to cart (local)', 'success');
 };
 
 // Add to cart function (works pre/post auth)
@@ -166,7 +202,7 @@ function updateCartCount(count) {
   const badge = document.querySelector('.cart-badge');
   if (badge) {
     badge.dataset.count = count;
-    badge.textContent = count;
+    badge.textContent = count > 99 ? '99+' : count;
     badge.classList.toggle('hidden', count === 0);
   }
   document.dispatchEvent(new CustomEvent('cartUpdated', { detail: count }));

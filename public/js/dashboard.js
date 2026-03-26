@@ -1022,9 +1022,14 @@ async function loadUserDashboard() {
     const orders = await OrderManager.getUserOrders();
     renderOrders(orders.data || []);
 
-    // Load menu
+    // Load menu safely
     if (typeof loadMenu === 'function') {
-      loadMenu();
+      try {
+        await loadMenu();
+      } catch (error) {
+        console.warn('Menu load failed on dashboard:', error);
+        // Don't break dashboard - menu is optional
+      }
     }
 
   } catch (error) {
