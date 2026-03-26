@@ -261,13 +261,13 @@ body {
 }
 
 .menu-grid {
-  display: flex !important;
-  flex-direction: column !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 1.5rem;
   width: 100%;
+  padding: 2rem;
   max-height: 80vh;
   overflow-y: auto;
-  padding: 1rem 0;
 }
 
 .menu-card {
@@ -369,9 +369,12 @@ body {
 
 /* Mobile Responsiveness - FULLY RESPONSIVE */
 @media (max-width: 1200px) {
-  .stats-grid,
-  .menu-grid {
+  .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  .menu-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    padding: 1.5rem;
   }
 }
 
@@ -406,6 +409,12 @@ body {
   .stats-grid {
     grid-template-columns: 1fr; /* Single column stack */
     gap: 1.5rem;
+  }
+  
+  .menu-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
   }
   
   .menu-card img {
