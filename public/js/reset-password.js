@@ -1,5 +1,5 @@
 // Reset Password JavaScript
-// Email validation → Simulate OTP send → Redirect to OTP page
+// Email validation → API OTP send → Redirect to OTP page
 
 class ResetPassword {
     constructor() {
@@ -55,28 +55,36 @@ class ResetPassword {
         this.spinner.classList.remove('d-none');
         this.btnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
         
-        // Simulate API delay
-        setTimeout(() => {
-            try {
-                // Store email & fake OTP for demo (123456)
-                // Pure URL param - no localStorage
-                const email = encodeURIComponent(this.emailField.value);
-                window.location.href = `otp-verify.html?mode=reset&email=${email}`;
-                
-                this.showMessage(`OTP sent to ${this.emailField.value}! Check your email or SMS. Redirecting...`, 'success');
-                
-                // Redirect after 2s
-                setTimeout(() => {
-                    window.location.href = 'otp-verify.html';
-                }, 2000);
-                
-            } catch (error) {
-                this.showMessage('Failed to send OTP. Please try again.', 'error');
-                console.error('Reset error:', error);
-            } finally {
-                this.resetBtn();
-            }
-        }, 1500);
+        // Real API call
+        const token = localStorage.getItem('token') || '';
+        try {
+          const response = await fetch(`${window.API_BASE}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              ...(token && {'Authorization': `Bearer ${token}`})
+            },
+            body: JSON.stringify({ email: this.emailField.value.trim().toLowerCase() })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Failed to send OTP');
+          }
+          
+          this.showMessage(`OTP sent to ${this.emailField.value}! Check your email. Redirecting...`, 'success');
+          
+          const emailParam = encodeURIComponent(this.emailField.value);
+          setTimeout(() => {
+            window.location.href = `otp-verify.html?mode=reset&email=${emailParam}`;
+          }, 1500);
+          
+        } catch (error) {
+          this.showMessage(error.message || 'Failed to send OTP. Try again.', 'error');
+          console.error('Reset API error:', error);
+        } finally {
+          this.resetBtn();
+        }
     }
     
     showFieldError(message) {

@@ -162,30 +162,8 @@ async loadCart() {
       this.renderCart();
     } catch (error) {
       console.error('Load cart failed:', error);
-// Pure API cart - empty if no token
       this.cart = { items: [], totalAmount: 0 };
       this.renderEmptyCart();
-      return;
-      
-      // Filter valid items (same logic as above)
-      const validGuestItems = rawGuestCart.filter(item => 
-        item && item.name && typeof item.quantity === 'number' && item.quantity > 0 && 
-        (typeof item.price === 'number' || typeof item.price === 'string')
-      ).map(item => ({
-        ...item,
-        price: typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0
-      }));
-      
-      if (validGuestItems.length !== rawGuestCart.length) {
-        console.warn(`Fallback: Filtered ${rawGuestCart.length - validGuestItems.length} invalid cart items`);
-        localStorage.setItem('guestCart', JSON.stringify(validGuestItems));
-      }
-      
-      this.cart = {
-        items: validGuestItems,
-        totalAmount: validGuestItems.reduce((sum, item) => sum + (item.quantity * item.price), 0)
-      };
-      this.renderCart();
     }
   }
 

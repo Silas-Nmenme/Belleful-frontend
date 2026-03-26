@@ -1,5 +1,5 @@
 // OTP Verify JavaScript
-// 6-digit OTP inputs, timer, validation (demo OTP: 123456)
+// 6-digit OTP inputs, timer, validation
 
 class OTPVerify {
     constructor() {
@@ -130,11 +130,13 @@ class OTPVerify {
         // For signup flow, re-call register to generate new OTP
         if (localStorage.getItem('pendingEmail')) {
             if (typeof AuthManager?.register === 'function') {
-                // Simulate form event for register
+                // Real API resend via register (generates new OTP)
                 const mockEvent = { preventDefault: () => {}, target: { querySelector: () => ({}) } };
-                AuthManager.register(mockEvent); // Uses pendingEmail
+                AuthManager.register(mockEvent);
                 this.showMessage(`New OTP sent to ${this.email}. Check your email.`, 'success');
             } else {
+                this.showMessage('Auth system not ready. Please wait.', 'error');
+            }
                 this.showMessage('Auth system not loaded.', 'error');
             }
         } else {

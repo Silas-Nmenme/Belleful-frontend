@@ -82,7 +82,7 @@ function setupPasswordToggle() {
   });
 }
 
-// Check authentication status - FIXED for mock tokens
+// Check authentication status
 async function checkAuthStatus() {
   const pathname = window.location.pathname;
   const href = window.location.href;
@@ -139,8 +139,8 @@ async function checkAuthStatus() {
       logout();
     }
   } catch (error) {
-    // Fallback to mock if API fails
-    console.warn('API check failed, using mock auth');
+    console.error('Auth check failed:', error);
+    logout(); // Redirect to login on auth API failure
   }
 }
 
@@ -177,7 +177,7 @@ async function apiGet(endpoint) {
 }
 
 
-// Login handler - FIXED mock logic
+// Login handler
 async function handleLogin(e, submitBtn = null) {
   e.preventDefault();
   

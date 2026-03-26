@@ -1,28 +1,21 @@
-ta // Orders & Checkout functionality
+// Orders & Checkout functionality - Pure Backend API (No Mock Data)
 async function getUserOrders() {
-  try {
-    const token = localStorage.getItem('token');
-const response = await fetch(`${window.API_BASE}/dashboard/user/orders`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Orders API failed:', response.status, errorText);
-      throw new Error(`Orders fetch failed: ${response.status} - ${errorText.slice(0,100)}`);
-    }
-    return await response.json();
-  } catch (error) {
-    // SILENT fallback - no console spam
-    console.log('🛒 Orders: Using demo data (connect backend for real orders)');
-    
-    // Rich demo data for full UI test
-    return { 
-      data: [
-        {
-          _id: 'demo12345678',
-          items: [{name: 'Jollof Rice + Chicken', quantity: 1}],
-          totalAmount: 4500,
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${window.API_BASE}/dashboard/user/orders`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Orders API failed:', response.status, errorText);
+    throw new Error(`Failed to fetch orders: ${response.status}`);
+  }
+  
+  return await response.json();
 }
 
 async function pollOrderStatus(orderId) {
