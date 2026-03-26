@@ -83,7 +83,7 @@ function setupPasswordToggle() {
 // Check authentication status - FIXED for mock tokens
 async function checkAuthStatus() {
   const currentPath = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
-  if (currentPath === 'login.html' || currentPath === 'admin-login.html') {
+if (currentPath === 'login.html' || currentPath === 'signup.html' || currentPath === 'admin-login.html') {
     return; // Skip auth check on login pages
   }
   

@@ -5,45 +5,44 @@
     box-sizing: border-box;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
-body{
+body {
     width: 100%;
     min-height: 100vh;
     background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     padding-top: 100px;
     padding-bottom: 40px;
 }
-.container{
+.container {
     width: 100%;
     max-width: 900px;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    margin-top: 2rem;
+    padding: 0 1rem;
 }
-.contact-box{
+.contact-box {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0;
+    gap: 2rem;
     align-items: stretch;
+    min-height: 550px;
     background: rgba(255,255,255,0.95);
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    padding: 2rem;
 }
-.left{
+.left {
     background-color: orangered;
-    min-height: 420px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 35px;
     font-weight: bold;
-    text-align: center;}
+    text-align: center;
+}
 
-.right{
-    padding: 36px 40px;
+.right {
+    padding: 2rem;
     background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 100%);
     display: flex;
     flex-direction: column;
@@ -77,13 +76,13 @@ h2::after{
     transition: all .18s ease;
     border-radius: 8px;
 }
-.field:hover{
-    background: linear-gradient(rgb(247, 12, 12), rgb(248, 96, 8));
+.field:hover {
+    background: linear-gradient(90deg, #ff6b35, #f7931e);
 }
-.field:focus{
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-    border: 1px solid var(--primary-color);
-    box-shadow: 0 6px 24px rgba(255,107,53,0.08);
+.field:focus {
+    background: linear-gradient(90deg, #ff6b35, #f7931e);
+    border: 1px solid #ff6b35;
+    box-shadow: 0 6px 24px rgba(255,107,53,0.2);
 }
 .field.password-field {
     padding-right: 50px; /* Space for toggle */
@@ -117,21 +116,21 @@ h2::after{
     transform: translateY(-52%);
 }
 
-.btn{
+.btn {
     width: 100%;
     padding: 12px 30px;
     font-size: 16px;
-    background: green;
+    background: linear-gradient(135deg, orangered, #ff6b35);
     cursor: pointer;
     color: white;
     transition: transform .12s ease, box-shadow .12s ease;
     border: none;
     border-radius: 10px;
 }
-.btn:hover{
+.btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(1, 24, 1, 0.849);
-    background-color: rgba(1, 39, 1, 0.11);
+    box-shadow: 0 12px 30px rgba(255,107,53,0.4);
+    background: linear-gradient(135deg, #ff6b35, orangered);
 }
 .account-links {
     font-size: 0.95rem;
