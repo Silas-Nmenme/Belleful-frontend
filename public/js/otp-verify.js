@@ -104,13 +104,7 @@ class OTPVerify {
     handleSubmit(e) {
         e.preventDefault();
         
-        if (this.otp.length !== 6 || !this.validateOtp(this.otp)) {
-            this.showMessage('Please enter complete 6-digit code.', 'error');
-            this.focusFirstInput();
-            return;
-        }
-        
-        // Delegate to real AuthManager.handleVerifyOTP(event) - handles API, auth, redirect
+        // Always delegate to AuthManager - it handles validation, API, toasts
         if (typeof AuthManager?.verifyOTP === 'function') {
             AuthManager.verifyOTP(e, this.email);
         } else {
