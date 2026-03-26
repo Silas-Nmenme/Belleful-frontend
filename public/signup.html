@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Belleful</title>
+    <title>Sign Up - Belleful</title>
     
-    <!-- Same CDNs as index.html -->
+    <!-- Same CDNs as login.html -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/signup.css">
     </head>
 <body class="pt-5">
     <!-- Navigation -->
@@ -61,39 +61,34 @@
         <div class="contact-box">
             <div class="left">
                 <i class="fas fa-utensils me-2"></i><span>Welcome to Bellefull</span></i>
-                
             </div>
             <div class="right">
-                <h2> Login</h2>
-                <form id="loginForm" class="login-form" onsubmit="AuthManager.login(event)">
-                    <input id="loginEmail" name="email" type="email" class="field" placeholder="Enter Your Email" required>
+                <h2> Sign Up</h2>
+                <form id="signupForm" class="signup-form" onsubmit="SignupManager.register(event)">
+                    <input id="signupName" name="name" type="text" class="field" placeholder="Enter Your Full Name" required>
+                    <input id="signupEmail" name="email" type="email" class="field" placeholder="Enter Your Email" required>
                     <div class="password-wrapper">
-                        <input id="loginPassword" name="password" type="password" class="field password-field" placeholder="Enter Your Password" required>
-                        <button id="togglePassword" type="button" aria-label="Show password" class="password-toggle">
+                        <input id="signupPassword" name="password" type="password" class="field password-field" placeholder="Create Password (min 6 chars)" minlength="6" required>
+                        <button id="toggleSignupPassword" type="button" aria-label="Show password" class="password-toggle">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    <button id="loginFormSubmit" class="btn" type="submit">Login</button>
-                    <div class="forgot-password mt-4 text-center">
-                        <a href="reset-password.html" class="text-muted text-decoration-none">
-                            <i class="fas fa-key me-1"></i>Forgot Password?
-                        </a>
-                    </div>
-                    <div class="signup-link mt-3 text-center">
-                        <span class="text-muted">Don&apos;t have an account? </span>
-                        <a href="signup.html" class="text-primary fw-bold text-decoration-none">
-                            Sign Up Here
+                    <button id="signupFormSubmit" class="btn" type="submit">Create Account</button>
+                    <div class="account-links mt-4 text-center">
+                        <span class="text-muted">Already have an account? </span>
+                        <a href="login.html" class="text-primary fw-bold text-decoration-none">
+                            Login Here
                         </a>
                     </div>
                 </form>
             </div>
         </div> 
     </div>
-    <!-- Auth scripts: constants first, then auth logic -->
+    <!-- Scripts: constants, auth, signup-specific -->
     <script src="js/constants.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/auth.js"></script>
-
+    <script src="js/signup.js"></script>
 </body>
 </html>
 
