@@ -195,24 +195,8 @@ window.addToCartSafe = async function(menuItemId, quantity = 1) {
   showToast('Added to cart (local)', 'success');
 };
 
-// Add to cart function (works pre/post auth)
-// Custom addToCart removed - use window.addToCart from cart.js
-// Keeps local functions for guest cart sync
-function getLocalCart() {
-  return JSON.parse(localStorage.getItem('guestCart') || '{"items": [], "totalAmount": 0}');
-}
-
-function addToLocalCart(menuItemId, price, name) {
-  let cart = getLocalCart();
-  const existing = cart.items.find(item => item.menuItemId === menuItemId);
-  if (existing) {
-    existing.quantity += 1;
-  } else {
-    cart.items.push({ menuItemId, name, price, quantity: 1 });
-  }
-  cart.totalAmount = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  localStorage.setItem('guestCart', JSON.stringify(cart));
-}
+// Pure API cart - no guest/localStorage fallback
+// addToCartSafe will redirect unauth users to login
 
 function updateCartCount(count) {
   const badge = document.querySelector('.cart-badge');

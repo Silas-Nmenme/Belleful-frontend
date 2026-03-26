@@ -149,40 +149,23 @@ async loadCart() {
         cartData = result.data || cartData;
       }
 
-      // Always load/merge guest cart from localStorage
-      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-      
-      // Filter valid items (fix for undefined price bug)
-      const validGuestItems = guestCart.filter(item => 
-        item && item.name && typeof item.quantity === 'number' && item.quantity > 0 && 
-        (typeof item.price === 'number' || typeof item.price === 'string')
-      ).map(item => ({
-        ...item,
-        price: typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0
-      }));
-      
-      if (validGuestItems.length > 0) {
-        // Warn about filtered items
-        if (validGuestItems.length !== guestCart.length) {
-          console.warn(`Filtered ${guestCart.length - validGuestItems.length} invalid cart items`);
-          localStorage.setItem('guestCart', JSON.stringify(validGuestItems));
-        }
-        cartData.items = [...cartData.items, ...validGuestItems];
-        cartData.totalAmount = validGuestItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+// Auth required - no guest cart
+      if (!this.token) {
+        this.showToast('Please login to view cart', 'warning');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+        return;
       }
+      
 
-      // Filter API items too
-      cartData.items = cartData.items.filter(item => 
-        item && item.name && typeof item.quantity === 'number' && item.quantity > 0 &&
-        typeof item.price === 'number'
-      );
 
       this.cart = cartData;
       this.renderCart();
     } catch (error) {
       console.error('Load cart failed:', error);
-      // Fallback to localStorage only
-      const rawGuestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+// Pure API cart - empty if no token
+      this.cart = { items: [], totalAmount: 0 };
+      this.renderEmptyCart();
+      return;
       
       // Filter valid items (same logic as above)
       const validGuestItems = rawGuestCart.filter(item => 
@@ -305,10 +288,6 @@ async updateQuantity(itemId, delta, event) {
     // Always update local first (optimistic + persistent)
     this.cart.items[itemIndex].quantity = newQty;
     
-    // Validate before saving
-    const validItems = this.cart.items.filter(item => item && item.name && typeof item.price === 'number');
-    localStorage.setItem('guestCart', JSON.stringify(validItems));
-    
     this.renderCart();
     this.updateCartBadge();
     this.bindEvents(); // Re-bind after re-render
@@ -367,7 +346,7 @@ async clearCart() {
     if (clearBtn) this.setLoading(clearBtn, true);
     
     // Always clear localStorage first
-    localStorage.removeItem('guestCart');
+    // No localStorage - pure API
     this.cart = { items: [], totalAmount: 0 };
     this.renderEmptyCart();
     this.updateCartBadge();
@@ -456,38 +435,29 @@ async clearCart() {
   
   // Export addToCart using singleton (safe for multiple calls)
   window.addToCart = async (menuItemId, itemData, quantity = 1) => {
-    const newItem = { ...itemData, menuItem: menuItemId, quantity };
-    
-    // Always save to localStorage (guest cart)
-    // Validate item before adding
-    if (!itemData.name || typeof itemData.price !== 'number' || itemData.price < 0) {
-      console.error('Invalid item data:', itemData);
+    if (!window.CartManager?.token) {
+      window.CartManager?.showToast('Please login to add items', 'warning');
+      setTimeout(() => window.location.href = 'login.html', 1000);
       return;
     }
     
-    let cartItems = JSON.parse(localStorage.getItem('guestCart') || '[]');
-    const existingIndex = cartItems.findIndex(item => item.menuItem === menuItemId);
-    if (existingIndex > -1) {
-      cartItems[existingIndex].quantity += quantity;
-    } else {
-      cartItems.push(newItem);
-    }
-    localStorage.setItem('guestCart', JSON.stringify(cartItems));
-    
-    // Trigger global update
-    window.CartManager?.loadCart();
-    window.CartManager?.showToast('Added to cart!', 'success');
-    
-    // Try API if auth'd
-    if (window.CartManager?.token) {
-      try {
-        await window.CartManager.apiCall('/', {
-          method: 'POST',
-          body: JSON.stringify({ menuItemId, quantity })
-        });
-      } catch (apiError) {
-        console.warn('API add failed, local cart updated:', apiError);
+    // Get itemData from API for validation
+    try {
+      const itemRes = await fetch(`${window.API_BASE}/menu/${menuItemId}`);
+      const itemData = await itemRes.json();
+      if (!itemData.data?.name || typeof itemData.data.price !== 'number') {
+        console.error('Invalid item data:', itemData);
+        return;
       }
+      
+      await window.CartManager.apiCall('/', {
+        method: 'POST',
+        body: JSON.stringify({ menuItemId, quantity })
+      });
+      window.CartManager.loadCart();
+      window.CartManager?.showToast('Added to cart!', 'success');
+    } catch (e) {
+      console.error('Add failed:', e);
     }
   };
   

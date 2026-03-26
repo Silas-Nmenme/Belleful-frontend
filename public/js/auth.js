@@ -9,12 +9,7 @@
   if (window.AuthManager && window.AuthManager.initialized) return;
   
   function initAuth() {
-    // Auto-fill email from localStorage if available
-    const savedEmail = localStorage.getItem('lastEmail');
-    const emailInputs = document.querySelectorAll('input[type="email"]:not([readonly])');
-    emailInputs.forEach(input => {
-      if (!input.value) input.value = savedEmail;
-    });
+    // No localStorage auto-fill - pure URL/form state
     
     // Listen for auth state changes
     checkAuthStatus();
@@ -202,7 +197,7 @@ async function handleLogin(e, submitBtn = null) {
     return;
   }
 
-  const authMode = localStorage.getItem('authMode') || 'user';
+// const authMode = localStorage.getItem('authMode') || 'user'; // Removed: detect from form/page
   const endpoint = authMode === 'admin' ? '/auth/login' : '/login';
   
   showLoading(submitBtn || 'loginFormSubmit', 'Signing in...');
@@ -251,7 +246,7 @@ async function handleRegister(e) {
       throw new Error(errorData.message || 'Registration failed');
     }
     const result = await response.json();
-    localStorage.setItem('pendingEmail', email);
+// localStorage.setItem('pendingEmail', email); // Removed: use URL param
     showToast(result.message || 'Account created! Check your email for OTP.', 'success');
     hideLoading(submitBtn);
     setTimeout(() => {
@@ -299,8 +294,8 @@ async function handleVerifyOTP(e, emailOverride = null) {
     }
     const result = await response.json();
     saveAuth(result);
-    localStorage.removeItem('pendingEmail');
-    localStorage.removeItem('resetEmail');
+// localStorage.removeItem('pendingEmail'); // Removed
+    // localStorage.removeItem('resetEmail'); // Handled by reset-password.js
     showToast('Account verified! Redirecting to dashboard...', 'success');
     hideLoading(submitBtn);
     setTimeout(() => {
@@ -316,8 +311,8 @@ async function handleVerifyOTP(e, emailOverride = null) {
 function saveAuth(result) {
   localStorage.setItem('token', result.token);
   localStorage.setItem('userRole', result.user.role);
-  localStorage.setItem('lastEmail', result.user.email);
-  localStorage.setItem('currentUserName', result.user.name);
+// localStorage.setItem('lastEmail', result.user.email); // Removed
+  // localStorage.setItem('currentUserName', result.user.name); // Removed: use API profile
   currentUser = result.user;
 }
 
@@ -342,7 +337,7 @@ function logout() {
   localStorage.removeItem('userRole');
   localStorage.removeItem('currentUser');
   localStorage.removeItem('currentUserName');
-  localStorage.removeItem('lastEmail');
+// localStorage.removeItem('lastEmail'); // Removed
   localStorage.removeItem('pendingEmail');
   currentUser = null;
   showToast('Logged out successfully', 'info');

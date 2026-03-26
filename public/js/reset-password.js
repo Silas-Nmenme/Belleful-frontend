@@ -59,9 +59,9 @@ class ResetPassword {
         setTimeout(() => {
             try {
                 // Store email & fake OTP for demo (123456)
-                localStorage.setItem('resetEmail', this.emailField.value);
-                localStorage.setItem('demoOtp', '123456');
-                localStorage.setItem('otpSentTime', Date.now());
+                // Pure URL param - no localStorage
+                const email = encodeURIComponent(this.emailField.value);
+                window.location.href = `otp-verify.html?mode=reset&email=${email}`;
                 
                 this.showMessage(`OTP sent to ${this.emailField.value}! Check your email or SMS. Redirecting...`, 'success');
                 

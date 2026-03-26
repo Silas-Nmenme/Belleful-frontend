@@ -24,7 +24,12 @@ class OTPVerify {
     init() {
         // Get email from multiple sources: query param (signup), localStorage pending/resetEmail
         const urlParams = new URLSearchParams(window.location.search);
-        this.email = urlParams.get('email') || localStorage.getItem('pendingEmail') || localStorage.getItem('resetEmail');
+        this.email = urlParams.get('email');
+        if (!this.email) {
+            this.showMessage('No email provided in URL. Please start from signup/reset.', 'error');
+            setTimeout(() => window.location.href = 'login.html', 2000);
+            return;
+        }
         
         const hiddenEmail = document.getElementById('otpEmail');
         if (hiddenEmail) hiddenEmail.value = this.email;
