@@ -82,9 +82,16 @@ function setupPasswordToggle() {
 
 // Check authentication status - FIXED for mock tokens
 async function checkAuthStatus() {
-  const currentPath = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
-if (currentPath === 'login.html' || currentPath === 'signup.html' || currentPath === 'admin-login.html') {
-    return; // Skip auth check on login pages
+  const pathname = window.location.pathname;
+  const href = window.location.href;
+  const currentPath = pathname.split('/').pop() || href.split('/').pop() || '';
+  const isPublicPage = ['index.html', 'login.html', 'signup.html', 'admin-login.html', 'cart.html', 'contact-us.html'].some(page => 
+    currentPath.includes(page) || href.includes(page) || pathname.endsWith(page) || document.title.includes('Belleful')
+  );
+  console.log('Auth check:', {currentPath, pathname, isPublicPage}); // Debug - remove after testing
+  
+  if (isPublicPage) {
+    return; // Public pages - no auth required
   }
   
   const token = localStorage.getItem('token');
