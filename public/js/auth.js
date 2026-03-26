@@ -21,8 +21,14 @@ function initAuth() {
   // Update navbar for current auth state
   updateNavbarForAdmin();
   
+  // Smart navigation for Home/Brand links
+  if (typeof initSmartNavigation === 'function') {
+    initSmartNavigation();
+  }
+  
   // Event listeners
   setupEventListeners();
+
 }
 
 function setupEventListeners() {
