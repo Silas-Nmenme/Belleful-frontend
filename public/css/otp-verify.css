@@ -42,7 +42,7 @@ body {
 }
 
 .left {
-    background-color: orangered;
+    background: linear-gradient(135deg, orangered 0%, #ff6b35 100%);
     min-height: 420px;
     display: flex;
     align-items: center;
@@ -52,7 +52,21 @@ body {
     font-weight: bold;
     flex-direction: column;
     text-align: center;
-    padding: 0 20px;
+    padding: 0 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.left i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
 }
 
 .right {
@@ -69,6 +83,7 @@ h2 {
     margin-bottom: 18px;
     color: var(--text-primary);
     font-size: 1.8rem;
+    font-weight: 700;
 }
 
 h2::after {
@@ -80,7 +95,7 @@ h2::after {
     height: 4px;
     width: 60px;
     border-radius: 4px;
-    background-color: var(--primary-color);
+    background: linear-gradient(90deg, var(--primary-color), #f7931e);
 }
 
 .field, .otp-input {
@@ -102,13 +117,14 @@ h2::after {
     font-weight: 600;
     text-align: center;
     margin-bottom: 0;
-    margin-right: 10px;
+    flex: 0 0 auto;
 }
 
 .otp-inputs {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .otp-input:hover {
@@ -137,6 +153,11 @@ h2::after {
     font-family: 'Courier New', monospace;
 }
 
+#emailDisplay {
+    font-style: italic;
+    opacity: 0.8;
+}
+
 #countdown {
     font-size: 1.3rem;
     display: block;
@@ -154,20 +175,41 @@ h2::after {
 
 .btn {
     width: 100%;
-    padding: 14px 30px;
+    padding: 12px 30px;
     font-size: 16px;
-    background: green;
+    background: var(--primary-color);
     cursor: pointer;
     color: white;
     transition: transform .12s ease, box-shadow .12s ease;
     border: none;
     border-radius: 10px;
     font-weight: 600;
+    position: relative;
+    overflow: hidden;
 }
 
 .btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(0,128,0,0.4);
+    box-shadow: 0 12px 30px rgba(255,107,53,0.4);
+}
+
+.btn:disabled::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top-color: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .btn:disabled {
@@ -179,6 +221,15 @@ h2::after {
     font-size: 0.95rem;
     padding: 8px 0;
     text-decoration: none;
+}
+
+.resend-section {
+    text-align: center;
+}
+
+.resend-section:hover .btn-link:not(:disabled) {
+    color: var(--primary-color) !important;
+    text-decoration: underline;
 }
 
 .btn-link:hover {
@@ -226,6 +277,22 @@ h2::after {
 }
 
 .navbar {
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    padding: 0.75rem 1rem;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.navbar-brand:hover {
+    color: rgba(255,255,255,0.9) !important;
+}
+
+.navbar-brand i {
+    font-size: 1.4rem;
+    margin-right: 0.5rem;
 }
