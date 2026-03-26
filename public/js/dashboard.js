@@ -1022,15 +1022,49 @@ async function loadUserDashboard() {
     const orders = await OrderManager.getUserOrders();
     renderOrders(orders.data || []);
 
-    // Load menu safely
-    if (typeof loadMenu === 'function') {
+    // Defensive menu load with global elements & retry
+    // Pre-define global menu elements for safety
+    window.menuElements = window.menuElements || {
+      menuGrid: document.getElementById('menuGrid'),
+      menuLoading: document.querySelector('.menu-loading'),
+      menuCountDisplay: document.getElementById('menuCountDisplay')
+    };
+    
+    if (typeof window.loadMenu === 'function') {
       try {
-        await loadMenu();
+        // Retry wrapper
+        const loadWithRetry = async (maxRetries = 3) => {
+          for (let i = 0; i < maxRetries; i++) {
+            try {
+              await window.loadMenu();
+              return;
+            } catch (err) {
+              console.warn(`Menu load attempt ${i+1} failed:`, err);
+              if (i === maxRetries - 1) throw err;
+              await new Promise(r => setTimeout(r, 500 * (i + 1)));
+            }
+          }
+        };
+        await loadWithRetry();
       } catch (error) {
-        console.warn('Menu load failed on dashboard:', error);
-        // Don't break dashboard - menu is optional
+        console.error('Final menu load failed:', error);
+        // Safe fallback UI
+        const grid = document.getElementById('menuGrid');
+        if (grid) {
+          grid.innerHTML = `
+            <div class="col-12 text-center py-5">
+              <i class="fas fa-utensils fa-4x text-muted mb-4"></i>
+              <h4 class="text-muted">Menu Loading Issue</h4>
+              <p class="text-muted mb-4">Tap to retry</p>
+              <button class="btn btn-primary" onclick="window.loadMenu()">Reload Menu</button>
+            </div>`;
+          grid.style.display = 'block';
+        }
       }
+    } else {
+      console.warn('window.loadMenu not available');
     }
+
 
   } catch (error) {
     console.error('Dashboard load failed:', error);

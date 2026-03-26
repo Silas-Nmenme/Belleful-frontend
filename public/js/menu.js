@@ -71,17 +71,26 @@ window.loadMenu = async function() {
 function displayMenuItems(items, elements) {
   console.log('🎨 Rendering', items.length, 'menu cards');
   
-  // Enhanced null checks
-  if (!safeElementAccess(elements.menuGrid, 'grid rendering')) return;
-  if (!safeElementAccess(elements.menuLoading, 'loading hide')) return;
+  // ULTIMATE defensive checks - use window fallback if elements incomplete
+  const safeElements = {
+    menuGrid: elements?.menuGrid || window.menuElements?.menuGrid || document.getElementById('menuGrid'),
+    menuLoading: elements?.menuLoading || window.menuElements?.menuLoading || document.querySelector('.menu-loading'),
+    menuCountDisplay: elements?.menuCountDisplay || window.menuElements?.menuCountDisplay || document.getElementById('menuCountDisplay')
+  };
+  
+  if (!safeElements.menuGrid) {
+    console.error('CRITICAL: No menuGrid found');
+    return;
+  }
   
   // Safe grid clear
   try {
-    elements.menuGrid.innerHTML = '';
+    safeElements.menuGrid.innerHTML = '';
   } catch (e) {
     console.error('Failed to clear menuGrid:', e);
     return;
   }
+
   
   if (items.length === 0) {
     elements.menuGrid.innerHTML = `
