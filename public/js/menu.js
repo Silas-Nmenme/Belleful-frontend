@@ -17,7 +17,7 @@ async function loadMenu() {
     menuGrid.style.display = 'none';
     menuLoading.style.display = 'flex';
     
-    const response = await fetch(`${window.API_BASE}/menu`);
+    const response = await fetch(`${window.API_BASE}/menu?limit=100&available=true`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const { data: menuItems = [] } = await response.json();
@@ -225,9 +225,3 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('menuGrid')) {
     loadMenu();
   }
-});
-
-menuLink?.addEventListener('click', (e) => {
-  e.preventDefault();
-  document.querySelector('#menu').scrollIntoView({ behavior: 'smooth' });
-  loadMenu();
