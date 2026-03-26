@@ -59,7 +59,7 @@ function displayMenuItems(items) {
 // Create individual menu card
 function createMenuCard(item, delayIndex = 0) {
   const card = document.createElement('div');
-  card.className = 'col-lg-4 col-md-6 menu-card';
+  card.className = 'menu-card';
   card.setAttribute('data-aos', 'fade-up');
   card.setAttribute('data-aos-delay', delayIndex * 100);
   

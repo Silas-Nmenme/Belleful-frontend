@@ -86,6 +86,15 @@ body {
   flex: 1;
   transition: var(--transition);
   overflow-x: hidden;
+  padding-bottom: 2rem;
+}
+
+.menu-section {
+  background: white;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  box-shadow: var(--card-shadow);
 }
 
 .sidebar-backdrop {
@@ -229,12 +238,14 @@ body {
 .menu-hero {
   background: var(--primary-gradient);
   color: white;
-  padding: 4rem 2rem;
+  padding: 2rem 1.5rem;
   border-radius: var(--border-radius);
   text-align: center;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 3rem;
+  position: sticky;
+  top: var(--header-height);
+  z-index: 10;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
 .menu-hero::before {
@@ -250,16 +261,25 @@ body {
 }
 
 .menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Stacks early for mobile */
-  gap: 2rem;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 1rem 0;
 }
 
 .menu-card {
-  height: 100%;
+  width: 100%;
+  height: auto !important;
   transition: var(--transition);
   cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background: white;
+  box-shadow: var(--card-shadow);
 }
 
 .menu-card:hover {
@@ -268,7 +288,8 @@ body {
 }
 
 .menu-card img {
-  height: 220px;
+  height: 280px;
+  width: 100%;
   object-fit: cover;
   transition: transform 0.6s ease;
 }
@@ -382,8 +403,7 @@ body {
     padding: 1rem;
   }
   
-  .stats-grid,
-  .menu-grid {
+  .stats-grid {
     grid-template-columns: 1fr; /* Single column stack */
     gap: 1.5rem;
   }
