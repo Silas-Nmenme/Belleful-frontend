@@ -15,7 +15,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-warm shadow-lg">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
-                <button class="navbar-toggler d-lg-none me-3 mobile-menu-toggle" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
+<button class="navbar-toggler me-3 mobile-menu-toggle" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
                     <i class="fas fa-bars text-white fs-4"></i>
                 </button>
                 <a class="navbar-brand fw-bold" href="#">
@@ -81,7 +81,8 @@
     </div>
 
     <!-- Main Wrapper -->
-    <div class="main-wrapper">
+    <!-- Sidebar Push Wrapper -->
+    <div class="app-wrapper">
         <div class="main-content">
             <!-- Stats Grid -->
             <div class="stats-section fade-in-up">
@@ -204,10 +205,47 @@
                 </div>
             </div>
 
-
+            </div> <!-- </main-content> -->
 
             <!-- Footer -->
             <footer class="footer-section fade-in-up mt-5 pt-5 border-top">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-utensils me-2 text-primary"></i>Belleful</h6>
+                            <p class="text-muted mb-3">Delicious meals delivered to your door. Fast, fresh, and affordable.</p>
+                            <div class="d-flex gap-2">
+                                <a href="#" class="text-muted"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="text-muted"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="text-muted"><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold mb-3">Quick Links</h6>
+                            <div class="row text-muted">
+                                <div class="col-6">
+                                    <ul class="list-unstyled">
+                                        <li><a href="index.html" class="text-decoration-none">Home</a></li>
+                                        <li><a href="#menu" class="text-decoration-none">Menu</a></li>
+                                        <li><a href="cart.html" class="text-decoration-none">Cart</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-6">
+                                    <ul class="list-unstyled">
+                                        <li><a href="#" class="text-decoration-none">Help</a></li>
+                                        <li><a href="#" class="text-decoration-none">Contact</a></li>
+                                        <li><a href="#" class="text-decoration-none">Privacy</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4 pt-3 border-top text-muted small">
+                        © 2024 Belleful. All rights reserved.
+                    </div>
+                </div>
+            </footer>
+        </div> <!-- </app-wrapper> -->
                 <div class="row">
                     <div class="col-md-6">
                         <h6 class="fw-bold mb-3"><i class="fas fa-utensils me-2 text-primary"></i>Belleful</h6>
@@ -368,11 +406,16 @@
             closeSidebar();
         }
 
+        // Enhanced responsive sidebar toggle (persistent desktop, overlay mobile)
         function toggleSidebar() {
             const sidebar = document.getElementById('userSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
-            sidebar.classList.toggle('show');
-            backdrop.style.display = sidebar.classList.contains('show') ? 'block' : 'none';
+            const isMobile = window.innerWidth < 992;
+            
+            if (isMobile) {
+                sidebar.classList.toggle('show');
+                backdrop.style.display = sidebar.classList.contains('show') ? 'block' : 'none';
+            }
         }
 
         function closeSidebar() {
@@ -381,6 +424,15 @@
             sidebar.classList.remove('show');
             backdrop.style.display = 'none';
         }
+
+        // Responsive resize handler
+        window.addEventListener('resize', () => {
+            const sidebar = document.getElementById('userSidebar');
+            const isMobile = window.innerWidth < 992;
+            if (!isMobile && sidebar.classList.contains('show')) {
+                closeSidebar();
+            }
+        });
 
         // Navbar cart count update
         document.addEventListener('cartUpdated', function(e) {
