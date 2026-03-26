@@ -86,6 +86,21 @@
     <!-- Main Wrapper -->
     <div class="main-wrapper">
         <div class="main-content">
+            <!-- Stats Grid -->
+            <div class="stats-section fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h3 fw-bold mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>Dashboard Overview</h2>
+                    <span class="badge bg-success fs-6">Active</span>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="stats-grid" id="statsCards">
+                            <!-- Stats loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Menu Section - Promoted for prominence -->
             <section id="menu" class="menu-section fade-in-up mb-5">
                 <div class="menu-hero">
@@ -104,21 +119,6 @@
                     <!-- Menu cards loaded dynamically -->
                 </div>
             </section>
-
-            <!-- Stats Grid -->
-            <div class="stats-section fade-in-up">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="h3 fw-bold mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>Dashboard Overview</h2>
-                    <span class="badge bg-success fs-6">Active</span>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="stats-grid" id="statsCards">
-                            <!-- Stats loaded dynamically -->
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Profile Summary Row -->
             <div class="row mb-4">
@@ -207,24 +207,7 @@
                 </div>
             </div>
 
-            <!-- Menu Section -->
-            <section id="menu" class="menu-section fade-in-up">
-            <div class="menu-hero">
-                        <div class="container">
-                            <h1 class="display-3 fw-bold mb-4">Order From Full Menu</h1>
-                            <p class="lead mb-5">All available dishes from our kitchen - add to cart & enjoy!</p>
-                            <div class="menu-loading">
-                                <div class="spinner-border text-light" style="width: 4rem; height: 4rem;" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p class="mt-3 h6 text-light opacity-75">Loading all menu items...</p>
-                            </div>
-                        </div>
-                    </div>
-                <div class="menu-grid" id="menuGrid">
-                    <!-- Menu cards loaded dynamically -->
-                </div>
-            </section>
+
 
             <!-- Footer -->
             <footer class="footer-section fade-in-up mt-5 pt-5 border-top">
