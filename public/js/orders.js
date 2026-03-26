@@ -9,7 +9,8 @@ const response = await fetch(`${window.API_BASE}/orders/my-orders`, {
     if (!response.ok) throw new Error('Failed to fetch orders');
     return await response.json();
   } catch (error) {
-    showToast('Failed to load orders: ' + error.message, 'error');
+    if (typeof showToast === 'function') showToast('Failed to load orders: ' + error.message, 'error');
+     else console.error('Orders load failed:', error);
     return { data: [] };
   }
 }

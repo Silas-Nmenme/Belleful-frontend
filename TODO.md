@@ -1,17 +1,9 @@
-# Cart Bug Fix Progress
+# Fix showToast ReferenceError & Dashboard Load
+
 ## Status: ✅ In Progress
 
-## Steps from Approved Plan:
-
-### 1. Create/Update TODO.md [COMPLETED]
-### 2. Edit primary file: public/js/cart.js (defensive refactor) [COMPLETED]
-### 3. Edit secondary: public/js/checkout-page.js (null checks) [COMPLETED]
-### 4. Edit secondary: public/js/menu.js (validation) [COMPLETED]
-### 5. Test corrupted localStorage scenario [COMPLETED - see console warnings & safe rendering]
-### 6. Verify in browser: public/cart.html
-### 7. Clear any corrupted guestCart if needed
-### 8. Complete task
-
-✅ **ALL STEPS COMPLETED** - Cart bug fixed!
-
-**Final Status:** Cart handles undefined prices robustly. No more crashes!
+### Step 1: ✅ Add global showToast to constants.js
+### Step 2: ✅ Update orders.js for defensive toast handling
+### Step 3: ✅ Improve dashboard.js error handling
+### Step 4: [PENDING] Test dashboard load (empty orders graceful fallback)
+### Step 5: [PENDING] Complete & verify no crashes

@@ -1003,7 +1003,7 @@ async function loadUserDashboard() {
     // Show loading
     document.getElementById('statsCards').innerHTML = 
       '<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"></div><p>Loading dashboard...</p></div>';
-    
+
     // Load stats
     const stats = await loadUserStats();
     if (stats.data) {
@@ -1018,9 +1018,10 @@ async function loadUserDashboard() {
     renderMainProfile(profile);
 
     // Load orders
-    document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div></td></tr>';
+    const ordersTableBody = document.getElementById('ordersTableBody');
+    if (ordersTableBody) ordersTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div></td></tr>';
     const orders = await OrderManager.getUserOrders();
-    renderOrders(orders.data || []);
+    if (ordersTableBody) renderOrders(orders.data || []);
 
     // Defensive menu load with global elements & retry
     // Pre-define global menu elements for safety
@@ -1065,11 +1066,21 @@ async function loadUserDashboard() {
       console.warn('window.loadMenu not available');
     }
 
-
   } catch (error) {
     console.error('Dashboard load failed:', error);
-    document.getElementById('statsCards').innerHTML = 
-      '<div class="col-12 text-center py-5 animate__animated animate__pulse"><h5 class="text-danger">⚠️ Unable to load dashboard</h5><p class="text-muted">Please check your connection</p><button class="btn btn-primary mt-2" onclick="loadUserDashboard()">Retry</button></div>';
+    if (typeof showToast === 'function') {
+      showToast('Dashboard load failed: ' + error.message, 'error');
+    }
+    // Safe fallback UIs
+    const statsCards = document.getElementById('statsCards');
+    if (statsCards) {
+      statsCards.innerHTML = 
+        '<div class="col-12 text-center py-5 animate__animated animate__pulse"><h5 class="text-danger">⚠️ Unable to load dashboard</h5><p class="text-muted">Please check your connection</p><button class="btn btn-primary mt-2" onclick="loadUserDashboard()">Retry</button></div>';
+    }
+    const ordersTableBody = document.getElementById('ordersTableBody');
+    if (ordersTableBody) {
+      ordersTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-5">No orders available</td></tr>';
+    }
   }
 }
 
