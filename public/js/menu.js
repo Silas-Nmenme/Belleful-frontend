@@ -155,62 +155,11 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.remove(), 4000);
 }
 
-// LocalStorage cart for guests
-function getLocalCart() {
-  return JSON.parse(localStorage.getItem('guestCart') || '{"items": [], "totalAmount": 0}');
-}
 
-function addToLocalCart(menuItemId, price, name) {
-  let cart = getLocalCart();
-  const existing = cart.items.find(item => item.menuItemId === menuItemId);
-  
-  if (existing) {
-    existing.quantity += 1;
-  } else {
-    cart.items.push({ menuItemId, name, price, quantity: 1 });
-  }
-  
-  cart.totalAmount = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  localStorage.setItem('guestCart', JSON.stringify(cart));
-}
-
-function updateCartCount(count) {
-  const badge = document.querySelector('.cart-count');
-  if (badge) {
-    if (count > 0) {
-      badge.textContent = count;
-      badge.style.display = 'inline-flex';
-    } else {
-      badge.style.display = 'none';
-    }
-  }
-}
-
-// Toast notifications
-function showToast(message, type = 'info') {
-  const toast = document.createElement('div');
-  toast.className = `toast-notification animate__animated animate__fadeInDown position-fixed top-0 end-0 m-4 p-3 rounded-4 shadow-lg`;
-  toast.style.cssText = `
-    background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
-    color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
-    z-index: 9999;
-    max-width: 350px;
-  `;
-  toast.innerHTML = `
-    <strong>${type === 'success' ? 'Success!' : type === 'error' ? 'Error!' : 'Info'} </strong> ${message}
-    <button type="button" class="btn-close ms-3" onclick="this.parentElement.remove()"></button>
-  `;
-  
-  document.body.appendChild(toast);
-  
-  setTimeout(() => {
-    toast.classList.add('animate__fadeOutUp');
-    setTimeout(() => toast.remove(), 500);
-  }, 4000);
-}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('menuGrid')) {
     loadMenu();
   }
+});
