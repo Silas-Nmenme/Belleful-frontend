@@ -17,18 +17,20 @@ async function loadMenu() {
     menuGrid.style.display = 'none';
     menuLoading.style.display = 'flex';
     
-    const response = await fetch(`${window.API_BASE}/menu`);
+    const response = await fetch(`${window.API_BASE}/menu?limit=100&available=true`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const { data: menuItems = [] } = await response.json();
     
-    console.log('🔍 DB Menu Loaded:', menuItems.length, 'items');
+    console.log('DB Menu Loaded:', menuItems.length, 'items from API');
+    console.log('Sample items:', menuItems.slice(0,3));
     
-    const itemsToShow = menuItems;
+    const itemsToShow = menuItems.filter(item => item && item.name); // Filter invalid
+    console.log('Items to display:', itemsToShow.length);
     
     displayMenuItems(itemsToShow);
   } catch (error) {
-    console.error('❌ Menu API failed (no fallback):', error);
+    console.error('Menu API failed (no fallback):', error);
     menuGrid.innerHTML = `
       <div class="col-12 text-center py-5">
         <i class="fas fa-utensils fa-4x text-muted mb-4"></i>
@@ -42,15 +44,42 @@ async function loadMenu() {
 
 // Display menu items with animations
 function displayMenuItems(items) {
+  console.log('🎨 Rendering', items.length, 'menu cards');
   menuGrid.innerHTML = '';
   
-  items.forEach((item, index) => {
-    const card = createMenuCard(item, index);
-    menuGrid.appendChild(card);
-  });
+  if (items.length === 0) {
+    menuGrid.innerHTML = `
+      <div class="col-12 text-center py-5 col-span-full">
+        <i class="fas fa-utensils fa-3x text-muted mb-4"></i>
+        <h5>No menu items available</h5>
+        <p class="text-muted">Check back soon!</p>
+        <button class="btn btn-primary" onclick="loadMenu()">Refresh Menu</button>
+      </div>
+    `;
+    menuGrid.style.display = 'block';
+    return;
+  }
   
-  menuGrid.style.display = 'flex';
+  let renderCount = 0;
+  items.forEach((item, index) => {
+    try {
+      const card = createMenuCard(item, index);
+      menuGrid.appendChild(card);
+      renderCount++;
+    } catch (e) {
+      console.error('Failed to render item', index, item, e);
+    }
+  });
+  console.log('Successfully rendered', renderCount, '/', items.length, 'cards');
+  
+  menuGrid.style.display = 'grid'; // Ensure grid layout
   menuLoading.style.display = 'none';
+  
+  // Update count display
+  const countDisplay = document.getElementById('menuCountDisplay');
+  if (countDisplay) {
+    countDisplay.textContent = items.length;
+  }
   
   // Trigger AOS refresh for new elements
   setTimeout(() => AOS.refresh(), 100);
