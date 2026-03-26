@@ -23,7 +23,6 @@ async function loadMenu() {
     const { data: menuItems = [] } = await response.json();
     
     console.log('🔍 DB Menu Loaded:', menuItems.length, 'items from API');
-    console.log('Sample items:', menuItems.slice(0,3));
     
     const itemsToShow = menuItems.filter(item => item && item.name); // Filter invalid
     console.log('Items to display:', itemsToShow.length);
