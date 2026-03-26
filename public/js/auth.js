@@ -1,11 +1,36 @@
-// Authentication system - complete flow for Belleful frontend
+// Authentication system - complete flow for Belleful frontend (IIFE-wrapped)
 // Real backend authentication for Belleful (login via /login endpoint with RBAC)
 
-let currentUser = null;
-let authMode = 'user'; // 'user' or 'admin'
+(function() {
+  let currentUser = null;
+  let authMode = 'user'; // 'user' or 'admin'
 
-// Initialize auth system
-document.addEventListener('DOMContentLoaded', initAuth);
+  // Initialize auth system - check if already initialized
+  if (window.AuthManager && window.AuthManager.initialized) return;
+  
+  function initAuth() {
+    // Auto-fill email from localStorage if available
+    const savedEmail = localStorage.getItem('lastEmail');
+    const emailInputs = document.querySelectorAll('input[type="email"]:not([readonly])');
+    emailInputs.forEach(input => {
+      if (!input.value) input.value = savedEmail;
+    });
+    
+    // Listen for auth state changes
+    checkAuthStatus();
+    
+    // Update navbar for current auth state
+    updateNavbarForAdmin();
+    
+    // Smart navigation for Home/Brand links
+    if (typeof initSmartNavigation === 'function') {
+      initSmartNavigation();
+    }
+    
+    // Event listeners
+    setupEventListeners();
+  }
+
 
 function initAuth() {
   // Auto-fill email from localStorage if available
@@ -432,27 +457,35 @@ function updateNavbarForAdmin() {
 }
 
 // Global functions
-window.checkAuth = checkAuthStatus;
-window.logout = logout;
-window.AuthManager = {
-  login: handleLogin,
-  register: handleRegister,
-  verifyOTP: handleVerifyOTP,
-  currentUser,
-  checkAuthStatus,
-  updateNavbarForAdmin
-};
-AuthManager.login = handleLogin;
-AuthManager.register = handleRegister;
-AuthManager.verifyOTP = handleVerifyOTP;
-
-// Auto-init if on login/register page
-if (document.querySelector('#loginForm, #registerForm, #otpForm')) {
-  // Form event listeners added via HTML onclick or here
-  document.addEventListener('click', (e) => {
-    if (e.target.matches('[onclick*="handleLogin"]')) handleLogin(e);
-    if (e.target.matches('[onclick*="handleRegister"]')) handleRegister(e);
-    if (e.target.matches('[onclick*="handleOTP"]')) handleOTP(e);
-  });
-}
+    window.AuthManager = window.AuthManager || {};
+    window.AuthManager.currentUser = () => currentUser;
+    window.AuthManager.login = handleLogin;
+    window.AuthManager.register = handleRegister;
+    window.AuthManager.verifyOTP = handleVerifyOTP;
+    window.AuthManager.checkAuthStatus = checkAuthStatus;
+    window.AuthManager.logout = logout;
+    window.AuthManager.updateNavbarForAdmin = updateNavbarForAdmin;
+    window.AuthManager.initialized = true;
+    
+    // Auto-init if on login/register page
+    if (document.querySelector('#loginForm, #registerForm, #otpForm')) {
+      document.addEventListener('click', (e) => {
+        if (e.target.matches('[onclick*="handleLogin"]')) handleLogin(e);
+        if (e.target.matches('[onclick*="handleRegister"]')) handleRegister(e);
+        if (e.target.matches('[onclick*="handleOTP"]')) handleVerifyOTP(e);
+      });
+    }
+    
+    // Global access
+    window.checkAuth = checkAuthStatus;
+    window.logout = logout;
+    
+  })();
+  
+  // Init on DOM ready if not already
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuth);
+  } else {
+    initAuth();
+  }
 

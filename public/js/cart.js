@@ -1,7 +1,11 @@
-// Cart JavaScript - Matches Backend API & Project Patterns
+// Cart JavaScript - Matches Backend API & Project Patterns [IIFE-wrapped]
 // Integrates with navbar badges via 'cartUpdated' events
 
-class CartManager {
+(function() {
+  // Singleton pattern to prevent multiple instances
+  if (window.CartSingleton) return;
+  
+  class CartManager {
   constructor() {
     this.API_BASE = window.API_BASE || '/api';
     this.token = localStorage.getItem('token');
@@ -330,36 +334,45 @@ async loadCart() {
   }
 }
 
-// Global styles for toasts
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
-  @keyframes slideOut { from { transform: translateX(0); } to { transform: translateX(400px); opacity: 0; } }
-`;
-document.head.appendChild(style);
-
-// Export for global use (navbar/menu)
-window.CartManager = CartManager;
-
-// Auto-init when DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new CartManager());
-} else {
-  new CartManager();
-}
-
-// Export functions for external calls (e.g., from menu.js)
-window.addToCart = async (menuItemId, quantity = 1) => {
-  const cart = new CartManager();
-  try {
-    await cart.apiCall('/', {
-      method: 'POST',
-      body: JSON.stringify({ menuItemId, quantity })
+    window.CartSingleton = true;
+    
+    // Global styles for toasts (singleton)
+    if (!document.querySelector('#cart-toast-styles')) {
+      const style = document.createElement('style');
+      style.id = 'cart-toast-styles';
+      style.textContent = `
+        @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+        @keyframes slideOut { from { transform: translateX(0); } to { transform: translateX(400px); opacity: 0; } }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    // Export singleton instance
+    window.CartManager = window.CartManager || new CartManager();
+    window.CartSingleton = window.CartManager;
+    
+  })();
+  
+  // Export addToCart using singleton (safe for multiple calls)
+  window.addToCart = async (menuItemId, quantity = 1) => {
+    try {
+      await window.CartManager.apiCall('/', {
+        method: 'POST',
+        body: JSON.stringify({ menuItemId, quantity })
+      });
+      window.CartManager.loadCart();
+      window.CartManager.showToast('Added to cart!', 'success');
+    } catch (error) {
+      window.CartManager?.showToast(error.message, 'error');
+    }
+  };
+  
+  // Auto-init safely
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.CartManager.init();
     });
-    cart.loadCart();
-    cart.showToast('Added to cart!', 'success');
-  } catch (error) {
-    cart.showToast(error.message, 'error');
+  } else {
+    window.CartManager.init();
   }
-};
 

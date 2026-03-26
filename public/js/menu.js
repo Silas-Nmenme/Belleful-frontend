@@ -1,12 +1,20 @@
-// Menu functionality + API integration (DB API only - static data removed)
+// Menu functionality + API integration (DB API only - static data removed) [IIFE-wrapped]
 
-// DOM Elements
-const menuGrid = document.getElementById('menuGrid');
-const menuLoading = document.querySelector('.menu-loading');
-const menuLink = document.getElementById('menuLink');
-
-// Load menu items on page load and menu link click
-async function loadMenu() {
+(function() {
+  // DOM Elements - get dynamically to avoid const redeclaration
+  function getMenuElements() {
+    return {
+      menuGrid: document.getElementById('menuGrid'),
+      menuLoading: document.querySelector('.menu-loading'),
+      menuLink: document.getElementById('menuLink')
+    };
+  }
+  
+  // Check if already initialized
+  if (window.MenuManager && window.MenuManager.initialized) return;
+  
+  // Load menu items - main entry point
+  window.loadMenu = async function() {
   // Defensive null checks - elements may not exist on all pages
   if (!menuGrid || !menuLoading) {
     console.warn('Menu elements not found on this page');
@@ -169,9 +177,15 @@ function showToast(message, type = 'info') {
 
 
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
+    // Expose global functions
+    window.MenuManager = window.MenuManager || {};
+    window.MenuManager.initialized = true;
+    window.MenuManager.loadMenu = loadMenu;
+    window.MenuManager.addToCartSafe = addToCartSafe;
+    
+  })();
+  
+  // Auto-init only if menu elements exist
   if (document.getElementById('menuGrid')) {
-    loadMenu();
+    window.loadMenu();
   }
-});
