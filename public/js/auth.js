@@ -32,30 +32,6 @@
   }
 
 
-function initAuth() {
-  // Auto-fill email from localStorage if available
-  const savedEmail = localStorage.getItem('lastEmail');
-  const emailInputs = document.querySelectorAll('input[type="email"]:not([readonly])');
-  emailInputs.forEach(input => {
-    if (!input.value) input.value = savedEmail;
-  });
-  
-  // Listen for auth state changes
-  checkAuthStatus();
-  
-  // Update navbar for current auth state
-  updateNavbarForAdmin();
-  
-  // Smart navigation for Home/Brand links
-  if (typeof initSmartNavigation === 'function') {
-    initSmartNavigation();
-  }
-  
-  // Event listeners
-  setupEventListeners();
-
-}
-
 function setupEventListeners() {
   // Get OTP elements dynamically with null checks
   const otpCodeEl = document.getElementById('otpCode');

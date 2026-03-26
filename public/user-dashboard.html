@@ -313,14 +313,16 @@
         const menuSection = document.getElementById('menu');
         if (menuSection) menuObserver.observe(menuSection);
         
-        // Sidebar nav
+        // Sidebar nav - fixed event handling
         document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
           link.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default link behavior
             document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
             this.classList.add('active');
             closeSidebar();
           });
         });
+
       })();
       
       // Expose for retry buttons
