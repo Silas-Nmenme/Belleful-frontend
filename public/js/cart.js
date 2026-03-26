@@ -141,27 +141,32 @@ async loadCart() {
     }
 
     try {
-      const btns = document.querySelectorAll('.btn-proceed, .btn-clear, .qty-btn');
-      btns.forEach(btn => this.setLoading(btn, true));
+      let cartData = { items: [], totalAmount: 0 };
 
-      const result = await this.apiCall('/');
-
-      this.cart = result.data || { items: [], totalAmount: 0 };
-
-      // Fallback guest cart
-      if (!this.token && !this.cart.items.length) {
-        const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-        this.cart.items = guestCart;
-        this.cart.totalAmount = guestCart.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+      // Always try API first (auth users)
+      if (this.token) {
+        const result = await this.apiCall('/');
+        cartData = result.data || cartData;
       }
 
+      // Always load/merge guest cart from localStorage
+      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+      if (guestCart.length > 0) {
+        cartData.items = guestCart;
+        cartData.totalAmount = guestCart.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+      }
+
+      this.cart = cartData;
       this.renderCart();
     } catch (error) {
       console.error('Load cart failed:', error);
-      this.showToast(error.message, 'error');
-      this.renderEmptyCart();
-    } finally {
-      document.querySelectorAll('.btn-proceed, .btn-clear, .qty-btn').forEach(btn => this.setLoading(btn, false));
+      // Fallback to localStorage only
+      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+      this.cart = {
+        items: guestCart,
+        totalAmount: guestCart.reduce((sum, item) => sum + (item.quantity * item.price), 0)
+      };
+      this.renderCart();
     }
   }
 
@@ -198,6 +203,7 @@ async loadCart() {
 
     this.renderSummary();
     this.updateCartBadge();
+    this.bindEvents(); // Re-bind dynamic elements
   }
 
   renderEmptyCart() {
@@ -254,31 +260,33 @@ async updateQuantity(itemId, delta, event) {
     const oldQty = this.cart.items[itemIndex].quantity;
     const newQty = Math.max(1, oldQty + delta);
 
-    // Optimistic update
+    // Always update local first (optimistic + persistent)
     this.cart.items[itemIndex].quantity = newQty;
-    this.renderCart(); // Immediate UI refresh
+    
+    // Save to localStorage immediately (guest cart)
+    localStorage.setItem('guestCart', JSON.stringify(this.cart.items));
+    
+    this.renderCart();
     this.updateCartBadge();
+    this.bindEvents(); // Re-bind after re-render
 
-    try {
-      this.setLoading(btn, true);
-      await this.apiCall(`/${itemId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ quantity: newQty })
-      });
-      console.log('✅ Quantity updated via API:', newQty);
-      this.showToast(`Updated quantity to ${newQty}`, 'success');
-    } catch (error) {
-      // Rollback on failure
-      this.cart.items[itemIndex].quantity = oldQty;
-      this.renderCart();
-      this.updateCartBadge();
-      console.error('❌ API update failed:', error);
-      // Sync from server anyway
-      await this.loadCart();
-      this.showToast('Updated locally (API sync failed)', 'warning');
-    } finally {
-      this.setLoading(btn, false);
+    this.setLoading(btn, true);
+    
+    // Try API if auth'd (optional)
+    if (this.token) {
+      try {
+        await this.apiCall(`/${itemId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ quantity: newQty })
+        });
+        console.log('✅ Quantity synced via API:', newQty);
+      } catch (apiError) {
+        console.warn('API update failed, kept local change:', apiError);
+      }
     }
+
+    this.showToast(`Quantity: ${newQty}`, 'success');
+    this.setLoading(btn, false);
   }
 
   async removeItem(itemId) {
@@ -309,32 +317,30 @@ async updateQuantity(itemId, delta, event) {
     }
   }
 
-  async clearCart() {
+async clearCart() {
     const itemCount = this.cart.items.length;
     const clearBtn = document.querySelector('.btn-clear');
     
-    // Optimistic clear with loading
     if (clearBtn) this.setLoading(clearBtn, true);
+    
+    // Always clear localStorage first
     localStorage.removeItem('guestCart');
     this.cart = { items: [], totalAmount: 0 };
     this.renderEmptyCart();
     this.updateCartBadge();
 
-    try {
-      // Try API first (auth'd users)
-      if (this.token) {
+    // Try API clear if auth'd
+    if (this.token) {
+      try {
         await this.apiCall('/clear', { method: 'DELETE' });
+        console.log('✅ Cart cleared via API');
+      } catch (apiError) {
+        console.warn('API clear failed, local clear complete:', apiError);
       }
-      console.log('✅ Cart cleared via API');
-      this.showToast(`Cleared ${itemCount} items from cart`, 'success');
-    } catch (error) {
-      console.warn('API clear failed, using local fallback:', error.message);
-      // Already optimistically cleared, just sync
-      await this.loadCart();
-      this.showToast(`Cart cleared locally (${itemCount} items)`, 'warning');
-    } finally {
-      if (clearBtn) this.setLoading(clearBtn, false);
     }
+
+    this.showToast(`Cleared ${itemCount} items`, 'success');
+    if (clearBtn) this.setLoading(clearBtn, false);
   }
 
   updateCartBadge() {
@@ -406,16 +412,33 @@ async updateQuantity(itemId, delta, event) {
   })();
   
   // Export addToCart using singleton (safe for multiple calls)
-  window.addToCart = async (menuItemId, quantity = 1) => {
-    try {
-      await window.CartManager.apiCall('/', {
-        method: 'POST',
-        body: JSON.stringify({ menuItemId, quantity })
-      });
-      window.CartManager.loadCart();
-      window.CartManager.showToast('Added to cart!', 'success');
-    } catch (error) {
-      window.CartManager?.showToast(error.message, 'error');
+  window.addToCart = async (menuItemId, itemData, quantity = 1) => {
+    const newItem = { ...itemData, menuItem: menuItemId, quantity };
+    
+    // Always save to localStorage (guest cart)
+    let cartItems = JSON.parse(localStorage.getItem('guestCart') || '[]');
+    const existingIndex = cartItems.findIndex(item => item.menuItem === menuItemId);
+    if (existingIndex > -1) {
+      cartItems[existingIndex].quantity += quantity;
+    } else {
+      cartItems.push(newItem);
+    }
+    localStorage.setItem('guestCart', JSON.stringify(cartItems));
+    
+    // Trigger global update
+    window.CartManager?.loadCart();
+    window.CartManager?.showToast('Added to cart!', 'success');
+    
+    // Try API if auth'd
+    if (window.CartManager?.token) {
+      try {
+        await window.CartManager.apiCall('/', {
+          method: 'POST',
+          body: JSON.stringify({ menuItemId, quantity })
+        });
+      } catch (apiError) {
+        console.warn('API add failed, local cart updated:', apiError);
+      }
     }
   };
   
