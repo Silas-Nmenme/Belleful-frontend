@@ -17,7 +17,7 @@ async function loadMenu() {
     menuGrid.style.display = 'none';
     menuLoading.style.display = 'flex';
     
-    const response = await fetch(`${window.API_BASE}/menu?limit=100&available=true`);
+    const response = await fetch(`${window.API_BASE}/menu?page=1&limit=1000&available=true`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const { data: menuItems = [] } = await response.json();
@@ -106,7 +106,7 @@ function createMenuCard(item, delayIndex = 0) {
             ${item.category}
           </span>
         </div>
-        <button class="btn btn-success w-100 add-to-cart-btn" onclick="addToCart(event, '${item._id}', ${item.price}, '${item.name}')" ${!item.available ? 'disabled' : ''}>
+        <button class="btn btn-success w-100 add-to-cart-btn" onclick="addToCart('${item._id}', 1)" ${!item.available ? 'disabled' : ''}>
           ${item.available ? '<i class="fas fa-plus me-2"></i>Add to Cart' : '<i class="fas fa-ban me-2"></i>Unavailable'}
         </button>
       </div>
@@ -117,53 +117,42 @@ function createMenuCard(item, delayIndex = 0) {
 }
 
 // Add to cart function (works pre/post auth)
-async function addToCart(e, menuItemId, price, name) {
-  const btn = e?.target?.closest('button');
-  const originalText = btn.innerHTML;
-  
-  try {
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
-    btn.disabled = true;
-    
-    // Check auth status
-    const token = localStorage.getItem('token');
-    
-    if (token) {
-      // Authenticated - API call
-      const response = await fetch(`${window.API_BASE}/cart`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ menuItemId, quantity: 1 })
-      });
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          alert('Session expired. Please login again.');
-          window.location.href = 'login.html';
-          return;
-        }
-        throw new Error('Failed to add to cart');
-      }
-      
-      const cart = await response.json();
-      updateCartCount(cart.data.items.length);
-      showToast('Added to cart!', 'success');
-    } else {
-      // Guest - localStorage cart
-      addToLocalCart(menuItemId, price, name);
-      updateCartCount(getLocalCart().items.length);
-      showToast('Added to cart!', 'success');
-    }
-  } catch (error) {
-    console.error('Add to cart error:', error);
-    showToast('Failed to add item. Please try again.', 'error');
-  } finally {
-    btn.innerHTML = originalText;
-    btn.disabled = false;
+// Custom addToCart removed - use window.addToCart from cart.js
+// Keeps local functions for guest cart sync
+function getLocalCart() {
+  return JSON.parse(localStorage.getItem('guestCart') || '{"items": [], "totalAmount": 0}');
+}
+
+function addToLocalCart(menuItemId, price, name) {
+  let cart = getLocalCart();
+  const existing = cart.items.find(item => item.menuItemId === menuItemId);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.items.push({ menuItemId, name, price, quantity: 1 });
   }
+  cart.totalAmount = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  localStorage.setItem('guestCart', JSON.stringify(cart));
+}
+
+function updateCartCount(count) {
+  const badge = document.querySelector('.cart-badge');
+  if (badge) {
+    badge.dataset.count = count;
+    badge.textContent = count;
+    badge.classList.toggle('hidden', count === 0);
+  }
+  document.dispatchEvent(new CustomEvent('cartUpdated', { detail: count }));
+}
+
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `page-toast page-toast--${type} shadow-lg p-3 rounded-3 position-fixed top-0 end-0 m-4`;
+  toast.style.maxWidth = '400px';
+  toast.innerHTML = '<strong>' + (type === 'success' ? '✅' : '❌') + ' ' + message + '</strong><button class="btn-close ms-2" onclick="this.parentElement.remove()"></button>';
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
 }
 
 // LocalStorage cart for guests
