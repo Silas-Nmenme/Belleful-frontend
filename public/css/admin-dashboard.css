@@ -1,23 +1,4 @@
 @import url('index.css');
 
-/* Professional Admin Dashboard */
+/* Admin dashboard specific overrides */
 .card { border-radius: 12px; }
-.pagination-nav { 
-  border-top: 1px solid #dee2e6; 
-  background: #f8f9fa; 
-  font-size: 0.875rem; 
-}
-.pagination-nav .btn { 
-  border-radius: 6px; 
-  padding: .375rem 1rem; 
-  font-weight: 500;
-}
-.pagination-nav .btn:not(:disabled):hover { 
-  background-color: #0d6efd; 
-  border-color: #0d6efd;
-  transform: translateY(-1px);
-}
-.pagination-nav .btn:disabled { opacity: 0.5; }
-.table-hover tbody tr:hover { background-color: rgba(0,123,255,.075); }
-.card-header { border-radius: 12px 12px 0 0; font-weight: 600; }
-
