@@ -177,31 +177,38 @@ function renderStats(statsData) {
   `;
 }
 
-function renderOrders(orders) {
+renderOrders(orders) {
   const tbody = document.getElementById('ordersTableBody');
   if (!tbody) return;
   
-  tbody.innerHTML = orders.map(order => `
-    <tr class="${getOrderStatusClass(order.orderStatus)}">
-      <td><strong>#${order._id.slice(-8)}</strong></td>
-      <td>
-        ${order.items.map(item => item.name).join(', ')}
-        <br><small class="text-muted">${order.items.length} items</small>
-      </td>
-      <td><strong>₦${order.totalAmount.toLocaleString()}</strong></td>
-      <td>
-        <span class="badge bg-${getOrderStatusBadge(order.orderStatus)} fs-6 px-3 py-2">
-          ${formatOrderStatus(order.orderStatus)}
-        </span>
-      </td>
-      <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-      <td>
-        <button class="btn btn-sm btn-outline-primary" onclick="trackOrder('${order._id}')">
-          Track
-        </button>
-      </td>
-    </tr>
-  `).join('') || '<tr><td colspan="6" class="text-center text-muted py-5">No orders yet</td></tr>';
+  tbody.innerHTML = (orders || []).map(order => {
+    const safeTotal = (order?.totalAmount || 0);
+    const safeItems = Array.isArray(order?.items) ? order.items : [];
+    const itemNames = safeItems.map(item => item?.name || 'Item').slice(0, 3).join(', ');
+    const itemCount = safeItems.length;
+    
+    return `
+      <tr class="${getOrderStatusClass(order?.orderStatus || 'pending')}">
+        <td><strong>#${(order?._id || 'N/A').slice(-8)}</strong></td>
+        <td>
+          ${itemNames}${itemCount > 3 ? '...' : ''}
+          <br><small class="text-muted">${itemCount} items</small>
+        </td>
+        <td><strong>₦${safeTotal.toLocaleString()}</strong></td>
+        <td>
+          <span class="badge bg-${getOrderStatusBadge(order?.orderStatus || 'pending')} fs-6 px-3 py-2">
+            ${formatOrderStatus(order?.orderStatus || 'pending')}
+          </span>
+        </td>
+        <td>${order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary" onclick="trackOrder('${order?._id || ''}')">
+            Track
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="6" class="text-center text-muted py-5"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>No orders yet</td></tr>';
 }
 
 function getOrderStatusClass(status) {
@@ -1187,46 +1194,13 @@ document.addEventListener('cartUpdated', function(e) {
 });
 
 // Empty stats fallback
-function renderEmptyStats() {
-  document.getElementById('statsCards').innerHTML = `
-    <div class="row g-4">
-      <div class="col-md-6">
-        <div class="text-center py-5 h-100 d-flex flex-column justify-content-center">
-          <i class="fas fa-rocket fa-3x text-primary mb-4"></i>
-          <h4 class="fw-bold mb-3">Welcome to Belleful!</h4>
-          <p class="lead text-muted mb-4 flex-grow-1">Get started with your first order</p>
-          <a href="#menu" class="btn btn-primary btn-lg rounded-pill">
-            <i class="fas fa-utensils me-2"></i>Explore Menu
-          </a>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="bg-light rounded-4 h-100 p-4 d-flex align-items-center">
-          <div class="text-center w-100">
-            <i class="fas fa-star fa-2x text-warning mb-3"></i>
-            <h5 class="fw-bold mb-2">Pro Tip</h5>
-            <p class="text-muted mb-0">Save your favorite items for quick reordering</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
+// REMOVED: No mock/static data - pure API loading states only
+// renderEmptyStats replaced with safe defaults in renderStats()
 
-// Auto init dashboard if on user dashboard page
-if (document.getElementById('statsCards') || document.querySelector('.app-wrapper')) {
-  AOS.init({ duration: 800, once: true });
-  document.addEventListener('DOMContentLoaded', async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = 'login.html';
-      return;
-    }
-    localStorage.removeItem('guestCart');
-    if (typeof updateCartUI === 'function') updateCartUI();
-    await loadUserDashboard();
-  });
-}
+
+// Pure API dashboard - auto-init removed (handled by HTML inline script)
+// All mock data/static fallbacks REMOVED ✅
+
 
 
 // ===== SAFE DOM UTILITIES =====

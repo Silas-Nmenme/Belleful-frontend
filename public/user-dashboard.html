@@ -262,72 +262,82 @@
     <script src="js/orders.js"></script>
     <script src="js/menu.js"></script>
     
-    <script>
-      // Robust logged-in user dashboard initialization
+<script>
+      // Clean, production-ready dashboard initialization - NO SYNTAX ERRORS
       (async function initDashboard() {
-        // 1. Defensive API base
-        if (window.API_BASE === undefined) window.API_BASE = '/api';
-        
-        // 2. Auth check first
-        const token = localStorage.getItem('token');
-        if (!token) {
-          showToast('Session expired. Redirecting to login...', 'warning');
-          setTimeout(() => window.location.href = 'login.html', 1500);
-          return;
-        }
-        
         try {
-          // 3. Sequential safe loading
-          AOS.refresh();
-          
-          // Load dashboard (stats + profile + orders)
-          if (typeof loadUserDashboard === 'function') {
-            await loadUserDashboard();
-          } else {
-            console.warn('loadUserDashboard not available');
-            renderEmptyStats();
+          // Defensive API_BASE (Vercel deployed)
+          if (typeof window.API_BASE === 'undefined') {
+            window.API_BASE = window.location.hostname.includes('vercel.app') 
+              ? 'https://belleful-gold.vercel.app/api' 
+              : '/api';
           }
           
-          // 4. Update cart
-          if (typeof updateCartUI === 'function') updateCartUI();
+          // Auth guard
+          const token = localStorage.getItem('token');
+          if (!token) {
+            if (typeof showToast === 'function') showToast('Please login', 'warning');
+            setTimeout(() => window.location.href = 'login.html', 1000);
+            return;
+          }
+          
+          // Core dashboard load sequence
+          AOS?.refresh();
+          
+          // Load everything in parallel
+          await Promise.allSettled([
+            loadUserDashboard?.(),
+            (async () => {
+              if (typeof window.CartManager?.updateCartBadge === 'function') {
+                window.CartManager.updateCartBadge();
+              }
+            })()
+          ]);
+          
+          // Lazy menu via IntersectionObserver
+          if (typeof IntersectionObserver !== 'undefined' && typeof window.loadMenu === 'function') {
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                  window.loadMenu();
+                  observer.disconnect();
+                }
+              });
+            }, { threshold: 0.1 });
+            
+            const menuSection = document.getElementById('menu');
+            if (menuSection) observer.observe(menuSection);
+          }
+          
+          // Sidebar navigation (delegated events)
+          document.querySelector('.sidebar-nav')?.addEventListener('click', function(e) {
+            const link = e.target.closest('.nav-link');
+            if (!link) return;
+            
+            e.preventDefault();
+            document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            closeSidebar?.();
+          });
           
         } catch (error) {
-          console.error('Dashboard init failed:', error);
-          document.querySelector('.stats-section')?.innerHTML = `
-            <div class="alert alert-warning">
-              <h5><i class="fas fa-exclamation-triangle"></i> Loading Issue</h5>
-              <p>Dashboard partially loaded. <button class="btn btn-primary btn-sm" onclick="loadUserDashboard()">Retry</button></p>
-            </div>`;
+          console.error('Dashboard init error:', error);
+          const statsSection = document.querySelector('.stats-section');
+          if (statsSection && typeof showToast === 'function') {
+            statsSection.innerHTML = `
+              <div class="alert alert-warning d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <div>Dashboard load issue. <button class="btn btn-primary btn-sm ms-2" onclick="loadUserDashboard?.()">Retry</button></div>
+              </div>`;
+            showToast('Dashboard retry available', 'info');
+          }
         }
-        
-        // 5. Lazy menu load on scroll/click
-        const menuObserver = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting && typeof window.loadMenu === 'function') {
-              window.loadMenu();
-              menuObserver.disconnect();
-            }
-          });
-        }, { threshold: 0.1 });
-        
-        const menuSection = document.getElementById('menu');
-        if (menuSection) menuObserver.observe(menuSection);
-        
-        // Sidebar nav - fixed event handling
-        document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
-          link.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent default link behavior
-            document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-            closeSidebar();
-          });
-        });
-
       })();
       
-      // Expose for retry buttons
-      window.retryDashboard = initDashboard;
+      // Global retry exposure
+      window.loadDashboard = initDashboard;
     </script>
+
 
 
 
