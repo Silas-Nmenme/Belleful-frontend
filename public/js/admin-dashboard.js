@@ -388,17 +388,60 @@
     }
   };
 
-  // BULLETPROOF Menu Form Handler
+// BULLETPROOF Menu Form Handler + Menu Controls
+  function attachMenuEventListeners() {
+    // Menu refresh button
+    const refreshBtns = document.querySelectorAll('.btn-refresh-menu, .btn.btn-success[title*="Refresh"]');
+    refreshBtns.forEach(btn => {
+      btn.onclick = () => loadAdminMenu(1);
+      btn.removeAttribute('onclick'); // Clean inline
+    });
+
+    // Menu search input
+    const searchInput = document.getElementById('menuSearch');
+    if (searchInput) {
+      searchInput.oninput = function() {
+        const category = document.getElementById('categoryFilter')?.value || '';
+        loadAdminMenu(1, this.value, category);
+      };
+    }
+
+    // Category filter
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+      categoryFilter.onchange = function() {
+        const search = document.getElementById('menuSearch')?.value || '';
+        loadAdminMenu(1, search, this.value);
+      };
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
+    attachMenuEventListeners();
+    
     const form = document.getElementById('menuForm');
     if (!form) {
       console.warn('Menu form not found');
       return;
     }
 
+    // Enhanced name validation feedback
+    const nameInput = document.getElementById('menuName');
+    if (nameInput) {
+      nameInput.addEventListener('blur', function() {
+        if (!this.value.trim()) {
+          this.classList.add('is-invalid');
+          this.title = 'Name is required (3+ chars)';
+        } else {
+          this.classList.remove('is-invalid');
+        }
+      });
+    }
+
     form.onsubmit = async function(e) {
       e.preventDefault();
       console.log('🚀 Menu save initiated');
+
       
       // Defensive element access
       const submitBtn = document.getElementById('menuSubmitBtn');
@@ -592,3 +635,4 @@
   
   console.log('✅ admin-dashboard.js FIXED - Object.keys safe + bulletproof menu save');
 })();
+

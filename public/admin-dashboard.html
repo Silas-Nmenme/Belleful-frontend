@@ -194,7 +194,7 @@
                             <h4 class="mb-0 fw-bold">
                                 <i class="fas fa-utensils me-2"></i>Menu Items
                                 <small class="badge bg-light text-success ms-2" id="menuCount">0</small>
-<button class="btn btn-sm btn-refresh-menu ms-2" onclick="loadAdminMenu(1)" title="Refresh Menu Count">
+<button class="btn btn-sm btn-refresh-menu ms-2" title="Refresh Menu Count">
   <i class="fas fa-sync-alt"></i>
 </button>
                                 <button class="btn btn-light btn-sm ms-3" data-bs-toggle="modal" data-bs-target="#menuModal" onclick="prepareMenuForm()">
@@ -207,7 +207,8 @@
                             <div class="p-4 border-bottom">
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" id="menuSearch" placeholder="Search menu items..." oninput="loadAdminMenu(1, this.value, document.getElementById('categoryFilter').value)">
+                                        <input type="text" class="form-control" id="menuSearch" placeholder="Search menu items...">
+
                                     </div>
                                     <div class="col-md-3">
                                         <select class="form-select" id="categoryFilter" title="Filter by category">
