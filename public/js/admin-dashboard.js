@@ -427,17 +427,9 @@
         // BULLETPROOF data extraction FIRST\n        const name = (nameEl.value || '').trim();\n\n        const price = parseFloat(priceEl.value || '0');\n        const category = categoryEl.value || '';\n        const stock = parseInt(stockEl?.value || '50') || 50;\n        const available = !!(availableEl?.checked || false);\n        const description = (descEl?.value || '').trim();\n        const menuId = (menuIdEl?.value || '').trim();\n\n        const imageFile = imageInput?.files[0] || null;\n\n        // Use server-side multer upload (reliable)\n        const menuFormData = new FormData();\n        menuFormData.append('name', name);\n        menuFormData.append('price', price);\n        menuFormData.append('category', category);\n        menuFormData.append('stock', stock);\n        menuFormData.append('available', available);\n        if (description) menuFormData.append('description', description);\n        if (imageFile) {\n          console.log('📤 Sending image to server multer:', imageFile.name);\n          menuFormData.append('image', imageFile);\n        }
         
 // Enhanced client-side validation with UI feedback (aligns with HTML minlength=3)
-        const nameLength = name.length;
-        if (!name || nameLength < 3) {
-          nameEl.classList.add('is-invalid');
-          nameEl.classList.remove('is-valid');
-          const nameError = document.getElementById('nameError');
-          if (nameError) nameError.style.display = 'block';
-          nameEl.focus();
-          throw new Error(`Name must be 3+ characters (got ${nameLength})`);
-        } else {
-          nameEl.classList.add('is-valid');
-        }
+        // Removed strict name validation per user request - backend handles it
+        console.log('📝 Menu name:', `"${name}"`, '(length:', name.length, ')');
+        nameEl.classList.add('is-valid');
         
         if (isNaN(price) || price <= 0) throw new Error('Valid price > 0 required');
         if (!['food','drink','side'].includes(category)) throw new Error('Select valid category');
