@@ -440,21 +440,27 @@
 
     form.onsubmit = async function(e) {
       e.preventDefault();
-      console.log('🚀 Menu save initiated');
+      console.log('🚀 Menu save initiated - FIXED "price is not defined"');
 
-      
-      // Defensive element access
-      const submitBtn = document.getElementById('menuSubmitBtn');
-      const loader = document.getElementById('menuLoader');
-      const imageInput = document.getElementById('menuImage');
-      const menuIdEl = document.getElementById('menuId');
+      // 🔧 FIX: Cache ALL form elements safely first
+      const formElements = {
+        submitBtn: document.getElementById('menuSubmitBtn'),
+        loader: document.getElementById('menuLoader'),
+        imageInput: document.getElementById('menuImage'),
+        menuId: document.getElementById('menuId'),
+        name: document.getElementById('menuName'),
+        price: document.getElementById('menuPrice'),
+        category: document.getElementById('menuCategory'),
+        stock: document.getElementById('menuStock'),
+        available: document.getElementById('menuAvailable'),
+        desc: document.getElementById('menuDescription')
+      };
 
-      const nameEl = document.getElementById('menuName');
-      const priceEl = document.getElementById('menuPrice');
-      const categoryEl = document.getElementById('menuCategory');
-      const stockEl = document.getElementById('menuStock');
-      const availableEl = document.getElementById('menuAvailable');
-      const descEl = document.getElementById('menuDescription');
+      if (!formElements.submitBtn || !formElements.name || !formElements.price || !formElements.category) {
+        console.error('❌ Critical form elements missing');
+        showAdminToast('Form broken - reload dashboard', 'danger');
+        return;
+      }
       
       if (!submitBtn || !nameEl || !priceEl || !categoryEl) {
         console.error('❌ Required form elements missing');
