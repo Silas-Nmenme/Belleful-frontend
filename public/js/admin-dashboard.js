@@ -536,6 +536,112 @@ const response = await fetch(`${window.API_BASE || '/api'}/contact/?${params}`, 
       showAdminToast('Status update failed: ' + error.message, 'danger');
     }
   };
+
+  // Contact View function
+  window.viewContact = async function(contactId) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const { data: contact } = await response.json();
+      
+      // Update global variables for modal buttons
+      window.currentContactId = contactId;
+      
+      // Update modal title
+      document.getElementById('contactModalTitle').textContent = 
+        `Contact #${contact._id?.slice(-8)} - ${contact.name || 'Customer'}`;
+      
+      // Render contact details
+      const modalBody = document.getElementById('contactModalBody');
+      const statusBadge = contact.status === 'unread' ? 'bg-danger' : 'bg-success';
+      const markReadBtn = document.getElementById('markReadBtn');
+      
+      modalBody.innerHTML = `
+        <div class="row g-4">
+          <div class="col-md-6">
+            <h6><i class="fas fa-user me-2 text-info"></i><strong>Customer Info</strong></h6>
+            <div class="card border-info border-2">
+              <div class="card-body">
+                <p><strong>Name:</strong> ${contact.name || 'N/A'}</p>
+                <p><strong>Email:</strong> ${contact.email || 'N/A'}</p>
+                <p><strong>Phone:</strong> ${contact.phone || 'N/A'}</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h6><i class="fas fa-info-circle me-2 text-primary"></i><strong>Message Info</strong></h6>
+            <div class="card border-primary border-2">
+              <div class="card-body">
+                <p><strong>Subject:</strong> ${contact.subject || 'No subject'}</p>
+                <p><strong>Status:</strong> 
+                  <span class="badge ${statusBadge}">${contact.status?.toUpperCase() || 'UNKNOWN'}</span>
+                </p>
+                <p><strong>Date:</strong> ${new Date(contact.createdAt).toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <h6><i class="fas fa-comment me-2 text-success"></i><strong>Message</strong></h6>
+            <div class="card border-success border-2">
+              <div class="card-body">
+                <div class="message-content">${contact.message || 'No message content'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Show/hide mark read button
+      if (markReadBtn) {
+        markReadBtn.style.display = contact.status === 'unread' ? 'inline-block' : 'none';
+      }
+      
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+      modal.show();
+      
+      showAdminToast('Contact details loaded', 'success');
+      
+    } catch (error) {
+      console.error('viewContact error:', error);
+      showAdminToast('Failed to load contact: ' + error.message, 'danger');
+    }
+  };
+
+  // Global variable for current contact
+  window.currentContactId = null;
+
+  window.updateContactStatus = async function(contactId, status) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}/status`, {
+        method: 'PATCH',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      
+      if (!response.ok) throw new Error('Update failed');
+      
+      showAdminToast(`Contact marked as ${status}`, 'success');
+      
+      // Close modal and refresh table
+      const modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
+      if (modal) modal.hide();
+      
+      loadAdminContacts(1); // Refresh contacts table
+      
+    } catch (error) {
+      showAdminToast('Status update failed: ' + error.message, 'danger');
+    }
+  };
   
   console.log('✅ admin-dashboard.js loaded - DashboardManager ready');
 })();
