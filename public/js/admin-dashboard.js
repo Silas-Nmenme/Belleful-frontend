@@ -424,32 +424,7 @@
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         if (loader) loader.style.display = 'block';
         
-        const imageFile = imageInput?.files[0] || null;
-
-        let imageUrl = '';
-        
-        // Use server-side multer upload (reliable fallback)
-        const menuFormData = new FormData();
-        menuFormData.append('name', name);
-        menuFormData.append('price', price);
-        menuFormData.append('category', category);
-        menuFormData.append('stock', stock);
-        menuFormData.append('available', available);
-        if (description) menuFormData.append('description', description);
-        if (imageFile) {
-          console.log('📤 Sending image to server multer:', imageFile.name);
-          menuFormData.append('image', imageFile);
-        }
-        
-        // BULLETPROOF data extraction
-        const name = (nameEl.value || '').trim();
-
-        const price = parseFloat(priceEl.value || '0');
-        const category = categoryEl.value || '';
-        const stock = parseInt(stockEl?.value || '50') || 50;
-        const available = !!(availableEl?.checked || false);
-        const description = (descEl?.value || '').trim();
-        const menuId = (menuIdEl?.value || '').trim();
+        // BULLETPROOF data extraction FIRST\n        const name = (nameEl.value || '').trim();\n\n        const price = parseFloat(priceEl.value || '0');\n        const category = categoryEl.value || '';\n        const stock = parseInt(stockEl?.value || '50') || 50;\n        const available = !!(availableEl?.checked || false);\n        const description = (descEl?.value || '').trim();\n        const menuId = (menuIdEl?.value || '').trim();\n\n        const imageFile = imageInput?.files[0] || null;\n\n        // Use server-side multer upload (reliable)\n        const menuFormData = new FormData();\n        menuFormData.append('name', name);\n        menuFormData.append('price', price);\n        menuFormData.append('category', category);\n        menuFormData.append('stock', stock);\n        menuFormData.append('available', available);\n        if (description) menuFormData.append('description', description);\n        if (imageFile) {\n          console.log('📤 Sending image to server multer:', imageFile.name);\n          menuFormData.append('image', imageFile);\n        }
         
         // Validation
         if (!name || name.length < 2) throw new Error('Name too short');
