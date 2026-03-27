@@ -440,7 +440,7 @@
 
     form.onsubmit = async function(e) {
       e.preventDefault();
-      console.log('🚀 Menu save initiated - FIXED "price is not defined"');
+      console.log('🚀 Menu save initiated - BULLETPROOF price fix applied');
 
       // 🔧 FIX: Cache ALL form elements safely first
       const formElements = {
@@ -457,22 +457,27 @@
       };
 
       if (!formElements.submitBtn || !formElements.name || !formElements.price || !formElements.category) {
-        console.error('❌ Critical form elements missing');
-        showAdminToast('Form broken - reload dashboard', 'danger');
+        console.error('❌ Critical form elements missing - aborting save');
+        showAdminToast('Form elements missing - reload dashboard', 'danger');
         return;
       }
       
       try {
+        // BULLETPROOF: Double-check elements before extraction
+        if (!formElements.name || !formElements.price || !formElements.category) {
+          throw new Error('Required form fields (name, price, category) not found');
+        }
+
         // UI lock
         formElements.submitBtn.disabled = true;
         formElements.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         if (formElements.loader) formElements.loader.style.display = 'block';
         
-const name = (formElements.name?.value || '').trim();
+        const name = formElements.name.value.trim();
         const menuId = formElements.menuId?.value || '';
-        const price = parseFloat(formElements.price?.value) || 0;
-        const category = formElements.category?.value || '';
-        const stock = parseInt(formElements.stock?.value) || 50;
+        const price = parseFloat(formElements.price.value) || 0;
+        const category = formElements.category.value || '';
+        const stock = parseInt(formElements.stock?.value || '50') || 50;
         const available = formElements.available?.checked || (stock > 0);
         const description = formElements.desc?.value?.trim() || '';
 
