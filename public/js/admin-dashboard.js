@@ -96,7 +96,7 @@
   }
 
   // ===== ADMIN MENU TABLE =====
-  async function loadAdminMenu(page = 1, search = '', category = '') {
+async function loadAdminMenu(search = '', category = '') {
     const tableBody = document.getElementById('menuItemsTable');
     const loader = document.getElementById('menuLoader') || createLoader('menuItemsTable');
     
@@ -104,14 +104,13 @@
       if (tableBody) tableBody.innerHTML = '';
       loader.style.display = 'block';
       
-      const params = new URLSearchParams({ page, limit: 50, ...(search && { search }), ...(category && { category }) });
+      const params = new URLSearchParams({ limit: 1000, ...(search && { search }), ...(category && { category }) });
       const response = await fetch(`${window.API_BASE}/menu?${params}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
       const { data: items = [] } = await response.json();
-      renderAdminMenuTable(items);
+renderAdminMenuTable(items);
       document.getElementById('menuCount').textContent = items.length;
-      renderPagination('menuPagination', page, Math.ceil(50 / items.length) || 1, loadAdminMenu);
     } catch (error) {
       console.error('loadAdminMenu error:', error);
       tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-5 text-danger">Failed to load menu items</td></tr>';
@@ -143,14 +142,14 @@
   }
 
   // ===== MAIN DASHBOARD LOAD =====
-  window.loadAdminDashboard = async function(page = 1, search = '', status = '') {
+window.loadAdminDashboard = async function(search = '', status = '') {
     try {
       // Parallel loading
       await Promise.all([
         loadAdminStats(),
-        loadPendingOrders(page, search, status),
-        loadAdminUsers(1),
-        loadAdminContacts(1)
+        loadPendingOrders(search, status),
+        loadAdminUsers(),
+        loadAdminContacts()
       ]);
       
       // Load menu after stats
@@ -164,7 +163,7 @@
   };
 
   // Pending Orders Table
-  async function loadPendingOrders(page = 1, search = '', status = '') {
+async function loadPendingOrders(search = '', status = '') {
     const tbody = document.getElementById('pendingOrdersTable');
     const countEl = document.getElementById('pendingCount');
     if (!tbody) return;
@@ -173,7 +172,7 @@
       tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3"><div class="spinner-border text-danger" role="status"></div></td></tr>';
       
       const token = localStorage.getItem('token');
-      const params = new URLSearchParams({ page, limit: 10, ...(search && { search }), ...(status && { status }) });
+      const params = new URLSearchParams({ limit: 1000, ...(search && { search }), ...(status && { status }) });
       
       const response = await fetch(`${window.API_BASE || '/api'}/orders/admin?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -182,8 +181,7 @@
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
       const { data: orders = [] } = await response.json();
-      renderPendingOrdersTable(orders);
-      renderPagination('ordersPagination', page, 5, (p, s, st) => loadPendingOrders(p, s, st));
+renderPendingOrdersTable(orders);
       if (countEl) countEl.textContent = orders.filter(o => o.orderStatus === 'pending_approval').length || 0;
     } catch (error) {
       console.error('Orders load error:', error);
@@ -229,7 +227,7 @@
   }
 
   // Users Table
-  async function loadAdminUsers(page = 1, search = '') {
+async function loadAdminUsers(search = '') {
     const tbody = document.getElementById('usersTable');
     const countEl = document.getElementById('usersCount');
     if (!tbody) return;
@@ -238,7 +236,7 @@
       tbody.innerHTML = '<tr><td colspan="5" class="text-center"><div class="spinner-border" role="status"></div></td></tr>';
       
       const token = localStorage.getItem('token');
-      const params = new URLSearchParams({ page, limit: 10, ...(search && { search }) });
+      const params = new URLSearchParams({ limit: 1000, ...(search && { search }) });
       
       const response = await fetch(`${window.API_BASE || '/api'}/dashboard/admin/users?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -247,9 +245,8 @@
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
       const { data: users = [], pagination } = await response.json();
-      renderAdminUsersTable(users);
-      renderPagination('usersPagination', page, pagination?.totalPages || 1, (p, s) => loadAdminUsers(p, s));
-      if (countEl) countEl.textContent = pagination?.total || users.length;
+renderAdminUsersTable(users);
+      if (countEl) countEl.textContent = users.length;
       
     } catch (error) {
       console.error('Users load error:', error);
@@ -274,7 +271,7 @@
   }
 
   // Contacts Table
-  async function loadAdminContacts(page = 1, search = '', status = '') {
+async function loadAdminContacts(search = '', status = '') {
     const tbody = document.getElementById('contactsTable');
     const countEl = document.getElementById('contactsCount');
     if (!tbody) return;
@@ -283,7 +280,7 @@
       tbody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="spinner-border" role="status"></div></td></tr>';
       
       const token = localStorage.getItem('token');
-      const params = new URLSearchParams({ page, limit: 10, ...(search && { search }), ...(status && { status }) });
+      const params = new URLSearchParams({ limit: 1000, ...(search && { search }), ...(status && { status }) });
       
       const response = await fetch(`${window.API_BASE || '/api'}/contact/?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -292,9 +289,8 @@
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
       const { data: contacts = [], pagination } = await response.json();
-      renderAdminContactsTable(contacts);
-      renderPagination('contactsPagination', page, pagination?.totalPages || 1, (p, s, st) => loadAdminContacts(p, s, st));
-      if (countEl) countEl.textContent = pagination?.total || contacts.length;
+renderAdminContactsTable(contacts);
+      if (countEl) countEl.textContent = contacts.length;
       
     } catch (error) {
       console.error('Contacts load error:', error);
@@ -400,9 +396,9 @@
     // Menu search input
     const searchInput = document.getElementById('menuSearch');
     if (searchInput) {
-      searchInput.oninput = function() {
+searchInput.oninput = function() {
         const category = document.getElementById('categoryFilter')?.value || '';
-        loadAdminMenu(1, this.value, category);
+        loadAdminMenu(this.value, category);
       };
     }
 
@@ -411,7 +407,7 @@
     if (categoryFilter) {
       categoryFilter.onchange = function() {
         const search = document.getElementById('menuSearch')?.value || '';
-        loadAdminMenu(1, search, this.value);
+        loadAdminMenu(search, this.value);
       };
     }
   }
@@ -585,19 +581,7 @@ const method = menuId ? 'PUT' : 'POST';
     return loader;
   }
 
-  function renderPagination(containerId, currentPage, totalPages, loadFn) {
-    const container = document.getElementById(containerId);
-    if (!container || totalPages <= 1) return;
-    
-    let html = '<nav><ul class="pagination justify-content-center mb-0">';
-    for (let i = 1; i <= totalPages; i++) {
-      html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-        <a class="page-link" href="#" onclick="${loadFn.name}(${i})">${i}</a>
-      </li>`;
-    }
-    html += '</ul></nav>';
-    container.innerHTML = html;
-  }
+
 
   // Auto-init
   if (document.getElementById('adminStats')) {
