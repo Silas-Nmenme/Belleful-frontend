@@ -262,80 +262,33 @@
     <script src="js/orders.js"></script>
     <script src="js/menu.js"></script>
     
-<script>
-      // Clean, production-ready dashboard initialization - NO SYNTAX ERRORS
-      (async function initDashboard() {
-        try {
-          // Defensive API_BASE (Vercel deployed)
-          if (typeof window.API_BASE === 'undefined') {
-            window.API_BASE = window.location.hostname.includes('vercel.app') 
-              ? 'https://belleful-gold.vercel.app/api' 
-              : '/api';
-          }
-          
-          // Auth guard
-          const token = localStorage.getItem('token');
-          if (!token) {
-            if (typeof showToast === 'function') showToast('Please login', 'warning');
-            setTimeout(() => window.location.href = 'login.html', 1000);
-            return;
-          }
-          
-          // Core dashboard load sequence
-          AOS?.refresh();
-          
-          // Load everything in parallel
-          await Promise.allSettled([
-            loadUserDashboard?.(),
-            (async () => {
-              if (typeof window.CartManager?.updateCartBadge === 'function') {
-                window.CartManager.updateCartBadge();
-              }
-            })()
-          ]);
-          
-          // Lazy menu via IntersectionObserver
-          if (typeof IntersectionObserver !== 'undefined' && typeof window.loadMenu === 'function') {
-            const observer = new IntersectionObserver((entries) => {
-              entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                  window.loadMenu();
-                  observer.disconnect();
-                }
-              });
-            }, { threshold: 0.1 });
-            
-            const menuSection = document.getElementById('menu');
-            if (menuSection) observer.observe(menuSection);
-          }
-          
-          // Sidebar navigation (delegated events)
-          document.querySelector('.sidebar-nav')?.addEventListener('click', function(e) {
-            const link = e.target.closest('.nav-link');
-            if (!link) return;
-            
-            e.preventDefault();
-            document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-            closeSidebar?.();
-          });
-          
-        } catch (error) {
-          console.error('Dashboard init error:', error);
-          const statsSection = document.querySelector('.stats-section');
-          if (statsSection && typeof showToast === 'function') {
-            statsSection.innerHTML = `
-              <div class="alert alert-warning d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <div>Dashboard load issue. <button class="btn btn-primary btn-sm ms-2" onclick="loadUserDashboard?.()">Retry</button></div>
-              </div>`;
-            showToast('Dashboard retry available', 'info');
-          }
+    <!-- Simplified init - dashboard.js now auto-handles everything -->
+    <script>
+      // Defensive final init after all scripts
+      document.addEventListener('DOMContentLoaded', function() {
+        // Set API_BASE if missing (handled in dashboard.js but defensive)
+        if (typeof window.API_BASE === 'undefined') {
+          window.API_BASE = window.location.hostname.includes('vercel.app') 
+            ? 'https://belleful-gold.vercel.app/api' 
+            : '/api';
         }
-      })();
+        
+        // Trigger dashboard load (defensive)
+        if (typeof window.initDashboard === 'function') {
+          window.initDashboard();
+        } else if (typeof window.loadUserDashboard === 'function') {
+          window.loadUserDashboard();
+        }
+        
+        console.log('✅ user-dashboard.html inline script complete');
+      });
       
-      // Global retry exposure
-      window.loadDashboard = initDashboard;
+      // Global logout (if missing)
+      window.logout = window.logout || function() {
+        localStorage.clear();
+        showToast('Logged out', 'info');
+        window.location.href = 'index.html';
+      };
     </script>
 
 
