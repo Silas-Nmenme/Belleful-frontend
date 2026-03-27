@@ -456,15 +456,15 @@
         desc: document.getElementById('menuDescription')
       };
 
-      if (!formElements.submitBtn || !formElements.name || !formElements.price || !formElements.category) {
+      // ✅ FIX: Extract variables properly
+      const {
+        submitBtn, loader, name: nameEl, price: priceEl, category: categoryEl,
+        stock: stockEl, available: availableEl, desc: descEl, menuId: menuIdEl, imageInput
+      } = formElements;
+
+      if (!submitBtn || !nameEl || !priceEl || !categoryEl) {
         console.error('❌ Critical form elements missing');
         showAdminToast('Form broken - reload dashboard', 'danger');
-        return;
-      }
-      
-      if (!submitBtn || !nameEl || !priceEl || !categoryEl) {
-        console.error('❌ Required form elements missing');
-        showAdminToast('Form corrupted - reload page', 'danger');
         return;
       }
       
@@ -486,8 +486,8 @@
         console.log('📦 FormData payload ready (multer server upload)');
         
         // Use FormData for server multer upload
-        const method = menuId ? 'PUT' : 'POST';
-        const url = menuId ? `${window.API_BASE || '/api'}/menu/${menuId}` : `${window.API_BASE || '/api'}/menu`;
+        const method = menuIdValue ? 'PUT' : 'POST';
+        const url = menuIdValue ? `${window.API_BASE || '/api'}/menu/${menuIdValue}` : `${window.API_BASE || '/api'}/menu`;
         
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No auth token');
@@ -511,7 +511,7 @@
         }
         
         console.log('✅ Save success');
-        showAdminToast(`Menu ${menuId ? 'updated' : 'created'} successfully!`, 'success');
+        showAdminToast(`Menu ${menuIdValue ? 'updated' : 'created'} successfully!`, 'success');
         
         const modalEl = document.getElementById('menuModal');
         if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();

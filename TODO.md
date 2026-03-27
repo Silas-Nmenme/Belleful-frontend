@@ -1,1 +1,12 @@
-# Admin Dashboard Fix: "price is not defined" Error ✓&#10;&#10;## Plan Breakdown&#10;&#10;### [x] 1. Create TODO.md tracking file&#10;### [x] 2. Update form.onsubmit handler in public/js/admin-dashboard.js&#10;   - [x] Cache DOM elements in object&#10;   - [x] Move ALL data extraction to top of try block&#10;   - [x] Add explicit price logging/debug&#10;   - [x] Add validation before FormData&#10;### [ ] 3. Test menu save functionality&#10;### [ ] 4. Verify no ReferenceError in console&#10;### [ ] 5. Refresh menu table&#10;### [ ] 6. Complete task with attempt_completion&#10;&#10;**Status:** Code fix applied successfully&#10;**Next:** Test the menu form save in browser (clear cache Ctrl+F5)&#10;
+# Admin Dashboard Fix - submitBtn is not defined
+
+## Plan Steps (Approved ✅)
+- [x] 1. Create TODO.md with approved plan breakdown
+- [ ] 2. Read admin-dashboard.js (already analyzed)
+- [ ] 3. Fix form.onsubmit handler - destructure formElements and fix variable scope
+- [ ] 4. Test form submission (add/edit menu)
+- [ ] 5. Verify no console errors  
+- [ ] 6. attempt_completion
+
+**Status:** Starting code edits...
+
