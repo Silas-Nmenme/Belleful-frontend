@@ -428,70 +428,17 @@
 
         let imageUrl = '';
         
-        // CLEAN Image upload with retry - NO NESTED ERRORS
+        // Use server-side multer upload (reliable fallback)
+        const menuFormData = new FormData();
+        menuFormData.append('name', name);
+        menuFormData.append('price', price);
+        menuFormData.append('category', category);
+        menuFormData.append('stock', stock);
+        menuFormData.append('available', available);
+        if (description) menuFormData.append('description', description);
         if (imageFile) {
-          try {
-            console.log('📤 Uploading image:', imageFile.name);
-            
-            // Single retry function - CLEAN
-            const getUploadConfig = async (retries = 3) => {
-              for (let attempt = 1; attempt <= retries; attempt++) {
-                try {
-                  const res = await fetch(`${window.API_BASE || '/api'}/menu/upload-url?folder=menu`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                  });
-                  
-                  if (!res.ok) {
-                    if (res.status >= 500 && attempt < retries) {
-                      await new Promise(r => setTimeout(r, 1000 * attempt));
-                      continue;
-                    }
-                    throw new Error(`Upload config failed: ${res.status}`);
-                  }
-                  
-                  const config = await res.json();
-                  if (!config?.fields || typeof config.fields !== 'object') {
-                    throw new Error('Invalid upload config');
-                  }
-                  return config;
-                } catch (err) {
-                  if (attempt === retries) throw err;
-                  await new Promise(r => setTimeout(r, 1000 * attempt));
-                }
-              }
-            };
-            
-            const uploadConfig = await getUploadConfig();
-            const formData = new FormData();
-            
-            // SAFE Object.keys - FIXED
-            Object.keys(uploadConfig.fields).forEach(key => {
-              formData.append(key, uploadConfig.fields[key]);
-            });
-            formData.append('file', imageFile);
-            
-            const uploadRes = await fetch(uploadConfig.url, {
-              method: 'POST', 
-              body: formData
-            });
-            
-            if (!uploadRes.ok) {
-              throw new Error(`Upload failed: ${uploadRes.status}`);
-            }
-            
-            const result = await uploadRes.json();
-            imageUrl = result?.secure_url || '';
-            
-            if (imageUrl) {
-              console.log('✅ Image uploaded:', imageUrl);
-              showAdminToast('Image uploaded successfully', 'success');
-            }
-            
-          } catch (uploadError) {
-            console.warn('Image upload skipped:', uploadError.message);
-            showAdminToast('Image optional - continuing without image', 'warning');
-            // Graceful fallback - NO CRASH
-          }
+          console.log('📤 Sending image to server multer:', imageFile.name);
+          menuFormData.append('image', imageFile);
         }
         
         // BULLETPROOF data extraction
@@ -509,19 +456,9 @@
         if (isNaN(price) || price <= 0) throw new Error('Valid price > 0 required');
         if (!['food','drink','side'].includes(category)) throw new Error('Invalid category');
         
-        const itemData = {
-          name,
-          price,
-          category,
-          stock: Math.max(0, stock),
-          available,
-          description: description.substring(0, 500) // Limit length
-        };
-        if (imageUrl) itemData.image = imageUrl;
+        console.log('📦 FormData payload ready (multer server upload)');
         
-        console.log('📦 Payload:', itemData);
-        
-        // API call using global API_BASE
+        // Use FormData for server multer upload
         const method = menuId ? 'PUT' : 'POST';
         const url = menuId ? `${window.API_BASE || '/api'}/menu/${menuId}` : `${window.API_BASE || '/api'}/menu`;
         
@@ -531,10 +468,10 @@
         const response = await fetch(url, {
           method,
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Authorization': `Bearer ${token}`
+            // No Content-Type - let browser set multipart boundary
           },
-          body: JSON.stringify(itemData)
+          body: menuFormData
         });
         
         if (!response.ok) {
