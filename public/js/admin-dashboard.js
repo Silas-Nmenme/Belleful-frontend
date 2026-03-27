@@ -431,7 +431,7 @@
       nameInput.addEventListener('blur', function() {
         if (!this.value.trim()) {
           this.classList.add('is-invalid');
-          this.title = 'Name is required (3+ chars)';
+          this.title = 'Name is required';
         } else {
           this.classList.remove('is-invalid');
         }
@@ -472,9 +472,7 @@
         
 // Enhanced client-side validation with UI feedback (aligns with HTML minlength=3)
         // Simplified validation - allow backend to handle
-        if (!name || name.trim().length === 0) {
-          throw new Error('Name is required');
-        }
+
         
         if (isNaN(price) || price <= 0) throw new Error('Valid price > 0 required');
         if (!['food','drink','side'].includes(category)) throw new Error('Select valid category');
@@ -516,11 +514,7 @@
         
       } catch (error) {
         console.error('❌ Menu save FAILED:', error);
-        if (error.message.includes('Name') && error.message.includes('character')) {
-          showAdminToast('Menu name needs 3+ characters', 'warning');
-        } else {
-          showAdminToast('Save failed - ' + error.message, 'danger');
-        }
+        showAdminToast('DANGER: Save failed - ' + error.message, 'danger');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save Item';
