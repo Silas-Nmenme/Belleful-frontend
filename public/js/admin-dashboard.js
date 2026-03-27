@@ -431,7 +431,7 @@
       nameInput.addEventListener('blur', function() {
         if (!this.value.trim()) {
           this.classList.add('is-invalid');
-          this.title = 'Name is required (3+ chars)';
+          this.title = 'Name is required';
         } else {
           this.classList.remove('is-invalid');
         }
@@ -440,32 +440,31 @@
 
     form.onsubmit = async function(e) {
       e.preventDefault();
-      console.log('🚀 Menu save initiated');
+      console.log('🚀 Menu save initiated - FIXED "price is not defined"');
 
-      
-      // Defensive element access
-      const submitBtn = document.getElementById('menuSubmitBtn');
-      const loader = document.getElementById('menuLoader');
-      const imageInput = document.getElementById('menuImage');
-      const menuIdEl = document.getElementById('menuId');
+      // 🔧 FIX: Cache ALL form elements safely first
+      const formElements = {
+        submitBtn: document.getElementById('menuSubmitBtn'),
+        loader: document.getElementById('menuLoader'),
+        imageInput: document.getElementById('menuImage'),
+        menuId: document.getElementById('menuId'),
+        name: document.getElementById('menuName'),
+        price: document.getElementById('menuPrice'),
+        category: document.getElementById('menuCategory'),
+        stock: document.getElementById('menuStock'),
+        available: document.getElementById('menuAvailable'),
+        desc: document.getElementById('menuDescription')
+      };
 
-      const nameEl = document.getElementById('menuName');
-      const priceEl = document.getElementById('menuPrice');
-      const categoryEl = document.getElementById('menuCategory');
-      const stockEl = document.getElementById('menuStock');
-      const availableEl = document.getElementById('menuAvailable');
-      const descEl = document.getElementById('menuDescription');
-      
-if (!submitBtn || !nameEl || !priceEl || !categoryEl) {
-        console.error('❌ Required form elements missing');
-        showAdminToast('Form corrupted - reload page', 'danger');
-        return;
-      }
-      
-      // Extra priceEl sanity check for ReferenceError
-      if (!priceEl.value && priceEl.value !== 0) {
-        console.error('Price field corrupted');
-        showAdminToast('Price field invalid. Refresh and try again.', 'danger');
+      // ✅ FIX: Extract variables properly
+      const {
+        submitBtn, loader, name: nameEl, price: priceEl, category: categoryEl,
+        stock: stockEl, available: availableEl, desc: descEl, menuId: menuIdEl, imageInput
+      } = formElements;
+
+      if (!submitBtn || !nameEl || !priceEl || !categoryEl) {
+        console.error('❌ Critical form elements missing');
+        showAdminToast('Form broken - reload dashboard', 'danger');
         return;
       }
       
@@ -475,13 +474,11 @@ if (!submitBtn || !nameEl || !priceEl || !categoryEl) {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         if (loader) loader.style.display = 'block';
         
-        const priceValue = priceEl ? (priceEl.value || '0') : '0';\n        const price = parseFloat(priceValue) || 0;
+        console.log('📤 Sending image:', imageFile.name);
         
 // Enhanced client-side validation with UI feedback (aligns with HTML minlength=3)
         // Simplified validation - allow backend to handle
-        if (!name || name.trim().length === 0) {
-          throw new Error('Name is required');
-        }
+
         
         if (isNaN(price) || price <= 0) throw new Error('Valid price > 0 required');
         if (!['food','drink','side'].includes(category)) throw new Error('Select valid category');
@@ -523,11 +520,7 @@ if (!submitBtn || !nameEl || !priceEl || !categoryEl) {
         
       } catch (error) {
         console.error('❌ Menu save FAILED:', error);
-        if (error.message.includes('Name') && error.message.includes('character')) {
-          showAdminToast('Menu name needs 3+ characters', 'warning');
-        } else {
-          showAdminToast('Save failed - ' + error.message, 'danger');
-        }
+        showAdminToast('DANGER: Save failed - ' + error.message, 'danger');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save Item';
