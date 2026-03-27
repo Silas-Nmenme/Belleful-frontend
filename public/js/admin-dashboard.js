@@ -402,7 +402,7 @@
       // Defensive element access
       const submitBtn = document.getElementById('menuSubmitBtn');
       const loader = document.getElementById('menuLoader');
-      const imageInput = document.getElementById('menuImage');
+        const formImageInput = document.getElementById('menuImage');
       const menuIdEl = document.getElementById('menuId');
       const nameEl = document.getElementById('menuName');
       const priceEl = document.getElementById('menuPrice');
@@ -429,7 +429,6 @@
         // SAFE Image upload
         if (imageFile) {
           console.log('📤 Uploading:', imageFile.name);
-          const apiBase = window.API_BASE || '/api';
           
 // RETRY LOGIC FOR 500 ERRORS + FULL DEBUG
         const retryFetch = async (url, retries = 3) => {
@@ -466,7 +465,7 @@
           }
         };
         
-        const uploadConfig = await retryFetch(`${apiBase}/menu/upload-url?folder=menu`);
+        const uploadConfig = await retryFetch(`${window.API_BASE || '/api'}/menu/upload-url?folder=menu`);
         if (!uploadConfig) {
           // Continue without image
         } else if (!uploadConfig?.fields || typeof uploadConfig.fields !== 'object') {
@@ -547,10 +546,9 @@
         
         console.log('📦 Payload:', itemData);
         
-        // API call
-        const apiBase = window.API_BASE || '/api';
+        // API call using global API_BASE
         const method = menuId ? 'PUT' : 'POST';
-        const url = menuId ? `${apiBase}/menu/${menuId}` : `${apiBase}/menu`;
+        const url = menuId ? `${window.API_BASE || '/api'}/menu/${menuId}` : `${window.API_BASE || '/api'}/menu`;
         
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No auth token');
@@ -591,9 +589,9 @@
       }
     };
 
-    // Image preview
-    const imageInput = document.getElementById('menuImage');
-    if (imageInput) {
+        // Image preview
+    const previewImageInput = document.getElementById('menuImage');
+    if (previewImageInput) {
       imageInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
