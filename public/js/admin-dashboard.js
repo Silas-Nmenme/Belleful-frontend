@@ -645,10 +645,118 @@ function renderPagination(containerId, currentPage, totalPages, loadFn) {
     }
   };
 
-  // Contact functions (unchanged - see original for brevity)
+// Contact functions
   window.currentContactId = null;
-  window.viewContact = async function(contactId) {/* implementation as original */};
-  window.updateContactStatus = async function(contactId, status) {/* implementation as original */};
+
+  window.viewContact = async function(contactId) {
+    try {
+      window.currentContactId = contactId;
+      
+      // Show loader
+      const modalBody = document.getElementById('contactModalBody');
+      const markReadBtn = document.getElementById('markReadBtn');
+      const modalTitle = document.getElementById('contactModalTitle');
+      
+      if (modalBody) {
+        modalBody.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-info" role="status"></div><p class="mt-3 text-muted">Loading contact details...</p></div>';
+      }
+      
+      // Fetch contact details
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const { data: contact } = await response.json();
+      
+      // Populate modal
+      if (modalBody) {
+        modalBody.innerHTML = \`
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6><i class="fas fa-user me-2 text-primary"></i><strong>Name:</strong> \${contact.name || 'N/A'}</h6>
+              <h6><i class="fas fa-envelope me-2 text-info"></i><strong>Email:</strong> \${contact.email || 'N/A'}</h6>
+              <h6><i class="fas fa-phone me-2 text-success"></i><strong>Phone:</strong> \${contact.phone || 'N/A'}</h6>
+            </div>
+            <div class="col-md-6">
+              <h6><i class="fas fa-tag me-2 text-warning"></i><strong>Subject:</strong> \${contact.subject || 'No subject'}</h6>
+              <h6><i class="fas fa-calendar me-2 text-secondary"></i><strong>Date:</strong> \${new Date(contact.createdAt).toLocaleString()}</h6>
+              <h6><i class="fas fa-info-circle me-2 \${contact.status === 'unread' ? 'text-danger' : 'text-success'}"></i><strong>Status:</strong> 
+                <span class="badge bg-\${contact.status === 'unread' ? 'danger' : 'success'}">\${contact.status.toUpperCase()}</span>
+              </h6>
+            </div>
+          </div>
+          <div class="mb-3">
+            <h6><i class="fas fa-comment me-2 text-primary"></i><strong>Message:</strong></h6>
+            <div class="border rounded-3 p-4 bg-light">\${(contact.message || '').replace(/\\n/g, '<br>')}</div>
+          </div>
+        \`;
+      }
+      
+      if (modalTitle) {
+        modalTitle.innerHTML = \`<i class="fas fa-envelope-open me-2"></i> \${contact.name || 'Contact'} - #\${contactId.slice(-8)}\`;
+      }
+      
+      // Show/hide mark read button
+      if (markReadBtn) {
+        markReadBtn.style.display = contact.status === 'unread' ? 'inline-block' : 'none';
+      }
+      
+      // Auto-mark as read
+      if (contact.status === 'unread') {
+        await updateContactStatus(contactId, 'read');
+      }
+      
+      // Show modal
+      const modalEl = document.getElementById('contactModal');
+      if (modalEl) {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+      }
+      
+      showAdminToast('Contact loaded successfully', 'info');
+      
+    } catch (error) {
+      console.error('View contact error:', error);
+      showAdminToast('Failed to load contact: ' + error.message, 'danger');
+      
+      const modalBody = document.getElementById('contactModalBody');
+      if (modalBody) {
+        modalBody.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load contact details</div>';
+      }
+    }
+  };
+
+  window.updateContactStatus = async function(contactId, status) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(\`${window.API_BASE || '/api'}/contact/\${contactId}/status\`, {
+        method: 'PATCH',
+        headers: { 
+          'Authorization': \`Bearer \${token}\`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      
+      if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+      
+      showAdminToast(\`Marked as \${status.toUpperCase()}\`, 'success');
+      
+      // Refresh table
+      loadAdminContacts(1);
+      
+      // Hide mark read button and update status in modal
+      const markReadBtn = document.getElementById('markReadBtn');
+      if (markReadBtn) markReadBtn.style.display = 'none';
+      
+    } catch (error) {
+      console.error('Update contact status error:', error);
+      showAdminToast('Status update failed: ' + error.message, 'danger');
+    }
+  };
   
   console.log('✅ admin-dashboard.js FIXED - Object.keys safe + bulletproof menu save');
 })();
