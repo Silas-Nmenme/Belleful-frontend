@@ -429,25 +429,79 @@
         // SAFE Image upload
         if (imageFile) {
           console.log('📤 Uploading:', imageFile.name);
-          const apiBase = window.API_BASE || '/api';
-          
-          const uploadRes = await fetch(`${apiBase}/menu/upload-url?folder=menu`);
-          if (!uploadRes.ok) throw new Error(`Upload URL failed: ${uploadRes.status}`);
-          
-          const uploadConfig = await uploadRes.json();
+        const apiBase = window.API_BASE || '/api';
+        
+        // RETRY LOGIC FOR 500 ERRORS + FULL DEBUG
+        const retryFetch = async (url, retries = 3) => {
+          for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+              console.log(`🔄 Upload URL attempt ${attempt}/${retries}`);
+              const res = await fetch(`${url}${attempt > 1 ? `&retry=${attempt}` : ''}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+              });
+              
+              if (!res.ok) {
+                let errorDetail = '';
+                if (res.status >= 500) {
+                  errorDetail = await res.text().catch(() => '(no body)');
+                  console.error(`🚨 Server 5xx (${res.status}):`, errorDetail);
+                  showAdminToast(`Server busy (attempt ${attempt})`, 'warning');
+                }
+                if (attempt === retries) {
+                  // GRACEFUL FALLBACK: Skip image upload
+                  console.log('⚠️ Skipping image upload after retries');
+                  showAdminToast('Image optional - continuing without image', 'warning');
+                  return null;
+                }
+                await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt - 1))); // Backoff
+                continue;
+              }
+              
+              return await res.json();
+            } catch (err) {
+              console.error(`Attempt ${attempt} fetch error:`, err);
+              if (attempt === retries) throw err;
+              await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt - 1)));
+            }
+          }
+        };
+        
+        const uploadConfig = await retryFetch(`${apiBase}/menu/upload-url?folder=menu`);
+        if (!uploadConfig) {
+          // Continue without image
+        } else if (!uploadConfig?.fields || typeof uploadConfig.fields !== 'object') {
           if (!uploadConfig?.fields || typeof uploadConfig.fields !== 'object') {
             console.error('Invalid uploadConfig:', uploadConfig);
             throw new Error('Invalid upload configuration');
           }
           
           // SAFE Object.keys - THE FIX
-          const formData = new FormData();
-          if (uploadConfig.fields) {
+          if (uploadConfig?.fields) {
+            const formData = new FormData();
             Object.keys(uploadConfig.fields).forEach(key => {
               formData.append(key, uploadConfig.fields[key] || '');
             });
+            formData.append('file', imageFile);
+            
+            const uploadResponse = await fetch(uploadConfig.url, {
+              method: 'POST',
+              body: formData
+            });
+            
+            if (!uploadResponse.ok) {
+              const errText = await uploadResponse.text().catch(() => 'Unknown');
+              throw new Error(`Upload failed (${uploadResponse.status}): ${errText}`);
+            }
+            
+            const result = await uploadResponse.json();
+            imageUrl = result?.secure_url || '';
+            if (!imageUrl) throw new Error('No image URL returned');
+            
+            console.log('✅ Image URL:', imageUrl);
+            showAdminToast('Image uploaded', 'success');
+          } else {
+            console.log('⏭️ No upload config - image skipped');
           }
-          formData.append('file', imageFile);
           
           const uploadResponse = await fetch(uploadConfig.url, {
             method: 'POST',
