@@ -402,8 +402,9 @@
       // Defensive element access
       const submitBtn = document.getElementById('menuSubmitBtn');
       const loader = document.getElementById('menuLoader');
-        const formImageInput = document.getElementById('menuImage');
+      const imageInput = document.getElementById('menuImage');
       const menuIdEl = document.getElementById('menuId');
+
       const nameEl = document.getElementById('menuName');
       const priceEl = document.getElementById('menuPrice');
       const categoryEl = document.getElementById('menuCategory');
@@ -424,104 +425,78 @@
         if (loader) loader.style.display = 'block';
         
         const imageFile = imageInput?.files[0] || null;
+
         let imageUrl = '';
         
-        // SAFE Image upload
+        // CLEAN Image upload with retry - NO NESTED ERRORS
         if (imageFile) {
-          console.log('📤 Uploading:', imageFile.name);
-          
-// RETRY LOGIC FOR 500 ERRORS + FULL DEBUG
-        const retryFetch = async (url, retries = 3) => {
-          for (let attempt = 1; attempt <= retries; attempt++) {
-            try {
-              console.log(`🔄 Upload URL attempt ${attempt}/${retries}`);
-              const res = await fetch(`${url}${attempt > 1 ? `&retry=${attempt}` : ''}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-              });
-              
-              if (!res.ok) {
-                let errorDetail = '';
-                if (res.status >= 500) {
-                  errorDetail = await res.text().catch(() => '(no body)');
-                  console.error(`🚨 Server 5xx (${res.status}):`, errorDetail);
-                  showAdminToast(`Server busy (attempt ${attempt})`, 'warning');
+          try {
+            console.log('📤 Uploading image:', imageFile.name);
+            
+            // Single retry function - CLEAN
+            const getUploadConfig = async (retries = 3) => {
+              for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                  const res = await fetch(`${window.API_BASE || '/api'}/menu/upload-url?folder=menu`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                  });
+                  
+                  if (!res.ok) {
+                    if (res.status >= 500 && attempt < retries) {
+                      await new Promise(r => setTimeout(r, 1000 * attempt));
+                      continue;
+                    }
+                    throw new Error(`Upload config failed: ${res.status}`);
+                  }
+                  
+                  const config = await res.json();
+                  if (!config?.fields || typeof config.fields !== 'object') {
+                    throw new Error('Invalid upload config');
+                  }
+                  return config;
+                } catch (err) {
+                  if (attempt === retries) throw err;
+                  await new Promise(r => setTimeout(r, 1000 * attempt));
                 }
-                if (attempt === retries) {
-                  // GRACEFUL FALLBACK: Skip image upload
-                  console.log('⚠️ Skipping image upload after retries');
-                  showAdminToast('Image optional - continuing without image', 'warning');
-                  return null;
-                }
-                await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt - 1))); // Backoff
-                continue;
               }
-              
-              return await res.json();
-            } catch (err) {
-              console.error(`Attempt ${attempt} fetch error:`, err);
-              if (attempt === retries) throw err;
-              await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt - 1)));
-            }
-          }
-        };
-        
-        const uploadConfig = await retryFetch(`${window.API_BASE || '/api'}/menu/upload-url?folder=menu`);
-        if (!uploadConfig) {
-          // Continue without image
-        } else if (!uploadConfig?.fields || typeof uploadConfig.fields !== 'object') {
-          if (!uploadConfig?.fields || typeof uploadConfig.fields !== 'object') {
-            console.error('Invalid uploadConfig:', uploadConfig);
-            throw new Error('Invalid upload configuration');
-          }
-          
-          // SAFE Object.keys - THE FIX
-          if (uploadConfig?.fields) {
+            };
+            
+            const uploadConfig = await getUploadConfig();
             const formData = new FormData();
+            
+            // SAFE Object.keys - FIXED
             Object.keys(uploadConfig.fields).forEach(key => {
-              formData.append(key, uploadConfig.fields[key] || '');
+              formData.append(key, uploadConfig.fields[key]);
             });
             formData.append('file', imageFile);
             
-            const uploadResponse = await fetch(uploadConfig.url, {
-              method: 'POST',
+            const uploadRes = await fetch(uploadConfig.url, {
+              method: 'POST', 
               body: formData
             });
             
-            if (!uploadResponse.ok) {
-              const errText = await uploadResponse.text().catch(() => 'Unknown');
-              throw new Error(`Upload failed (${uploadResponse.status}): ${errText}`);
+            if (!uploadRes.ok) {
+              throw new Error(`Upload failed: ${uploadRes.status}`);
             }
             
-            const result = await uploadResponse.json();
+            const result = await uploadRes.json();
             imageUrl = result?.secure_url || '';
-            if (!imageUrl) throw new Error('No image URL returned');
             
-            console.log('✅ Image URL:', imageUrl);
-            showAdminToast('Image uploaded', 'success');
-          } else {
-            console.log('⏭️ No upload config - image skipped');
+            if (imageUrl) {
+              console.log('✅ Image uploaded:', imageUrl);
+              showAdminToast('Image uploaded successfully', 'success');
+            }
+            
+          } catch (uploadError) {
+            console.warn('Image upload skipped:', uploadError.message);
+            showAdminToast('Image optional - continuing without image', 'warning');
+            // Graceful fallback - NO CRASH
           }
-          
-          const uploadResponse = await fetch(uploadConfig.url, {
-            method: 'POST',
-            body: formData
-          });
-          
-          if (!uploadResponse.ok) {
-            const errText = await uploadResponse.text().catch(() => 'Unknown');
-            throw new Error(`Upload failed (${uploadResponse.status}): ${errText}`);
-          }
-          
-          const result = await uploadResponse.json();
-          imageUrl = result?.secure_url || '';
-          if (!imageUrl) throw new Error('No image URL returned');
-          
-          console.log('✅ Image URL:', imageUrl);
-          showAdminToast('Image uploaded', 'success');
         }
         
         // BULLETPROOF data extraction
         const name = (nameEl.value || '').trim();
+
         const price = parseFloat(priceEl.value || '0');
         const category = categoryEl.value || '';
         const stock = parseInt(stockEl?.value || '50') || 50;
@@ -589,9 +564,9 @@
       }
     };
 
-        // Image preview
-    const previewImageInput = document.getElementById('menuImage');
-    if (previewImageInput) {
+    // Image preview handler - FIXED structure
+    const imageInput = document.getElementById('menuImage');
+    if (imageInput) {
       imageInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -610,6 +585,7 @@
   });
 
   function createLoader(targetId) {
+
     const loader = document.createElement('div');
     loader.id = `${targetId}-loader`;
     loader.className = 'd-none text-center py-3';
