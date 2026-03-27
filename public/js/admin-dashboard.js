@@ -428,13 +428,8 @@
         
 // Enhanced client-side validation with UI feedback (aligns with HTML minlength=3)
         // Removed strict name validation per user request - backend handles it
-        console.log('📝 Menu name:', `"${name}"`, '(length:', name.length, ')');
-        nameEl.classList.add('is-valid');
-        
-        if (isNaN(price) || price <= 0) throw new Error('Valid price > 0 required');
-        if (!['food','drink','side'].includes(category)) throw new Error('Select valid category');
-        
-        console.log('📦 FormData payload ready (multer server upload)');
+        // NO MORE CLIENT VALIDATION - STRAIGHT TO BACKEND
+        console.log('✅ Skipping all client validation - sending to backend:', {name: `"${name}" (${name.length})`, price, category});
         
         // Use FormData for server multer upload
         const method = menuId ? 'PUT' : 'POST';
@@ -471,11 +466,7 @@
         
       } catch (error) {
         console.error('❌ Menu save FAILED:', error);
-        if (error.message.includes('Name') && error.message.includes('character')) {
-          showAdminToast('Menu name needs 3+ characters', 'warning');
-        } else {
-          showAdminToast('Save failed - ' + error.message, 'danger');
-        }
+        showAdminToast(`Backend error: ${error.message}`, 'danger');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save Item';
