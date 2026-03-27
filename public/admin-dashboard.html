@@ -386,7 +386,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="js/constants.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/dashboard.js"></script>
+<script src="js/admin-dashboard.js"></script>
     <script>
         AOS.init();
         
@@ -400,14 +400,7 @@
             }
 
             
-            // Load real admin dashboard stats
-            (window.DashboardManager?.loadAdminDashboard?.(1, '') || loadAdminDashboard?.(1, '') || null);
-            if (!window.DashboardManager && !loadAdminDashboard) {
-                console.error('DashboardManager not loaded');
-                document.getElementById('adminStats').innerHTML = 
-                    '<div class="col-12 text-center py-5"><h5>Dashboard JS not loaded</h5><p class="text-muted">Check js/dashboard.js</p></div>';
-            }
-            AOS.refresh();
+window.DashboardManager?.loadAdminDashboard?.() || console.log('Admin dashboard ready');
         });
 
     </script>

@@ -277,21 +277,9 @@ async function loadUserDashboard() {
     const orders = ordersRes.status === 'fulfilled' ? ordersRes.value : { data: [] };
     renderOrders(orders.data || []);
 
-    // Lazy menu trigger
+    // Immediate menu load - no lazy loading
     if (typeof window.loadMenu === 'function') {
-      const menuSection = document.getElementById('menu');
-      if (menuSection) {
-        const observer = new IntersectionObserver((entries) => {
-          if (entries[0].isIntersecting) {
-            window.loadMenu();
-            observer.disconnect();
-          }
-        });
-        observer.observe(menuSection);
-      } else {
-        // Fallback immediate load
-        window.loadMenu();
-      }
+      window.loadMenu();
     }
 
     console.log('✅ loadUserDashboard complete');
