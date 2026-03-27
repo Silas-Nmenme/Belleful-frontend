@@ -110,6 +110,7 @@
       
       const { data: items = [] } = await response.json();
       renderAdminMenuTable(items);
+      document.getElementById('menuCount').textContent = items.length;
       renderPagination('menuPagination', page, Math.ceil(50 / items.length) || 1, loadAdminMenu);
     } catch (error) {
       console.error('loadAdminMenu error:', error);
@@ -427,9 +428,15 @@
         // BULLETPROOF data extraction FIRST\n        const name = (nameEl.value || '').trim();\n\n        const price = parseFloat(priceEl.value || '0');\n        const category = categoryEl.value || '';\n        const stock = parseInt(stockEl?.value || '50') || 50;\n        const available = !!(availableEl?.checked || false);\n        const description = (descEl?.value || '').trim();\n        const menuId = (menuIdEl?.value || '').trim();\n\n        const imageFile = imageInput?.files[0] || null;\n\n        // Use server-side multer upload (reliable)\n        const menuFormData = new FormData();\n        menuFormData.append('name', name);\n        menuFormData.append('price', price);\n        menuFormData.append('category', category);\n        menuFormData.append('stock', stock);\n        menuFormData.append('available', available);\n        if (description) menuFormData.append('description', description);\n        if (imageFile) {\n          console.log('📤 Sending image to server multer:', imageFile.name);\n          menuFormData.append('image', imageFile);\n        }
         
 // Enhanced client-side validation with UI feedback (aligns with HTML minlength=3)
-        // Removed strict name validation per user request - backend handles it
-        // NO MORE CLIENT VALIDATION - STRAIGHT TO BACKEND
-        console.log('✅ Skipping all client validation - sending to backend:', {name: `"${name}" (${name.length})`, price, category});
+        // Simplified validation - allow backend to handle
+        if (!name || name.trim().length === 0) {
+          throw new Error('Name is required');
+        }
+        
+        if (isNaN(price) || price <= 0) throw new Error('Valid price > 0 required');
+        if (!['food','drink','side'].includes(category)) throw new Error('Select valid category');
+        
+        console.log('📦 FormData payload ready (multer server upload)');
         
         // Use FormData for server multer upload
         const method = menuId ? 'PUT' : 'POST';
@@ -466,7 +473,11 @@
         
       } catch (error) {
         console.error('❌ Menu save FAILED:', error);
-        showAdminToast(`Backend error: ${error.message}`, 'danger');
+        if (error.message.includes('Name') && error.message.includes('character')) {
+          showAdminToast('Menu name needs 3+ characters', 'warning');
+        } else {
+          showAdminToast('Save failed - ' + error.message, 'danger');
+        }
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save Item';
@@ -475,22 +486,7 @@
     };
 
     // Real-time name validation + image preview
-    const nameInput = document.getElementById('menuName');
-    if (nameInput) {
-      nameInput.addEventListener('blur', function() {
-        const trimmed = this.value.trim();
-        if (trimmed.length < 3) {
-          this.classList.add('is-invalid');
-          const nameError = document.getElementById('nameError');
-          if (nameError) nameError.style.display = 'block';
-        } else {
-          this.classList.remove('is-invalid');
-          this.classList.add('is-valid');
-          const nameError = document.getElementById('nameError');
-          if (nameError) nameError.style.display = 'none';
-        }
-      });
-    }
+        // Removed name length validation per request - backend handles
 
     // Image preview handler with file size check
     const imageInput = document.getElementById('menuImage');
@@ -596,4 +592,3 @@
   
   console.log('✅ admin-dashboard.js FIXED - Object.keys safe + bulletproof menu save');
 })();
-

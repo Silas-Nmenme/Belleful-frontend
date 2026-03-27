@@ -194,6 +194,9 @@
                             <h4 class="mb-0 fw-bold">
                                 <i class="fas fa-utensils me-2"></i>Menu Items
                                 <small class="badge bg-light text-success ms-2" id="menuCount">0</small>
+<button class="btn btn-sm btn-refresh-menu ms-2" onclick="loadAdminMenu(1)" title="Refresh Menu Count">
+  <i class="fas fa-sync-alt"></i>
+</button>
                                 <button class="btn btn-light btn-sm ms-3" data-bs-toggle="modal" data-bs-target="#menuModal" onclick="prepareMenuForm()">
                                     <i class="fas fa-plus me-1"></i>Add New
                                 </button>
@@ -366,9 +369,7 @@
                             <div class="mt-2">
                                 <img id="imagePreview" class="img-thumbnail rounded image-preview d-none" style="max-height: 120px;" src="#" alt="Image Preview">
                             </div>
-                            <div class="invalid-feedback d-block" id="nameError" style="display: none;">
-                                <i class="fas fa-exclamation-circle me-1"></i>Name must be 3-100 characters
-                            </div>
+                            <!-- Name validation handled by backend -->
                         </div>
                     </div>
                     <div class="modal-footer">
