@@ -585,9 +585,12 @@ const method = menuId ? 'PUT' : 'POST';
     return loader;
   }
 
-  function renderPagination(containerId, currentPage, totalPages, loadFn) {
+function renderPagination(containerId, currentPage, totalPages, loadFn) {
     const container = document.getElementById(containerId);
-    if (!container || totalPages <= 1) return;
+    if (!container || totalPages <= 1) {
+      if (container) container.innerHTML = '';
+      return;
+    }
     
     let html = '<nav><ul class="pagination justify-content-center mb-0">';
     for (let i = 1; i <= totalPages; i++) {
