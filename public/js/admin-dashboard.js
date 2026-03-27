@@ -405,12 +405,24 @@ const response = await fetch(`${window.API_BASE || '/api'}/contact/?${params}`, 
             showAdminToast('Image uploaded successfully', 'success');
           }
           
-          // Step 2: Create/Update item
-          const formData = new FormData(form);
-          const itemData = Object.fromEntries(formData.entries());
+          // Step 2: Create/Update item - SAFE EXTRACTION
+          const name = document.getElementById('menuName').value.trim();
+          const price = parseFloat(document.getElementById('menuPrice').value);
+          const category = document.getElementById('menuCategory').value;
+          
+          if (!name || isNaN(price) || price <= 0 || !category) {
+            throw new Error('Please fill name, price, and category');
+          }
+          
+          const itemData = {
+            name,
+            price,
+            category,
+            stock: parseInt(document.getElementById('menuStock').value) || 50,
+            available: document.getElementById('menuAvailable').checked,
+            description: document.getElementById('menuDescription').value.trim()
+          };
           itemData.image = imageUrl;
-          itemData.stock = parseInt(itemData.stock) || 50;
-          itemData.available = itemData.available === 'on';
           
           const method = document.getElementById('menuId').value ? 'PUT' : 'POST';
           const url = method === 'PUT' 
