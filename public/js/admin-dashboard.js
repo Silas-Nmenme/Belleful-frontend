@@ -468,20 +468,37 @@
         formElements.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         if (formElements.loader) formElements.loader.style.display = 'block';
         
-        const name = (formElements.name?.value || '').trim();
-        
-// Enhanced client-side validation with UI feedback (aligns with HTML minlength=3)
-        // Simplified validation - allow backend to handle
+const name = (formElements.name?.value || '').trim();
+        const menuId = formElements.menuId?.value || '';
+        const price = parseFloat(formElements.price?.value) || 0;
+        const category = formElements.category?.value || '';
+        const stock = parseInt(formElements.stock?.value) || 50;
+        const available = formElements.available?.checked || (stock > 0);
+        const description = formElements.desc?.value?.trim() || '';
 
+        // Client-side validation before submit
+        if (!name || name.length < 3) throw new Error('Name must be at least 3 characters');
+        if (price <= 0 || isNaN(price)) throw new Error('Price must be greater than 0');
+        if (!['food', 'drink', 'side'].includes(category)) throw new Error('Please select a valid category');
         
-        if (isNaN(price) || price <= 0) throw new Error('Valid price > 0 required');
-        if (!['food','drink','side'].includes(category)) throw new Error('Select valid category');
+        // Create FormData matching backend expectations
+        const menuFormData = new FormData();
+        menuFormData.append('name', name);
+        menuFormData.append('price', price);
+        menuFormData.append('category', category);
+        menuFormData.append('stock', stock);
+        menuFormData.append('available', available);
+        menuFormData.append('description', description);
+        const imageFile = formElements.imageInput?.files[0];
+        if (imageFile) {
+          menuFormData.append('image', imageFile);
+        }
         
         console.log('📦 FormData payload ready (multer server upload)');
         
         // Use FormData for server multer upload
-        const method = menuId ? 'PUT' : 'POST';
-        const url = menuId ? `${window.API_BASE || '/api'}/menu/${menuId}` : `${window.API_BASE || '/api'}/menu`;
+const method = menuId ? 'PUT' : 'POST';
+        const url = `${window.API_BASE || '/api'}/menu${menuId ? `/${menuId}` : ''}`;
         
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No auth token');
