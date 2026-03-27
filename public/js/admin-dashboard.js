@@ -429,9 +429,9 @@
         // SAFE Image upload
         if (imageFile) {
           console.log('📤 Uploading:', imageFile.name);
-        const apiBase = window.API_BASE || '/api';
-        
-        // RETRY LOGIC FOR 500 ERRORS + FULL DEBUG
+          const apiBase = window.API_BASE || '/api';
+          
+// RETRY LOGIC FOR 500 ERRORS + FULL DEBUG
         const retryFetch = async (url, retries = 3) => {
           for (let attempt = 1; attempt <= retries; attempt++) {
             try {
