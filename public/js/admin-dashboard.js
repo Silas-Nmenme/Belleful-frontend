@@ -127,9 +127,7 @@
     
     tbody.innerHTML = items.map(item => `
       <tr>
-        <td>${item._id.slice(-8)}</td>
-        <td><img src="${item.image || 'https://via.placeholder.com/50x50?text=?'}&w=50" class="rounded" style="width:50px;height:50px;object-fit:cover" onerror="this.src='https://via.placeholder.com/50x50/f0f0f0/999?text=No+Img'"></td>
-        <td>${item.name}</td>
+        <td>${item._id.slice(-8)}</td>\n        <td><img src="${item.image || '/asset/grilled.jpg'}" class="rounded" style="width:50px;height:50px;object-fit:cover" onerror="this.src='/asset/food-particles.svg'"></td>\n        <td>${item.name}</td>
         <td>₦${item.price.toLocaleString()}</td>
         <td><span class="badge bg-${item.category === 'food' ? 'primary' : 'info'}">${item.category}</span></td>
         <td><i class="fas fa-${item.available ? 'check-circle text-success' : 'times-circle text-danger'}"></i></td>
