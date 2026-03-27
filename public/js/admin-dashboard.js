@@ -456,15 +456,14 @@
         desc: document.getElementById('menuDescription')
       };
 
-      // ✅ FIX: Extract variables properly
-      const {
-        submitBtn, loader, name: nameEl, price: priceEl, category: categoryEl,
-        stock: stockEl, available: availableEl, desc: descEl, menuId: menuIdEl, imageInput
-      } = formElements;
-
-      if (!submitBtn || !nameEl || !priceEl || !categoryEl) {
+      if (!formElements.submitBtn || !formElements.name || !formElements.price || !formElements.category) {
         console.error('❌ Critical form elements missing');
         showAdminToast('Form broken - reload dashboard', 'danger');
+        return;
+      
+      if (!submitBtn || !nameEl || !priceEl || !categoryEl) {
+        console.error('❌ Required form elements missing');
+        showAdminToast('Form corrupted - reload page', 'danger');
         return;
       }
       
@@ -474,7 +473,7 @@
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         if (loader) loader.style.display = 'block';
         
-        console.log('📤 Sending image:', imageFile.name);
+        // BULLETPROOF data extraction FIRST\n        const name = (nameEl.value || '').trim();\n\n        const price = parseFloat(priceEl.value || '0');\n        const category = categoryEl.value || '';\n        const stock = parseInt(stockEl?.value || '50') || 50;\n        const available = !!(availableEl?.checked || false);\n        const description = (descEl?.value || '').trim();\n        const menuId = (menuIdEl?.value || '').trim();\n\n        const imageFile = imageInput?.files[0] || null;\n\n        // Use server-side multer upload (reliable)\n        const menuFormData = new FormData();\n        menuFormData.append('name', name);\n        menuFormData.append('price', price);\n        menuFormData.append('category', category);\n        menuFormData.append('stock', stock);\n        menuFormData.append('available', available);\n        if (description) menuFormData.append('description', description);\n        if (imageFile) {\n          console.log('📤 Sending image to server multer:', imageFile.name);\n          menuFormData.append('image', imageFile);\n        }
         
 // Enhanced client-side validation with UI feedback (aligns with HTML minlength=3)
         // Simplified validation - allow backend to handle
