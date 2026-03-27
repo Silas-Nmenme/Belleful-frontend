@@ -34,12 +34,6 @@ class OTPVerify {
         const hiddenEmail = document.getElementById('otpEmail');
         if (hiddenEmail) hiddenEmail.value = this.email;
         
-        if (!this.email) {
-            this.showMessage('No verification session found. Please start from signup or reset password.', 'error');
-            setTimeout(() => window.location.href = 'login.html', 2000);
-            return;
-        }
-        
         this.emailEl.textContent = `Enter code sent to ${this.email}`;
         this.bindEvents();
         this.startTimer();
@@ -127,26 +121,15 @@ class OTPVerify {
             return;
         }
         
-        // For signup flow, re-call register to generate new OTP
-        if (localStorage.getItem('pendingEmail')) {
-            if (typeof AuthManager?.register === 'function') {
-                // Real API resend via register (generates new OTP)
-                const mockEvent = { preventDefault: () => {}, target: { querySelector: () => ({}) } };
-                AuthManager.register(mockEvent);
-                this.showMessage(`New OTP sent to ${this.email}. Check your email.`, 'success');
-            } else {
-                this.showMessage('Auth system not ready. Please wait.', 'error');
-            }
-                this.showMessage('Auth system not loaded.', 'error');
-            }
+        if (typeof AuthManager?.register === 'function') {
+            AuthManager.register({ preventDefault: () => {} });
+            this.showMessage(`New OTP sent to ${this.email}. Check your email.`, 'success');
+            this.timeLeft = 120;
+            this.startTimer();
+            this.resetInputs();
         } else {
-            this.showMessage('Resend only available after registration.', 'info');
+            this.showMessage('Auth system not ready. Please wait.', 'error');
         }
-        
-        this.timeLeft = 120;
-        this.startTimer();
-        this.resendBtn.disabled = true;
-        this.resetInputs();
     }
     
     startTimer() {
