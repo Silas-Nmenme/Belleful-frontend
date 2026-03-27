@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -153,10 +154,10 @@
                             <div class="p-4 border-bottom">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="usersSearch" placeholder="Search users..." oninput="window.DashboardManager?.loadAdminStats?.(1,10,1,10,this.value,'') || console.warn('Dashboard unavailable')">
+                                        <input type="text" class="form-control" id="usersSearch" placeholder="Search users..." oninput="loadAdminUsers(1, this.value)">
                                     </div>
                                     <div class="col-md-3">
-                                        <button class="btn btn-info" onclick="window.DashboardManager?.loadAdminDashboard?.() || console.warn('Dashboard unavailable')">
+                                        <button class="btn btn-info" onclick="loadAdminDashboard()">
                                             <i class="fas fa-refresh"></i> Refresh
                                         </button>
                                     </div>
@@ -400,7 +401,7 @@
             }
 
             
-window.DashboardManager?.loadAdminDashboard?.() || console.log('Admin dashboard ready');
+            loadAdminDashboard();
         });
 
     </script>

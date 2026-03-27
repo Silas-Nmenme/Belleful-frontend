@@ -165,6 +165,7 @@
   // Pending Orders Table (stub - implement based on routes/orders.js)
   async function loadPendingOrders(page = 1, search = '', status = '') {
     const tbody = document.getElementById('pendingOrdersTable');
+    const countEl = document.getElementById('pendingCount');
     if (!tbody) return;
     
     try {
@@ -173,7 +174,7 @@
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({ page, limit: 10, ...(search && { search }), ...(status && { status }) });
       
-      const response = await fetch(`${window.API_BASE}/orders/admin?${params}`, {
+      const response = await fetch(`${window.API_BASE || '/api'}/orders/admin?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -181,7 +182,8 @@
       
       const { data: orders = [] } = await response.json();
       renderPendingOrdersTable(orders);
-      // renderPagination('ordersPagination', page, 5, (p, s, st) => loadPendingOrders(p, s, st));
+      renderPagination('ordersPagination', page, 5, (p, s, st) => loadPendingOrders(p, s, st));
+      if (countEl) countEl.textContent = orders.filter(o => o.orderStatus === 'pending_approval').length || 0;
     } catch (error) {
       console.error('Orders load error:', error);
       tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-danger">Orders unavailable</td></tr>';
@@ -189,38 +191,134 @@
   }
 
   function renderPendingOrdersTable(orders) {
+    // Sort pending first, then recent
+    const sortedOrders = orders.sort((a, b) => {
+      const aPending = a.orderStatus === 'pending_approval' ? 1 : 0;
+      const bPending = b.orderStatus === 'pending_approval' ? 1 : 0;
+      if (aPending !== bPending) return bPending - aPending;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    
     const tbody = document.getElementById('pendingOrdersTable');
+    const countEl = document.getElementById('pendingCount');
     if (!tbody) return;
     
-    tbody.innerHTML = orders.map(order => `
+    // Uniform status badges
+    const statusBadge = (status) => {
+      const badges = {
+        'pending_approval': 'bg-warning text-dark',
+        'vendor_approved': 'bg-info',
+        'preparing': 'bg-primary',
+        'delivered': 'bg-success',
+        'cancelled': 'bg-danger'
+      };
+      return `<span class="badge ${badges[status] || 'bg-secondary'}">${status.replace('_', ' ').toUpperCase()}</span>`;
+    };
+    
+    tbody.innerHTML = sortedOrders.map(order => `
       <tr>
         <td>#${order._id?.slice(-8)}</td>
-        <td>${order.userName || order.user?.name || 'Customer'}</td>
+        <td>${order.user?.name || order.userName || 'Customer'}</td>
         <td>${order.items?.map(i => i.name).slice(0,2).join(', ') || 'Items'}</td>
         <td>₦${(order.totalAmount || 0).toLocaleString()}</td>
-        <td><span class="badge bg-warning">${order.paymentStatus || 'Pending'}</span></td>
-        <td><button class="btn btn-sm btn-primary">View</button></td>
+        <td>${statusBadge(order.orderStatus || 'pending_approval')}</td>
+        <td><button class="btn btn-sm btn-primary" onclick="viewOrder('${order._id}')">View</button></td>
       </tr>
-    `).join('') || '<tr><td colspan="6" class="text-center py-5">No pending orders</td></tr>';
+    `).join('') || '<tr><td colspan="6" class="text-center py-5">No orders</td></tr>';
+    
+    if (countEl) countEl.textContent = sortedOrders.filter(o => o.orderStatus === 'pending_approval').length;
   }
 
-  // Users Table (stub)
-  async function loadAdminUsers(page = 1) {
+  // Users Table
+  async function loadAdminUsers(page = 1, search = '') {
+    const tbody = document.getElementById('usersTable');
+    const countEl = document.getElementById('usersCount');
+    if (!tbody) return;
+    
+    try {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center"><div class="spinner-border" role="status"></div></td></tr>';
+      
+      const token = localStorage.getItem('token');
+      const params = new URLSearchParams({ page, limit: 10, ...(search && { search }) });
+      
+      const response = await fetch(`\${window.API_BASE || '/api'}/dashboard/admin/users?${params}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const { data: users = [], pagination } = await response.json();
+      renderAdminUsersTable(users);
+      renderPagination('usersPagination', page, pagination?.totalPages || 1, (p, s) => loadAdminUsers(p, s));
+      if (countEl) countEl.textContent = pagination?.total || users.length;
+      
+    } catch (error) {
+      console.error('Users load error:', error);
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-danger">Failed to load users</td></tr>';
+      showAdminToast('Users load failed', 'danger');
+    }
+  }
+
+  function renderAdminUsersTable(users) {
     const tbody = document.getElementById('usersTable');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center"><div class="spinner-border" role="status"></div></td></tr>';
     
-    // Implement fetch /api/users
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">Users data coming soon</td></tr>';
+    tbody.innerHTML = users.map(user => `
+      <tr>
+        <td>${user.name || 'N/A'}</td>
+        <td>${user.email}</td>
+        <td><span class="badge bg-${user.role === 'admin' ? 'danger' : 'primary'}">${user.role || 'user'}</span></td>
+        <td>${user.totalOrders || 0}</td>
+        <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" class="text-center py-5 text-muted">No users found</td></tr>';
   }
 
-  // Contacts (stub)
-  async function loadAdminContacts(page = 1) {
+// Contacts Table
+  async function loadAdminContacts(page = 1, search = '', status = '') {
+    const tbody = document.getElementById('contactsTable');
+    const countEl = document.getElementById('contactsCount');
+    if (!tbody) return;
+    
+    try {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="spinner-border" role="status"></div></td></tr>';
+      
+      const token = localStorage.getItem('token');
+      const params = new URLSearchParams({ page, limit: 10, ...(search && { search }), ...(status && { status }) });
+      
+      const response = await fetch(`\${window.API_BASE || '/api'}/contact/?${params}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const { data: contacts = [], pagination } = await response.json();
+      renderAdminContactsTable(contacts);
+      renderPagination('contactsPagination', page, pagination?.totalPages || 1, (p, s, st) => loadAdminContacts(p, s, st));
+      if (countEl) countEl.textContent = pagination?.total || contacts.length;
+      
+    } catch (error) {
+      console.error('Contacts load error:', error);
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-danger">Failed to load contacts</td></tr>';
+      showAdminToast('Contacts load failed', 'danger');
+    }
+  }
+
+  function renderAdminContactsTable(contacts) {
     const tbody = document.getElementById('contactsTable');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="spinner-border" role="status"></div></td></tr>';
     
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-muted">Contacts data coming soon</td></tr>';
+    tbody.innerHTML = contacts.map(contact => `
+      <tr>
+        <td>${contact._id.slice(-8)}</td>
+        <td>${contact.name}</td>
+        <td>${contact.email || contact.phone || 'N/A'}</td>
+        <td>${contact.subject}</td>
+        <td><span class="badge bg-${contact.status === 'unread' ? 'danger' : 'success'}">${contact.status}</span></td>
+        <td>${new Date(contact.createdAt).toLocaleDateString()}</td>
+        <td><button class="btn btn-sm btn-info" onclick="viewContact('${contact._id}')">View</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="7" class="text-center py-5 text-muted">No contacts</td></tr>';
   }
 
   // ===== MENU CRUD =====
@@ -395,6 +493,50 @@
     }
   }
 
+  // Order View/Update functions
+  window.viewOrder = async function(orderId) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${window.API_BASE || '/api'}/orders/${orderId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const { data: order } = await response.json();
+      
+      // Simple modal (add to HTML or use bootstrap)
+      const statusOptions = ['pending_approval', 'vendor_approved', 'preparing', 'delivered', 'cancelled'];
+      let statusHtml = statusOptions.map(s => 
+        `<button class="btn btn-sm me-2 mb-2 btn-${s === order.orderStatus ? 'primary' : 'outline-secondary'}" onclick="updateOrderStatus('${orderId}', '${s}')">${s.replace('_', ' ').toUpperCase()}</button>`
+      ).join('');
+      
+      showAdminToast(`Order #${order._id.slice(-8)} details loaded. Current: ${order.orderStatus}`, 'info');
+      console.log('Order details:', order); // Replace with full modal
+      
+    } catch (error) {
+      showAdminToast('Failed to load order', 'danger');
+    }
+  };
+  
+  window.updateOrderStatus = async function(orderId, status) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${window.API_BASE || '/api'}/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      
+      if (!response.ok) throw new Error('Update failed');
+      
+      showAdminToast(`Status updated to ${status.replace('_', ' ')}`, 'success');
+      loadPendingOrders(1); // Refresh
+    } catch (error) {
+      showAdminToast('Status update failed: ' + error.message, 'danger');
+    }
+  };
+  
   console.log('✅ admin-dashboard.js loaded - DashboardManager ready');
 })();
 
