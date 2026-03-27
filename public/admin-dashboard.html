@@ -327,7 +327,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Name *</label>
-                                <input type="text" class="form-control" id="menuName" name="name" required="required" title="menu">
+<input type="text" class="form-control" id="menuName" name="name" required minlength="3" maxlength="100" title="Menu name (3-100 chars)">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Price (₦) *</label>
@@ -362,8 +362,12 @@
                         <div class="mb-3">
                             <label class="form-label fw-bold">Image</label>
                             <input type="file" class="form-control" id="menuImage" accept="image/*">
+                            <small class="form-text text-muted">Recommended: JPG/PNG under 5MB</small>
                             <div class="mt-2">
-                                <img id="imagePreview" class="img-thumbnail rounded image-preview d-none" src="#" alt="Image Preview">
+                                <img id="imagePreview" class="img-thumbnail rounded image-preview d-none" style="max-height: 120px;" src="#" alt="Image Preview">
+                            </div>
+                            <div class="invalid-feedback d-block" id="nameError" style="display: none;">
+                                <i class="fas fa-exclamation-circle me-1"></i>Name must be 3-100 characters
                             </div>
                         </div>
                     </div>
