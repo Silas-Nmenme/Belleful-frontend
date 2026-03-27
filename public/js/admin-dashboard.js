@@ -241,7 +241,7 @@
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({ page, limit: 10, ...(search && { search }) });
       
-      const response = await fetch(`\${window.API_BASE || '/api'}/dashboard/admin/users?${params}`, {
+const response = await fetch(`${window.API_BASE || '/api'}/dashboard/admin/users?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -286,7 +286,7 @@
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({ page, limit: 10, ...(search && { search }), ...(status && { status }) });
       
-      const response = await fetch(`\${window.API_BASE || '/api'}/contact/?${params}`, {
+const response = await fetch(`${window.API_BASE || '/api'}/contact/?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
