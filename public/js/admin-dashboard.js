@@ -673,7 +673,7 @@ function renderPagination(containerId, currentPage, totalPages, loadFn) {
       
       // Populate modal
       if (modalBody) {
-        modalBody.innerHTML = \`
+modalBody.innerHTML = `
           <div class="row mb-4">
             <div class="col-md-6">
               <h6><i class="fas fa-user me-2 text-primary"></i><strong>Name:</strong> \${contact.name || 'N/A'}</h6>
@@ -696,7 +696,7 @@ function renderPagination(containerId, currentPage, totalPages, loadFn) {
       }
       
       if (modalTitle) {
-        modalTitle.innerHTML = \`<i class="fas fa-envelope-open me-2"></i> \${contact.name || 'Contact'} - #\${contactId.slice(-8)}\`;
+modalTitle.innerHTML = `
       }
       
       // Show/hide mark read button
@@ -732,18 +732,18 @@ function renderPagination(containerId, currentPage, totalPages, loadFn) {
   window.updateContactStatus = async function(contactId, status) {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(\`${window.API_BASE || '/api'}/contact/\${contactId}/status\`, {
+const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}/status`, {
         method: 'PATCH',
         headers: { 
-          'Authorization': \`Bearer \${token}\`,
+'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ status })
       });
       
-      if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+throw new Error(`HTTP ${response.status}`);
       
-      showAdminToast(\`Marked as \${status.toUpperCase()}\`, 'success');
+showAdminToast(`Marked as ${status.toUpperCase()}`, 'success');
       
       // Refresh table
       loadAdminContacts(1);
