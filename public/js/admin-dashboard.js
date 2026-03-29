@@ -310,8 +310,8 @@
         <td>${contact._id.slice(-8)}</td>
         <td>${contact.name}</td>
         <td>${contact.email || contact.phone || 'N/A'}</td>
-        <td>${contact.subject}</td>
-        <td><span class="badge bg-${contact.status === 'unread' ? 'danger' : 'success'}">${contact.status}</span></td>
+        <td>${contact.subject || 'General inquiry'}</td>
+        <td><span class="badge bg-${(contact.status || "unread") === 'unread' ? 'danger' : 'success'}">${(contact.status || 'unread').toUpperCase()}</span></td>
         <td>${new Date(contact.createdAt).toLocaleDateString()}</td>
         <td><button class="btn btn-sm btn-info" onclick="viewContact('${contact._id}')">View</button></td>
       </tr>
