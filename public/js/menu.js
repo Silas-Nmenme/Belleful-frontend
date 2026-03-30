@@ -165,9 +165,13 @@ function createMenuCard(item, delayIndex = 0) {
             ${item.category}
           </span>
         </div>
-        <div class="login-to-order text-center p-3 bg-light rounded border">
-          <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
-        </div>
+        ${isLoggedIn() ? `
+          <button class="add-to-cart-btn w-100" onclick="addToCartSafe('${item._id || item.id}', ${JSON.stringify({name: item.name, price: item.price, image: item.image, menuItem: item._id || item.id})}, 1)">
+            <i class="fas fa-cart-plus me-2"></i><strong>Add to Cart</strong>
+          </button>` : `
+          <div class="login-to-order text-center p-3 bg-light rounded border">
+            <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+          </div>`}
       </div>
     </div>
   `;
@@ -208,8 +212,12 @@ window.addToCartSafe = async function(menuItemId, quantity = 1) {
   showToast('Added to cart (local)', 'success');
 };
 
-// Pure API cart - no guest/localStorage fallback
-// addToCartSafe will redirect unauth users to login
+function isLoggedIn() {
+  return !!localStorage.getItem('token');
+}
+
+// Pure API cart - requires login
+
 
 function updateCartCount(count) {
   const badge = document.querySelector('.cart-badge');

@@ -449,74 +449,132 @@ body {
 @media (max-width: 576px) {
   :root {
     --header-height: 70px;
-    --sidebar-width: 280px; /* Consistent */
+  }
+  
+  body {
+    padding-top: 0 !important;
   }
   
   .app-wrapper {
-    flex-direction: column;
+    display: block !important;
+    min-height: 100vh;
   }
   
   .main-content {
     margin-left: 0 !important;
-    padding: 1rem 0.75rem;
+    margin-top: var(--header-height);
+    padding: 1rem 0.5rem !important;
+    width: 100vw !important;
+    position: relative;
+    left: 0 !important;
   }
   
   .sidebar {
     position: fixed !important;
-    width: 90vw !important;
-    max-width: 360px;
-    transform: translateX(-100%);
     z-index: 1200;
+    top: var(--header-height) !important;
+    width: 85vw !important;
+    max-width: 350px;
+    height: calc(100vh - var(--header-height));
+    transform: translateX(-100%);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
   }
   
   .sidebar.show {
     transform: translateX(0) !important;
   }
   
-  .sidebar-nav .nav-link {
-    padding: 1.75rem 2rem;
-    font-size: 1.1rem;
-    min-height: 56px;
+  .sidebar-backdrop {
+    display: none;
+    z-index: 1199;
   }
   
-  .sidebar-nav i {
-    font-size: 1.25rem;
-    width: 28px;
+  .sidebar.show ~ .sidebar-backdrop {
+    display: block !important;
+  }
+  
+  .sidebar-nav {
+    padding-top: 1rem;
+  }
+  
+  .sidebar-nav .nav-link {
+    padding: 1.5rem 1.25rem !important;
+    font-size: 1rem;
+    min-height: 52px;
+    border-radius: 12px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
   }
   
   .stats-section,
+  .profile-section,
   .card-header {
-    padding: 1.25rem !important;
+    padding: 1rem !important;
+    border-radius: 16px;
   }
   
-  .table-responsive table {
-    font-size: 0.875rem;
+  .menu-hero {
+    padding: 2rem 1rem !important;
+    border-radius: 0 0 20px 20px;
+  }
+  
+  .menu-hero .display-3 {
+    font-size: 1.75rem !important;
+    line-height: 1.2;
+  }
+  
+  .menu-grid {
+    grid-template-columns: 1fr !important;
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
+  
+  .menu-card {
+    margin: 0 !important;
+  }
+  
+  .menu-card img {
+    height: 220px !important;
+    width: 100% !important;
+  }
+  
+  .table-responsive {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  
+  .orders-table {
+    font-size: 0.8rem;
+    margin-bottom: 0;
   }
   
   .orders-table th,
   .orders-table td {
-    padding: 0.75rem 0.5rem;
+    padding: 0.75rem 0.25rem !important;
     white-space: nowrap;
+    font-size: 0.8rem;
   }
   
-  .btn {
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
-  }
-  
+  .btn,
   .add-to-cart-btn {
-    padding: 1.25rem 2rem !important;
-    font-size: 1.1rem !important;
-    min-height: 56px !important;
-    border-radius: 12px !important;
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.95rem !important;
+    min-height: 44px !important;
+    border-radius: 10px !important;
+    width: 100% !important;
+    margin-top: 0.5rem;
   }
   
-  .menu-hero .display-3 {
-    font-size: 2.25rem !important;
+  .footer-section {
+    margin-top: 2rem;
   }
   
-  .menu-card img {
-    height: 200px;
+  .row > [class*="col-"] {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
   }
 }
 
