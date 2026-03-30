@@ -91,15 +91,15 @@ function displayMenuItems(items, elements) {
 
   
   if (items.length === 0) {
-    elements.menuGrid.innerHTML = `
-      <div class="col-12 text-center py-5 col-span-full">
+    safeElements.menuGrid.innerHTML = `
+      <div class="col-12 text-center py-5">
         <i class="fas fa-utensils fa-3x text-muted mb-4"></i>
         <h5>No menu items available</h5>
         <p class="text-muted">Check back soon!</p>
         <button class="btn btn-primary" onclick="loadMenu()">Refresh Menu</button>
       </div>
     `;
-    elements.menuGrid.style.display = 'block';
+    safeElements.menuGrid.style.display = 'block';
     return;
   }
   
@@ -107,7 +107,7 @@ function displayMenuItems(items, elements) {
   items.forEach((item, index) => {
     try {
       const card = createMenuCard(item, index);
-      elements.menuGrid.appendChild(card);
+      safeElements.menuGrid.appendChild(card);
       renderCount++;
     } catch (e) {
       console.error('Failed to render item', index, item, e);
@@ -115,17 +115,17 @@ function displayMenuItems(items, elements) {
   });
   console.log('Successfully rendered', renderCount, '/', items.length, 'cards');
   
-  // Safe display updates
+// Safe display updates
 
 // Remove hidden class and reset for Bootstrap grid
-  const menuGrid = elements.menuGrid;
+  const menuGrid = safeElements.menuGrid;
   menuGrid.classList.remove('hidden');
   menuGrid.className = 'row g-4 menu-grid';
   menuGrid.style.display = 'flex';
   menuGrid.style.visibility = 'visible';
   menuGrid.style.minHeight = '400px';
 
-  safeElementAccess(elements.menuLoading, 'hide loading', () => elements.menuLoading.style.display = 'none');
+  safeElementAccess(safeElements.menuLoading, 'hide loading', () => safeElements.menuLoading.style.display = 'none');
 
   
   // Update count display
@@ -165,13 +165,15 @@ function createMenuCard(item, delayIndex = 0) {
             ${item.category}
           </span>
         </div>
-        ${isLoggedIn() ? `
+${isLoggedIn() ? `
           <button class="add-to-cart-btn w-100" onclick="addToCartSafe('${item._id || item.id}', 1)">
             <i class="fas fa-cart-plus me-2"></i><strong>Add to Cart</strong>
           </button>
+        ` : `
           <div class="login-to-order text-center p-3 bg-light rounded border">
             <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
-          </div>`}
+          </div>
+        `}
       </div>
     </div>
   `;
