@@ -123,7 +123,12 @@ body {
   }
 
   .navbar-nav.ms-auto {
-    gap: 0.4rem !important;
+    justify-content: flex-end !important;
+    gap: 1rem !important;
+  }
+
+  .navbar-nav .nav-link.me-3 {
+    margin-right: 0 !important;
   }
 
   #accountDropdown .dropdown-toggle img {
@@ -132,9 +137,10 @@ body {
     margin-right: 0.25rem;
   }
 
-  #accountDropdown .dropdown-toggle {
-    font-size: 0.8rem !important;
+#accountDropdown .dropdown-toggle {
+    font-size: 0.85rem !important;
     padding: 0.25rem 0.5rem !important;
+    white-space: nowrap;
   }
 
   #accountDropdown .dropdown-menu {
