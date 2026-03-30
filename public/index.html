@@ -143,14 +143,136 @@
                     <p class="lead text-muted mb-0">Freshly prepared meals from our kitchen</p>
                 </div>
             </div>
-            <div class="menu-loading text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <div class="row g-4 menu-grid" id="menuGrid">
+                <!-- Static menu cards - spinner hidden, menu displayed -->
+                <div class="col-lg-3 col-md-4 col-sm-6 menu-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="card h-100">
+                        <img src="asset/jollof.webp" class="card-img-top" alt="Jollof Rice" onerror="this.src='https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400'; this.onerror=null;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2">Jollof Rice</h5>
+                            <p class="card-text text-muted flex-grow-1">Spicy party jollof rice with succulent chicken and vegetables</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="menu-price">₦2,500</span>
+                                <span class="badge bg-primary">food</span>
+                            </div>
+                            <div class="login-to-order text-center p-3 bg-light rounded border">
+                                <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <p class="mt-3 text-muted">Loading delicious menu items...</p>
-            </div>
-            <div class="row g-4 menu-grid hidden" id="menuGrid">
-                <!-- Menu items will be loaded here by JS -->
+                <div class="col-lg-3 col-md-4 col-sm-6 menu-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card h-100">
+                        <img src="asset/egusi.svg" class="card-img-top" alt="Pounded Yam & Egusi" onerror="this.src='https://images.unsplash.com/photo-1603048297194-8f7e8bfbb79e?w=400'; this.onerror=null;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2">Pounded Yam & Egusi</h5>
+                            <p class="card-text text-muted flex-grow-1">Smooth pounded yam served with rich egusi soup and assorted meats</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="menu-price">₦3,500</span>
+                                <span class="badge bg-primary">food</span>
+                            </div>
+                            <div class="login-to-order text-center p-3 bg-light rounded border">
+                                <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 menu-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100">
+                        <img src="asset/white-rice-beans-stew.svg" class="card-img-top" alt="White Rice & Stew" onerror="this.src='https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400'; this.onerror=null;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2">White Rice & Stew</h5>
+                            <p class="card-text text-muted flex-grow-1">Fluffy white rice with pepper stew and choice protein</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="menu-price">₦2,000</span>
+                                <span class="badge bg-primary">food</span>
+                            </div>
+                            <div class="login-to-order text-center p-3 bg-light rounded border">
+                                <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 menu-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100">
+                        <img src="asset/beans.webp" class="card-img-top" alt="Beans & Plantain" onerror="this.src='https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=400'; this.onerror=null;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2">Beans & Plantain</h5>
+                            <p class="card-text text-muted flex-grow-1">Honey beans porridge with crispy fried plantain</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="menu-price">₦1,800</span>
+                                <span class="badge bg-primary">food</span>
+                            </div>
+                            <div class="login-to-order text-center p-3 bg-light rounded border">
+                                <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 menu-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card h-100">
+                        <img src="asset/grilled.jpg" class="card-img-top" alt="Grilled Fish" onerror="this.src='https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400'; this.onerror=null;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2">Grilled Fish</h5>
+                            <p class="card-text text-muted flex-grow-1">Fresh tilapia grilled with pepper sauce and spices</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="menu-price">₦4,500</span>
+                                <span class="badge bg-primary">food</span>
+                            </div>
+                            <div class="login-to-order text-center p-3 bg-light rounded border">
+                                <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 menu-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1574651351432-9835f6859e2e?w=400" class="card-img-top" alt="Chapman Drink" onerror="this.src='https://images.unsplash.com/photo-1574651351432-9835f6859e2e?w=400'; this.onerror=null;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2">Chapman Drink</h5>
+                            <p class="card-text text-muted flex-grow-1">Refreshing spicy fruit punch mocktail</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="menu-price">₦1,500</span>
+                                <span class="badge bg-info">drink</span>
+                            </div>
+                            <div class="login-to-order text-center p-3 bg-light rounded border">
+                                <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 menu-card" data-aos="fade-up" data-aos-delay="600">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1571877227019-e48c48bd7562?w=400" class="card-img-top" alt="Star Beer" onerror="this.src='https://images.unsplash.com/photo-1571877227019-e48c48bd7562?w=400'; this.onerror=null;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2">Star Beer</h5>
+                            <p class="card-text text-muted flex-grow-1">Ice-cold premium lager beer</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="menu-price">₦800</span>
+                                <span class="badge bg-secondary">drink</span>
+                            </div>
+                            <div class="login-to-order text-center p-3 bg-light rounded border">
+                                <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 menu-card" data-aos="fade-up" data-aos-delay="700">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1542994326-558d68d51fd3?w=400" class="card-img-top" alt="Fresh Zobo" onerror="this.src='https://images.unsplash.com/photo-1542994326-558d68d51fd3?w=400'; this.onerror=null;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2">Fresh Zobo</h5>
+                            <p class="card-text text-muted flex-grow-1">Hibiscus drink with ginger and pineapple</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="menu-price">₦700</span>
+                                <span class="badge bg-info">drink</span>
+                            </div>
+                            <div class="login-to-order text-center p-3 bg-light rounded border">
+                                <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
