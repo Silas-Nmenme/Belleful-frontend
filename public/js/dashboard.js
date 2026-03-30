@@ -51,72 +51,75 @@ async function loadProfile() {
 
 // FIXED: Added missing 'function' keyword
 function renderStats(statsData) {
-  const stats = statsData?.data || statsData || {};
+  const stats = statsData?.data || statsData || { totalOrders: 0, totalSpent: 0, avgOrderValue: 0, monthlyOrders: 0 };
   const container = document.getElementById('statsCards');
   if (!container) return;
   
   container.innerHTML = `
-    <div class="col-xl-3 col-md-6 mb-4" data-aos="zoom-in">
-      <div class="card border-left-primary shadow h-100 py-2">
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4" data-aos="zoom-in">
+      <div class="card border-start border-primary shadow-sm h-100 py-3">
         <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Orders</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">${stats.totalOrders || 0}</div>
+          <div class="row align-items-center g-0">
+            <div class="col">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 small">Total Orders</div>
+              <div class="h4 mb-0 fw-bold text-dark">${stats.totalOrders}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-shopping-bag fa-2x text-gray-300"></i>
+              <i class="fas fa-shopping-bag fa-2x text-primary opacity-75"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-xl-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
-      <div class="card border-left-success shadow h-100 py-2">
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
+      <div class="card border-start border-success shadow-sm h-100 py-3">
         <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Spent</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">₦${(stats.totalSpent || 0).toLocaleString()}</div>
+          <div class="row align-items-center g-0">
+            <div class="col">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1 small">Total Spent</div>
+              <div class="h4 mb-0 fw-bold text-dark">₦${stats.totalSpent?.toLocaleString() || '0'}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-wallet fa-2x text-gray-300"></i>
+              <i class="fas fa-wallet fa-2x text-success opacity-75"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-xl-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="200">
-      <div class="card border-left-info shadow h-100 py-2">
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="200">
+      <div class="card border-start border-info shadow-sm h-100 py-3">
         <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Avg Order</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">₦${(stats.avgOrderValue || 0).toLocaleString()}</div>
+          <div class="row align-items-center g-0">
+            <div class="col">
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1 small">Avg Order</div>
+              <div class="h4 mb-0 fw-bold text-dark">₦${stats.avgOrderValue?.toLocaleString() || '0'}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+              <i class="fas fa-chart-line fa-2x text-info opacity-75"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-xl-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="300">
-      <div class="card border-left-warning shadow h-100 py-2">
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="300">
+      <div class="card border-start border-warning shadow-sm h-100 py-3">
         <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Orders This Month</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">${stats.monthlyOrders || 0}</div>
+          <div class="row align-items-center g-0">
+            <div class="col">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 small">This Month</div>
+              <div class="h4 mb-0 fw-bold text-dark">${stats.monthlyOrders || 0}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-calendar fa-2x text-gray-300"></i>
+              <i class="fas fa-calendar fa-2x text-warning opacity-75"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
   `;
+  
+  // AOS refresh for new cards
+  setTimeout(() => AOS.refresh(), 100);
 }
 
 // FIXED: Added 'function' keyword
@@ -223,17 +226,36 @@ function renderMainProfile(user) {
 
 function renderSidebarProfile(user) {
   const container = document.getElementById('sidebarProfile');
-  if (!user || !container) return;
+  if (!container) return;
 
-  const avatar = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=667eea&color=fff&size=80`;
+  if (!user) {
+    // Fallback empty state
+    container.innerHTML = `
+      <div class="p-4 text-center text-muted">
+        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+          <i class="fas fa-user fa-lg text-muted"></i>
+        </div>
+        <h6 class="fw-bold mb-2">Loading profile...</h6>
+        <p class="small mb-0">Welcome</p>
+      </div>
+    `;
+    return;
+  }
+
+  const initials = (user.name || user.email || 'US').split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+  const avatar = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=667eea&color=fff&size=80&font-size=0.6`;
+  
   container.innerHTML = `
     <div class="p-4 text-center">
-      <img src="${avatar}" class="rounded-circle profile-avatar mb-3 mx-auto" alt="${user.name}">
-      <h6 class="fw-bold mb-1">${user.name || 'User'}</h6>
+      <img src="${avatar}" class="rounded-circle profile-avatar mb-3 mx-auto" alt="${user.name || 'Profile'}">
+      <h6 class="fw-bold mb-1">${user.name || user.email?.split('@')[0] || 'User'}</h6>
       <p class="text-muted small mb-2">${user.email || 'user@example.com'}</p>
       <span class="badge bg-primary">Member</span>
     </div>
   `;
+  
+  // Update navbar profile too
+  updateNavbarProfile(avatar, user.name);
 }
 
 // ===== MAIN ENTRY POINT =====
@@ -249,10 +271,15 @@ async function loadUserDashboard() {
       return;
     }
 
-    // Loading states
-    const statsCards = document.getElementById('statsCards');
-    if (statsCards) {
-      statsCards.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary" style="width:3rem;height:3rem" role="status"></div><p class="mt-3">Loading dashboard...</p></div>';
+    // Try cached profile first for immediate navbar update
+    try {
+      const cachedProfile = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      if (cachedProfile.name || cachedProfile.email) {
+        renderSidebarProfile(cachedProfile);
+        updateNavbarProfileFromCache(cachedProfile);
+      }
+    } catch (e) {
+      console.log('No valid cached profile');
     }
 
     // Parallel loads
@@ -262,14 +289,14 @@ async function loadUserDashboard() {
       window.OrderManager?.getUserOrders?.() || Promise.resolve({ data: [] })
     ]);
 
-    // Render safe
-    if (stats.status === 'fulfilled' && stats.value.data) {
-      renderStats(stats.value);
-    }
+    // Render safe - always render fallback data
+    renderStats(stats.status === 'fulfilled' ? stats.value : null);
     
     if (profile.status === 'fulfilled' && profile.value) {
+      localStorage.setItem('currentUser', JSON.stringify(profile.value));
       renderSidebarProfile(profile.value);
       renderMainProfile(profile.value);
+      updateNavbarProfileFromUser(profile.value);
     }
 
     const orders = ordersRes.status === 'fulfilled' ? ordersRes.value : { data: [] };
@@ -286,17 +313,28 @@ async function loadUserDashboard() {
     console.error('loadUserDashboard error:', error);
     showToast('Dashboard load failed: ' + error.message, 'error');
     
-    // Fallback UI
-    const statsCards = document.getElementById('statsCards');
-    if (statsCards) {
-      statsCards.innerHTML = `
-        <div class="col-12 text-center py-5">
-          <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
-          <h5>Unable to load dashboard data</h5>
-          <p class="text-muted">Check connection or <button class="btn btn-primary btn-sm" onclick="loadUserDashboard()">retry</button></p>
-        </div>`;
-    }
+    // Always render fallback stats
+    renderStats({ totalOrders: 0, totalSpent: 0, avgOrderValue: 0, monthlyOrders: 0 });
   }
+}
+
+// Update navbar profile image/text with initials
+function updateNavbarProfile(avatarUrl, name) {
+  const profileImg = document.querySelector('#accountDropdown img');
+  const accountText = document.querySelector('#accountDropdown .dropdown-toggle');
+  if (profileImg) profileImg.src = avatarUrl;
+  if (accountText) accountText.innerHTML = `<img class="rounded-circle me-2" src="${avatarUrl}" width="32" height="32" alt="Profile">
+    ${name || 'Account'}`;
+}
+
+function updateNavbarProfileFromCache(cachedProfile) {
+  const initials = (cachedProfile.name || cachedProfile.email || 'US').split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+  const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=667eea&color=fff&size=32`;
+  updateNavbarProfile(avatar, cachedProfile.name);
+}
+
+function updateNavbarProfileFromUser(user) {
+  updateNavbarProfileFromCache(user);
 }
 
 // EXPOSE GLOBALS for HTML inline calls
