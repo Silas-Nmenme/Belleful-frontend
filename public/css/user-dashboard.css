@@ -218,12 +218,7 @@ body {
   font-weight: 700;
 }
 
-/* Stats Grid - Responsive stacking */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
+/* Stats Grid - Pure Bootstrap now handles layout */
 
 .stat-card {
   padding: 2.5rem 2rem;

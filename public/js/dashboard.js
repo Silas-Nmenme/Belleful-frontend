@@ -55,62 +55,64 @@ function renderStats(statsData) {
   const container = document.getElementById('statsCards');
   if (!container) return;
   
-  container.innerHTML = `
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4" data-aos="zoom-in">
-      <div class="card border-start border-primary shadow-sm h-100 py-3">
-        <div class="card-body">
-          <div class="row align-items-center g-0">
-            <div class="col">
-              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 small">Total Orders</div>
-              <div class="h4 mb-0 fw-bold text-dark">${stats.totalOrders}</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-shopping-bag fa-2x text-primary opacity-75"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
-      <div class="card border-start border-success shadow-sm h-100 py-3">
-        <div class="card-body">
-          <div class="row align-items-center g-0">
-            <div class="col">
-              <div class="text-xs font-weight-bold text-success text-uppercase mb-1 small">Total Spent</div>
-              <div class="h4 mb-0 fw-bold text-dark">₦${stats.totalSpent?.toLocaleString() || '0'}</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-wallet fa-2x text-success opacity-75"></i>
+container.innerHTML = `
+    <div class="row g-4">
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-0 h-100" data-aos="zoom-in">
+        <div class="card border-start border-primary shadow-sm h-100 py-4">
+          <div class="card-body">
+            <div class="row align-items-center g-0">
+              <div class="col">
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 small">Total Orders</div>
+                <div class="h3 mb-0 fw-bold text-dark">${stats.totalOrders || 0}</div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-shopping-bag fa-2x text-primary opacity-75"></i>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="200">
-      <div class="card border-start border-info shadow-sm h-100 py-3">
-        <div class="card-body">
-          <div class="row align-items-center g-0">
-            <div class="col">
-              <div class="text-xs font-weight-bold text-info text-uppercase mb-1 small">Avg Order</div>
-              <div class="h4 mb-0 fw-bold text-dark">₦${stats.avgOrderValue?.toLocaleString() || '0'}</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-chart-line fa-2x text-info opacity-75"></i>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-0 h-100" data-aos="zoom-in" data-aos-delay="100">
+        <div class="card border-start border-success shadow-sm h-100 py-4">
+          <div class="card-body">
+            <div class="row align-items-center g-0">
+              <div class="col">
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-1 small">Total Spent</div>
+                <div class="h3 mb-0 fw-bold text-dark">₦${(stats.totalSpent || 0)?.toLocaleString()}</div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-wallet fa-2x text-success opacity-75"></i>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="300">
-      <div class="card border-start border-warning shadow-sm h-100 py-3">
-        <div class="card-body">
-          <div class="row align-items-center g-0">
-            <div class="col">
-              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 small">This Month</div>
-              <div class="h4 mb-0 fw-bold text-dark">${stats.monthlyOrders || 0}</div>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-0 h-100" data-aos="zoom-in" data-aos-delay="200">
+        <div class="card border-start border-info shadow-sm h-100 py-4">
+          <div class="card-body">
+            <div class="row align-items-center g-0">
+              <div class="col">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1 small">Avg Order</div>
+                <div class="h3 mb-0 fw-bold text-dark">₦${(stats.avgOrderValue || 0)?.toLocaleString()}</div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-chart-line fa-2x text-info opacity-75"></i>
+              </div>
             </div>
-            <div class="col-auto">
-              <i class="fas fa-calendar fa-2x text-warning opacity-75"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-0 h-100" data-aos="zoom-in" data-aos-delay="300">
+        <div class="card border-start border-warning shadow-sm h-100 py-4">
+          <div class="card-body">
+            <div class="row align-items-center g-0">
+              <div class="col">
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 small">This Month</div>
+                <div class="h3 mb-0 fw-bold text-dark">${stats.monthlyOrders || 0}</div>
+              </div>
+              <div class="col-auto">
+                <i class="fas fa-calendar fa-2x text-warning opacity-75"></i>
+              </div>
             </div>
           </div>
         </div>
