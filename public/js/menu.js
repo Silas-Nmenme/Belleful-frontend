@@ -219,7 +219,10 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.remove(), 4000);
 }
 
-
+    // Auto-init only if menu elements exist
+    if (document.getElementById('menuGrid')) {
+      window.loadMenu();
+    }
 
     // Expose global functions
     window.MenuManager = window.MenuManager || {};
@@ -228,8 +231,6 @@ function showToast(message, type = 'info') {
     window.MenuManager.addToCartSafe = addToCartSafe;
     
   })();
+
   
-  // Auto-init only if menu elements exist
-  if (document.getElementById('menuGrid')) {
-    window.loadMenu();
-  }
+
