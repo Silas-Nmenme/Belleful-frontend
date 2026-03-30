@@ -1,4 +1,3 @@
-// Checkout page script moved from inline HTML and refactored to avoid inline styles
 AOS.init();
 
 let currentOrder = null;

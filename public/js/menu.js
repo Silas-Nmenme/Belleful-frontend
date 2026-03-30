@@ -1,5 +1,3 @@
-// Menu functionality + API integration (DB API only - static data removed) [IIFE-wrapped]
-
 (function() {
   // DOM Elements - get dynamically to avoid const redeclaration
 function getMenuElements() {

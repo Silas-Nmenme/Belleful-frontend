@@ -1,4 +1,3 @@
-// Orders & Checkout functionality - Pure Backend API (No Mock Data)
 async function getUserOrders() {
   const token = localStorage.getItem('token');
   if (!token) {

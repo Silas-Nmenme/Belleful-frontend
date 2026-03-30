@@ -1,11 +1,8 @@
-// Contact Us Page JavaScript
-// Handles form validation, EmailJS submission, Google Maps
-
 // EmailJS Configuration (REPLACE WITH YOUR KEYS from emailjs.com)
 const EMAILJS_CONFIG = {
-    service_id: 'YOUR_SERVICE_ID',        // e.g., 'service_abc123'
-    template_id: 'YOUR_TEMPLATE_ID',      // e.g., 'template_def456'
-    public_key: 'YOUR_PUBLIC_KEY'         // e.g., 'abc123_user_xyz'
+    service_id: 'YOUR_SERVICE_ID',        
+    template_id: 'YOUR_TEMPLATE_ID',      
+    public_key: 'YOUR_PUBLIC_KEY'         
 };
 
 document.addEventListener('DOMContentLoaded', function() {

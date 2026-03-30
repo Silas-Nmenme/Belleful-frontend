@@ -1,5 +1,3 @@
-// Fixed dashboard.js - Syntax errors resolved, globals exposed, defensive coding
-
 // ===== GLOBAL UTILITIES (stubs for safety) =====
 window.showToast = window.showToast || function(message, type = 'info') {
   console[type === 'error' ? 'error' : 'log'](`Toast [${type}]: ${message}`);
@@ -282,7 +280,7 @@ async function loadUserDashboard() {
       window.loadMenu();
     }
 
-    console.log('✅ loadUserDashboard complete');
+    console.log('loadUserDashboard complete');
     showToast('Dashboard loaded successfully!', 'success');
   } catch (error) {
     console.error('loadUserDashboard error:', error);
@@ -359,5 +357,5 @@ if (document.readyState === 'loading') {
   window.loadUserDashboard();
 }
 
-console.log('✅ dashboard.js loaded - all functions global & syntax fixed');
+console.log('dashboard.js loaded - all functions global & syntax fixed');
 

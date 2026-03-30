@@ -1,6 +1,3 @@
-// OTP Verify JavaScript
-// 6-digit OTP inputs, timer, validation
-
 class OTPVerify {
     constructor() {
         this.form = document.getElementById('otpForm');
