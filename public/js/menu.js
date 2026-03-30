@@ -166,9 +166,9 @@ function createMenuCard(item, delayIndex = 0) {
           </span>
         </div>
         ${isLoggedIn() ? `
-          <button class="add-to-cart-btn w-100" onclick="addToCartSafe('${item._id || item.id}', ${JSON.stringify({name: item.name, price: item.price, image: item.image, menuItem: item._id || item.id})}, 1)">
+          <button class="add-to-cart-btn w-100" onclick="addToCartSafe('${item._id || item.id}', 1)">
             <i class="fas fa-cart-plus me-2"></i><strong>Add to Cart</strong>
-          </button>` : `
+          </button>
           <div class="login-to-order text-center p-3 bg-light rounded border">
             <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
           </div>`}
@@ -179,46 +179,26 @@ function createMenuCard(item, delayIndex = 0) {
   return card;
 }
 
-// Safe addToCart wrapper - works with/without cart.js
+// API-only addToCart wrapper
 window.addToCartSafe = async function(menuItemId, quantity = 1) {
-  // Robust retry mechanism for cart.js loading
-  const maxRetries = 3;
-  let lastError;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      if (typeof window.addToCart === 'function') {
-        // cart.js loaded - use API cart
-        await window.addToCart(menuItemId, quantity);
-        showToast('Added to cart!', 'success');
-        updateCartCount(); // Trigger badge update
-        return;
-      } else if (attempt === 1) {
-        // First attempt failed, wait for cart.js
-        await new Promise(resolve => setTimeout(resolve, 200 * attempt));
-      }
-    } catch (error) {
-      lastError = error;
-      console.warn(`addToCart attempt ${attempt} failed:`, error);
-      await new Promise(resolve => setTimeout(resolve, 300 * attempt));
+  try {
+    if (typeof window.addToCart !== 'function') {
+      throw new Error('Cart functions not loaded');
     }
+    await window.addToCart(menuItemId, quantity);
+    showToast('Added to cart!', 'success');
+    updateCartCount(); // Trigger badge update
+  } catch (error) {
+    console.error('Add to cart failed:', error);
+    showToast('Failed to add item. Please try again.', 'error');
   }
-  
-  // All retries failed - use robust local fallback
-  console.log('Using local cart fallback after retries');
-  addToLocalCart(menuItemId, 0, '');
-  const totalItems = getLocalCart().items.reduce((sum, item) => sum + item.quantity, 0);
-  updateCartCount(totalItems);
-  showToast('Added to cart (local)', 'success');
 };
 
 function isLoggedIn() {
   return !!localStorage.getItem('token');
 }
 
-// Pure API cart - requires login
-
-
+// updateCartCount - dispatches event for badges
 function updateCartCount(count) {
   const badge = document.querySelector('.cart-badge');
   if (badge) {

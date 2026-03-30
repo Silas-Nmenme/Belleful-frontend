@@ -411,31 +411,25 @@ async clearCart() {
     
   })();
   
-  // Export addToCart using singleton (safe for multiple calls)
-  window.addToCart = async (menuItemId, itemData, quantity = 1) => {
+  // API-only addToCart - direct POST to /cart
+  window.addToCart = async (menuItemId, quantity = 1) => {
     if (!window.CartManager?.token) {
       window.CartManager?.showToast('Please login to add items', 'warning');
       setTimeout(() => window.location.href = 'login.html', 1000);
       return;
     }
     
-    // Get itemData from API for validation
     try {
-      const itemRes = await fetch(`${window.API_BASE}/menu/${menuItemId}`);
-      const itemData = await itemRes.json();
-      if (!itemData.data?.name || typeof itemData.data.price !== 'number') {
-        console.error('Invalid item data:', itemData);
-        return;
-      }
-      
       await window.CartManager.apiCall('/', {
         method: 'POST',
         body: JSON.stringify({ menuItemId, quantity })
       });
-      window.CartManager.loadCart();
-      window.CartManager?.showToast('Added to cart!', 'success');
+      window.CartManager.updateCartBadge();
+      window.CartManager.showToast('Added to cart!', 'success');
+      document.dispatchEvent(new CustomEvent('cartUpdated', { detail: (window.CartManager.cart.items.reduce((sum, item) => sum + item.quantity, 0) + quantity) }));
     } catch (e) {
-      console.error('Add failed:', e);
+      console.error('Add to cart failed:', e);
+      window.CartManager.showToast('Failed to add item. Server error.', 'error');
     }
   };
   
