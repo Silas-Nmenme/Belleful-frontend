@@ -40,8 +40,27 @@ body {
 }
 
 .navbar .container-fluid {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-nav.ms-auto {
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto !important;
+  flex-wrap: nowrap;
+}
+
+#accountDropdown .dropdown-toggle img {
+  transition: var(--transition);
+}
+
+#accountDropdown .dropdown-toggle {
+  white-space: nowrap;
 }
 
 @media (max-width: 991.98px) {
@@ -50,7 +69,12 @@ body {
   }
   
   .navbar-nav .nav-link {
-    padding: 0.5rem 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .navbar .container-fluid {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
 }
 
@@ -62,12 +86,62 @@ body {
 
 .cart-badge {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  font-size: 0.75rem;
-  min-width: 20px;
-  height: 20px;
+  top: -6px;
+  right: -6px;
+  font-size: 0.7rem;
+  min-width: 18px;
+  height: 18px;
   border-radius: 50%;
+  line-height: 1;
+}
+
+@media (max-width: 576px) {
+  .cart-badge {
+    top: -5px;
+    right: -5px;
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.65rem;
+  }
+
+  :root {
+    --header-height: 70px;
+  }
+
+  .navbar {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .navbar-brand {
+    font-size: 1rem !important;
+    letter-spacing: -0.3px;
+  }
+
+  .mobile-menu-toggle {
+    font-size: 1.1rem !important;
+    padding: 0.3rem 0.5rem !important;
+  }
+
+  .navbar-nav.ms-auto {
+    gap: 0.4rem !important;
+  }
+
+  #accountDropdown .dropdown-toggle img {
+    width: 28px !important;
+    height: 28px !important;
+    margin-right: 0.25rem;
+  }
+
+  #accountDropdown .dropdown-toggle {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  #accountDropdown .dropdown-menu {
+    min-width: 200px;
+    right: 0;
+    left: auto !important;
+  }
 }
 
 /* Persistent Vertical Sidebar - Always visible desktop, overlay mobile */
@@ -410,12 +484,25 @@ body {
 }
 
 @media (max-width: 768px) {
+  .navbar-brand {
+    font-size: 1.1rem !important;
+  }
+
+  .navbar-nav.ms-auto {
+    gap: 0.5rem;
+  }
+
+  #accountDropdown .dropdown-toggle img {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
   .main-wrapper {
     padding: 1rem;
   }
   
   .stats-grid {
-    grid-template-columns: 1fr; /* Single column stack */
+    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
   
@@ -494,6 +581,16 @@ body {
     font-size: 1rem;
     min-height: 52px;
     border-radius: 12px;
+  }
+
+  .mobile-menu-toggle {
+    padding: 0.4rem 0.6rem !important;
+    border: none;
+    background: none;
+  }
+
+  #accountDropdown .dropdown-toggle {
+    font-size: 0.95rem;
   }
   
   .stats-grid {
