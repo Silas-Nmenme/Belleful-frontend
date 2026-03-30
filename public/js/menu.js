@@ -125,6 +125,12 @@ function displayMenuItems(items, elements) {
     countDisplay.textContent = items.length;
   }
   
+  // Show login toast if not authenticated
+  const token = localStorage.getItem('token');
+  if (!token && typeof showToast === 'function') {
+    showToast('Login to enjoy better menu and accessibility to more menu items!', 'info');
+  }
+  
   // Trigger AOS refresh for new elements
   setTimeout(() => AOS.refresh(), 100);
 }
@@ -150,9 +156,9 @@ function createMenuCard(item, delayIndex = 0) {
             ${item.category}
           </span>
         </div>
-        <button class="btn btn-success w-100 add-to-cart-btn" onclick="addToCartSafe('${item._id}', 1)" ${!item.available ? 'disabled' : ''}>
-          ${item.available ? '<i class="fas fa-plus me-2"></i>Add to Cart' : '<i class="fas fa-ban me-2"></i>Unavailable'}
-        </button>
+        <div class="login-to-order text-center p-3 bg-light rounded border">
+          <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+        </div>
       </div>
     </div>
   `;
