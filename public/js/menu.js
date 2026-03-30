@@ -116,8 +116,17 @@ function displayMenuItems(items, elements) {
   console.log('Successfully rendered', renderCount, '/', items.length, 'cards');
   
   // Safe display updates
-  safeElementAccess(elements.menuGrid, 'show grid', () => elements.menuGrid.style.display = 'grid');
+
+// Remove hidden class and reset for Bootstrap grid
+  const menuGrid = elements.menuGrid;
+  menuGrid.classList.remove('hidden');
+  menuGrid.className = 'row g-4 menu-grid';
+  menuGrid.style.display = 'flex';
+  menuGrid.style.visibility = 'visible';
+  menuGrid.style.minHeight = '400px';
+
   safeElementAccess(elements.menuLoading, 'hide loading', () => elements.menuLoading.style.display = 'none');
+
   
   // Update count display
   const countDisplay = document.getElementById('menuCountDisplay');
