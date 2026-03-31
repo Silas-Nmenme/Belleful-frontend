@@ -494,23 +494,17 @@ async function updateProfile(formData) {
       body: formData
     });
 
-    // Progress tracking (for modern browsers)
-    if (response.body) {
-      const reader = response.body.getReader();
-      let loaded = 0;
-      const total = parseInt(response.headers.get('Content-Length')) || 0;
-      
-      // Simulate progress for UX
-      const interval = setInterval(() => {
-        loaded += 10;
-        if (loaded <= 90) {
-          progressBar.style.width = `${loaded}%`;
-        }
-      }, 100);
+    // Simple progress simulation (fetch can't stream upload progress easily)
+    const interval = setInterval(() => {
+      let loaded = parseInt(progressBar.style.width) || 0;
+      loaded += 15;
+      if (loaded <= 90) {
+        progressBar.style.width = `${loaded}%`;
+      }
+    }, 150);
 
-      // Clean up
-      setTimeout(() => clearInterval(interval), 2000);
-    }
+    // Clean up after response
+    setTimeout(() => clearInterval(interval), 2500);
 
     if (!response.ok) {
       const errorData = await response.json();
