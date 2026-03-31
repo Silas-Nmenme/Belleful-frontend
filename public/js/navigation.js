@@ -36,7 +36,19 @@ function navigateToHome() {
   }, token ? 500 : 0);
 }
 
+// Shop Menu function - conditional redirect based on login status
+function goToShopMenu() {
+  const token = localStorage.getItem('token');
+  const target = token ? 'user-dashboard.html#menu' : 'index.html#menu';
+  
+  if (typeof showToast === 'function') {
+    showToast(`Redirecting to Menu...`, 'info');
+  }
+  window.location.href = target;
+}
+
 // Export for auth.js inclusion
 window.initSmartNavigation = initSmartNavigation;
 window.navigateToHome = navigateToHome;
+window.goToShopMenu = goToShopMenu;
 
