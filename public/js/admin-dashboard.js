@@ -6,8 +6,7 @@
   // Global DashboardManager
   window.DashboardManager = window.DashboardManager || {};
   
-  // Sidebar State
-  let sidebarState = localStorage.getItem('adminSidebarCollapsed') === 'true';
+  // Removed collapsed state - now universal popup
 
   // Utils
   window.showAdminToast = function(message, type = 'info') {
@@ -21,47 +20,25 @@
 
   // ===== SIDEBAR INITIALIZATION & TOGGLE =====
   function initSidebar() {
+    const sidebarWrapper = document.querySelector('.sidebar-wrapper');
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.querySelector('.sidebar-toggle');
     const overlay = document.querySelector('.sidebar-overlay');
-    const mainContent = document.querySelector('.main-content');
     
-    if (!sidebar || !toggleBtn) {
+    if (!sidebarWrapper || !toggleBtn) {
       console.warn('Sidebar elements not found');
       return;
     }
 
-    // Apply initial collapsed state (desktop)
-    if (sidebarState) {
-      sidebar.classList.add('collapsed');
-      toggleBtn.classList.add('active');
-    }
-
-    // Toggle function - Very active with smooth animations
-    function toggleSidebar(expandOnly = false) {
-      const isCollapsed = sidebar.classList.contains('collapsed');
-      const isMobile = window.innerWidth < 992;
+    // Universal popup toggle - ALL screen sizes
+    function toggleSidebar() {
+      const isActive = sidebarWrapper.classList.contains('active');
       
-      if (expandOnly && !isCollapsed) return;
-
-      // Desktop: collapse/expand
-      if (!isMobile) {
-        sidebar.classList.toggle('collapsed');
-        toggleBtn.classList.toggle('active');
-        
-        sidebarState = sidebar.classList.contains('collapsed');
-        localStorage.setItem('adminSidebarCollapsed', sidebarState);
-        
-        // Smooth main content adjustment
-        if (mainContent) {
-          mainContent.style.transition = 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        }
-      } else {
-        // Mobile: show/hide overlay
-        sidebar.classList.toggle('active');
-        overlay?.classList.toggle('active');
-        toggleBtn.classList.toggle('active');
-      }
+      sidebarWrapper.classList.toggle('active');
+      overlay?.classList.toggle('active');
+      toggleBtn.classList.toggle('active');
+      
+      console.log('Sidebar toggled:', !isActive ? 'shown' : 'hidden');
     }
 
     // Event listeners
@@ -83,47 +60,20 @@
       }
     });
 
-    // Window resize handler
+    // Window resize handler - reset popup on desktop resize
     let resizeTimeout;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         if (window.innerWidth >= 992) {
-          // Desktop: restore collapse state
-          if (sidebarState) {
-            sidebar.classList.add('collapsed');
-            toggleBtn.classList.add('active');
-          } else {
-            sidebar.classList.remove('collapsed');
-            toggleBtn.classList.remove('active');
-          }
+          sidebarWrapper.classList.remove('active');
           overlay?.classList.remove('active');
-          sidebar.classList.remove('active');
-        } else {
-          // Mobile: reset to hidden
-          sidebar.classList.remove('collapsed', 'active');
           toggleBtn.classList.remove('active');
-          overlay?.classList.remove('active');
         }
       }, 250);
     });
 
-    // Nav link hover tooltips (collapsed state)
-    const navLinks = sidebar.querySelectorAll('.sidebar-nav .nav-link');
-    navLinks.forEach(link => {
-      link.addEventListener('mouseenter', () => {
-        if (sidebar.classList.contains('collapsed')) {
-          const span = link.querySelector('span');
-          if (span) span.style.opacity = '1';
-        }
-      });
-      link.addEventListener('mouseleave', () => {
-        if (sidebar.classList.contains('collapsed')) {
-          const span = link.querySelector('span');
-          if (span) span.style.opacity = '0';
-        }
-      });
-    });
+    // No tooltips needed for full popup mode
 
     console.log('✅ Sidebar initialized - Active toggle + persistent state');
   }

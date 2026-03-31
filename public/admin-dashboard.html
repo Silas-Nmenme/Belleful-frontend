@@ -38,12 +38,12 @@
     <div class="container-fluid py-5 mt-5 min-vh-100 bg-light">
         <div class="row">
             <!-- Sidebar Wrapper -->
-            <div class="sidebar-wrapper col-lg-2 col-md-3 p-0 d-flex">
-                <!-- Toggle Overlay for Mobile -->
-                <div class="sidebar-overlay d-none d-lg-none w-100"></div>
+<div class="sidebar-wrapper d-none position-fixed h-100" style="left: -100%; width: 260px; z-index: 1040; transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);">
+                <!-- Toggle Overlay - Universal -->
+                <div class="sidebar-overlay position-fixed w-100 h-100 d-none bg-dark bg-opacity-50" style="z-index: 1039; top: 0; left: 0; transition: opacity 0.3s ease; opacity: 0;"></div>
                 
                 <!-- Sidebar -->
-                <nav class="sidebar card h-100 border-0 shadow-lg flex-shrink-0" id="sidebar">
+                <nav class="sidebar card h-100 border-0 shadow-lg flex-shrink-0" id="sidebar" style="width: 100%;">
                     <div class="card-body p-0">
                         <!-- Sidebar Header -->
                         <div class="sidebar-header">
@@ -85,7 +85,7 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-lg-10 col-md-9 main-content">
+            <div class="col-12 main-content" style="transition: margin-left 0.3s ease;">
                 <!-- Stats -->
                 <section id="stats" class="mb-5">
                     <div class="row g-4 mb-5" id="adminStats">
