@@ -122,7 +122,9 @@
       const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
       const profileName = document.getElementById('profileName');
       if (profileName) {
-        profileName.textContent = user.name || 'User';
+        const nameParts = (user.name || 'User').split(' ').filter(Boolean);
+        const initials = nameParts.map(n => n[0].toUpperCase()).join('').slice(0, 2) || 'US';
+        profileName.textContent = initials;
       }
       
       document.getElementById('loggedNav')?.classList.remove('d-none');
