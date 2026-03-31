@@ -15,6 +15,10 @@
             <a class="navbar-brand fw-bold fs-4" href="#">
                 <i class="fas fa-user-shield me-2"></i>Admin Dashboard
             </a>
+            <!-- Sidebar Toggle Button -->
+            <button class="sidebar-toggle btn btn-link text-white p-2 ms-3 me-lg-0 me-xl-3 d-block" type="button" title="Toggle Menu" aria-label="Toggle sidebar menu" aria-expanded="false" aria-controls="sidebar">
+                <i class="fas fa-bars fa-lg sidebar-hamburger"></i>
+            </button>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -33,46 +37,55 @@
 
     <div class="container-fluid py-5 mt-5 min-vh-100 bg-light">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-2 col-md-3 p-0">
-                <div class="card h-100 border-0 shadow-lg">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4 border-bottom pb-3">
-                            <i class="fas fa-bars me-2"></i>Menu
-                        </h5>
-                        <ul class="nav flex-column">
+            <!-- Sidebar Wrapper -->
+            <div class="sidebar-wrapper col-lg-2 col-md-3 p-0 d-flex">
+                <!-- Toggle Overlay for Mobile -->
+                <div class="sidebar-overlay d-none d-lg-none w-100"></div>
+                
+                <!-- Sidebar -->
+                <nav class="sidebar card h-100 border-0 shadow-lg flex-shrink-0" id="sidebar">
+                    <div class="card-body p-0">
+                        <!-- Sidebar Header -->
+                        <div class="sidebar-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-bars me-2"></i>Menu
+                            </h6>
+                        </div>
+                        
+                        <!-- Sidebar Nav -->
+                        <ul class="nav flex-column sidebar-nav px-0">
                             <li class="nav-item">
                                 <a class="nav-link active" href="#stats">
-                                    <i class="fas fa-chart-bar me-2"></i>Dashboard
+                                    <i class="fas fa-chart-bar me-2"></i><span>Dashboard</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#orders-admin">
-                                    <i class="fas fa-list me-2"></i>Orders
+                                    <i class="fas fa-list me-2"></i><span>Orders</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#users-admin">
-                                    <i class="fas fa-users me-2"></i>Users
+                                    <i class="fas fa-users me-2"></i><span>Users</span>
                                 </a>
                             </li>
-<li class="nav-item">
+                            <li class="nav-item">
                                 <a class="nav-link" href="#menu-admin">
-                                    <i class="fas fa-utensils me-2"></i>Menu Items
+                                    <i class="fas fa-utensils me-2"></i><span>Menu Items</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#contacts-admin">
-                                    <i class="fas fa-envelope me-2"></i>Contacts
+                                    <i class="fas fa-envelope me-2"></i><span>Contacts</span>
                                 </a>
                             </li>
                         </ul>
                     </div>
-                </div>
+                </nav>
             </div>
 
             <!-- Main Content -->
-            <div class="col-lg-10 col-md-9">
+            <div class="col-lg-10 col-md-9 main-content">
                 <!-- Stats -->
                 <section id="stats" class="mb-5">
                     <div class="row g-4 mb-5" id="adminStats">

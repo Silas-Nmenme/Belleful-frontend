@@ -1,4 +1,187 @@
 @import url('index.css');
 
 /* Admin dashboard specific overrides */
-.card { border-radius: 12px; }
+.card { 
+  border-radius: 12px; 
+}
+
+/* ========================================
+   COLLAPSIBLE SIDEBAR - FULL IMPLEMENTATION
+   ======================================== */
+:root {
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 70px;
+  --sidebar-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-wrapper {
+  position: relative;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: var(--sidebar-transition);
+  overflow: hidden;
+  z-index: 1030;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+  /* Always visible text */
+  color: #fff !important;
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed);
+}
+
+.sidebar-header {
+  transition: var(--sidebar-transition);
+  background: rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.sidebar.collapsed .sidebar-header h6 {
+  font-size: 0.8rem;
+}
+
+.sidebar .card-body {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.sidebar-nav {
+  padding: 0.5rem;
+}
+
+.sidebar-nav .nav-link {
+  color: #e0e0e0 !important;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  margin: 0.25rem 0.5rem;
+  transition: var(--sidebar-transition);
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-link {
+  padding: 0.875rem 0.75rem;
+  justify-content: center !important;
+}
+
+.sidebar-nav .nav-link i {
+  min-width: 20px;
+  margin-right: 12px;
+  transition: var(--sidebar-transition);
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-link i {
+  margin-right: 0;
+  font-size: 1.1rem;
+  width: 24px;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-link span {
+  opacity: 0;
+  transform: translateX(20px);
+  position: absolute;
+  left: 40px;
+  background: rgba(0,0,0,0.7);
+  padding: 0 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  animation: tooltipSlide 0.3s ease forwards;
+}
+
+@keyframes tooltipSlide {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.sidebar-nav .nav-link:hover {
+  background: rgba(255,255,255,0.15) !important;
+  transform: translateX(4px);
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.sidebar-nav .nav-link.active {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+}
+
+/* Toggle Button Animation */
+.sidebar-toggle {
+  transition: transform 0.3s ease;
+}
+
+.sidebar-toggle .sidebar-hamburger {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-toggle.active .sidebar-hamburger {
+  transform: rotate(90deg);
+}
+
+/* Responsive Mobile */
+@media (max-width: 991.98px) {
+  .sidebar {
+    position: fixed !important;
+    left: calc(-1 * var(--sidebar-width));
+    height: 100vh;
+    top: 0;
+    z-index: 1040;
+    width: var(--sidebar-width) !important;
+  }
+  .sidebar.active {
+    left: 0 !important;
+  }
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0,0,0,0.6);
+    z-index: 1035;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--sidebar-transition);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Main content adjustment */
+@media (min-width: 992px) {
+  .main-content {
+    transition: var(--sidebar-transition);
+    margin-left: 0;
+  }
+  .sidebar:not(.collapsed) ~ .col-lg-10.main-content {
+    margin-left: var(--sidebar-width);
+  }
+}
+
+/* Ensure text always visible */
+.sidebar * {
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.sidebar h5, .sidebar h6 {
+  color: #fff !important;
+  font-weight: 600 !important;
+}

@@ -1,10 +1,14 @@
 // Admin Dashboard JS - FIXED: Menu save Object.keys error with defensive programming
+// NEW: Active Collapsible Sidebar Toggle + State Management
 // Fixes broken "loading dashboard" / "loading all menu" issues + TypeError protection
 
 (function() {
   // Global DashboardManager
   window.DashboardManager = window.DashboardManager || {};
   
+  // Sidebar State
+  let sidebarState = localStorage.getItem('adminSidebarCollapsed') === 'true';
+
   // Utils
   window.showAdminToast = function(message, type = 'info') {
     const toast = document.createElement('div');
@@ -14,6 +18,115 @@
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 5000);
   };
+
+  // ===== SIDEBAR INITIALIZATION & TOGGLE =====
+  function initSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    const overlay = document.querySelector('.sidebar-overlay');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (!sidebar || !toggleBtn) {
+      console.warn('Sidebar elements not found');
+      return;
+    }
+
+    // Apply initial collapsed state (desktop)
+    if (sidebarState) {
+      sidebar.classList.add('collapsed');
+      toggleBtn.classList.add('active');
+    }
+
+    // Toggle function - Very active with smooth animations
+    function toggleSidebar(expandOnly = false) {
+      const isCollapsed = sidebar.classList.contains('collapsed');
+      const isMobile = window.innerWidth < 992;
+      
+      if (expandOnly && !isCollapsed) return;
+
+      // Desktop: collapse/expand
+      if (!isMobile) {
+        sidebar.classList.toggle('collapsed');
+        toggleBtn.classList.toggle('active');
+        
+        sidebarState = sidebar.classList.contains('collapsed');
+        localStorage.setItem('adminSidebarCollapsed', sidebarState);
+        
+        // Smooth main content adjustment
+        if (mainContent) {
+          mainContent.style.transition = 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        }
+      } else {
+        // Mobile: show/hide overlay
+        sidebar.classList.toggle('active');
+        overlay?.classList.toggle('active');
+        toggleBtn.classList.toggle('active');
+      }
+    }
+
+    // Event listeners
+    toggleBtn.addEventListener('click', toggleSidebar);
+    
+    // Mobile overlay close
+    overlay?.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      toggleBtn.classList.remove('active');
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        sidebar.classList.remove('active');
+        overlay?.classList.remove('active');
+        toggleBtn.classList.remove('active');
+      }
+    });
+
+    // Window resize handler
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (window.innerWidth >= 992) {
+          // Desktop: restore collapse state
+          if (sidebarState) {
+            sidebar.classList.add('collapsed');
+            toggleBtn.classList.add('active');
+          } else {
+            sidebar.classList.remove('collapsed');
+            toggleBtn.classList.remove('active');
+          }
+          overlay?.classList.remove('active');
+          sidebar.classList.remove('active');
+        } else {
+          // Mobile: reset to hidden
+          sidebar.classList.remove('collapsed', 'active');
+          toggleBtn.classList.remove('active');
+          overlay?.classList.remove('active');
+        }
+      }, 250);
+    });
+
+    // Nav link hover tooltips (collapsed state)
+    const navLinks = sidebar.querySelectorAll('.sidebar-nav .nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('mouseenter', () => {
+        if (sidebar.classList.contains('collapsed')) {
+          const span = link.querySelector('span');
+          if (span) span.style.opacity = '1';
+        }
+      });
+      link.addEventListener('mouseleave', () => {
+        if (sidebar.classList.contains('collapsed')) {
+          const span = link.querySelector('span');
+          if (span) span.style.opacity = '0';
+        }
+      });
+    });
+
+    console.log('✅ Sidebar initialized - Active toggle + persistent state');
+  }
 
   // ===== ADMIN STATS =====
   async function loadAdminStats() {
@@ -127,7 +240,9 @@
     
     tbody.innerHTML = items.map(item => `
       <tr>
-        <td>${item._id.slice(-8)}</td>\n        <td><img src="${item.image || '/asset/grilled.jpg'}" class="rounded" style="width:50px;height:50px;object-fit:cover" onerror="this.src='/asset/food-particles.svg'"></td>\n        <td>${item.name}</td>
+        <td>${item._id.slice(-8)}</td>
+        <td><img src="${item.image || '/asset/grilled.jpg'}" class="rounded" style="width:50px;height:50px;object-fit:cover" onerror="this.src='/asset/food-particles.svg'"></td>
+        <td>${item.name}</td>
         <td>₦${item.price.toLocaleString()}</td>
         <td><span class="badge bg-${item.category === 'food' ? 'primary' : 'info'}">${item.category}</span></td>
         <td><i class="fas fa-${item.available ? 'check-circle text-success' : 'times-circle text-danger'}"></i></td>
@@ -415,6 +530,9 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
+    // Initialize sidebar FIRST
+    initSidebar();
+    
     attachMenuEventListeners();
     
     const form = document.getElementById('menuForm');
@@ -571,7 +689,6 @@ const method = menuId ? 'PUT' : 'POST';
   });
 
   function createLoader(targetId) {
-
     const loader = document.createElement('div');
     loader.id = `${targetId}-loader`;
     loader.className = 'd-none text-center py-3';
@@ -603,8 +720,12 @@ function renderPagination(containerId, currentPage, totalPages, loadFn) {
   // Auto-init
   if (document.getElementById('adminStats')) {
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => setTimeout(loadAdminDashboard, 500));
+      document.addEventListener('DOMContentLoaded', () => {
+        initSidebar();
+        setTimeout(loadAdminDashboard, 500);
+      });
     } else {
+      initSidebar();
       setTimeout(loadAdminDashboard, 500);
     }
   }
@@ -673,30 +794,30 @@ function renderPagination(containerId, currentPage, totalPages, loadFn) {
       
       // Populate modal
       if (modalBody) {
-modalBody.innerHTML = `
+        modalBody.innerHTML = `
           <div class="row mb-4">
             <div class="col-md-6">
-              <h6><i class="fas fa-user me-2 text-primary"></i><strong>Name:</strong> \${contact.name || 'N/A'}</h6>
-              <h6><i class="fas fa-envelope me-2 text-info"></i><strong>Email:</strong> \${contact.email || 'N/A'}</h6>
-              <h6><i class="fas fa-phone me-2 text-success"></i><strong>Phone:</strong> \${contact.phone || 'N/A'}</h6>
+              <h6><i class="fas fa-user me-2 text-primary"></i><strong>Name:</strong> ${contact.name || 'N/A'}</h6>
+              <h6><i class="fas fa-envelope me-2 text-info"></i><strong>Email:</strong> ${contact.email || 'N/A'}</h6>
+              <h6><i class="fas fa-phone me-2 text-success"></i><strong>Phone:</strong> ${contact.phone || 'N/A'}</h6>
             </div>
             <div class="col-md-6">
-              <h6><i class="fas fa-tag me-2 text-warning"></i><strong>Subject:</strong> \${contact.subject || 'No subject'}</h6>
-              <h6><i class="fas fa-calendar me-2 text-secondary"></i><strong>Date:</strong> \${new Date(contact.createdAt).toLocaleString()}</h6>
-              <h6><i class="fas fa-info-circle me-2 \${contact.status === 'unread' ? 'text-danger' : 'text-success'}"></i><strong>Status:</strong> 
-                <span class="badge bg-\${contact.status === 'unread' ? 'danger' : 'success'}">\${contact.status.toUpperCase()}</span>
+              <h6><i class="fas fa-tag me-2 text-warning"></i><strong>Subject:</strong> ${contact.subject || 'No subject'}</h6>
+              <h6><i class="fas fa-calendar me-2 text-secondary"></i><strong>Date:</strong> ${new Date(contact.createdAt).toLocaleString()}</h6>
+              <h6><i class="fas fa-info-circle me-2 ${contact.status === 'unread' ? 'text-danger' : 'text-success'}"></i><strong>Status:</strong> 
+                <span class="badge bg-${contact.status === 'unread' ? 'danger' : 'success'}">${contact.status.toUpperCase()}</span>
               </h6>
             </div>
           </div>
           <div class="mb-3">
             <h6><i class="fas fa-comment me-2 text-primary"></i><strong>Message:</strong></h6>
-            <div class="border rounded-3 p-4 bg-light">\${(contact.message || '').replace(/\\n/g, '<br>')}</div>
+            <div class="border rounded-3 p-4 bg-light">${(contact.message || '').replace(/\\n/g, '<br>')}</div>
           </div>
-        \`;
+        `;
       }
       
       if (modalTitle) {
-modalTitle.innerHTML = `
+        modalTitle.innerHTML = `<i class="fas fa-envelope-open me-2"></i>Contact Details`; 
       }
       
       // Show/hide mark read button
@@ -732,18 +853,20 @@ modalTitle.innerHTML = `
   window.updateContactStatus = async function(contactId, status) {
     try {
       const token = localStorage.getItem('token');
-const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}/status`, {
+      const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}/status`, {
         method: 'PATCH',
         headers: { 
-'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ status })
       });
       
-throw new Error(`HTTP ${response.status}`);
-      
-showAdminToast(`Marked as ${status.toUpperCase()}`, 'success');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      showAdminToast(`Marked as ${status.toUpperCase()}`, 'success');
       
       // Refresh table
       loadAdminContacts(1);
@@ -758,5 +881,6 @@ showAdminToast(`Marked as ${status.toUpperCase()}`, 'success');
     }
   };
   
-  console.log('✅ admin-dashboard.js FIXED - Object.keys safe + bulletproof menu save');
+  console.log('✅ admin-dashboard.js ENHANCED - Active Sidebar + Bulletproof menu save');
 })();
+
