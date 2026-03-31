@@ -167,7 +167,7 @@ async loadCart() {
     }
   }
 
-  renderCart() {
+renderCart() {
     const container = document.getElementById('cartItems');
     if (!container) {
       console.warn('Cart items container not found');
@@ -185,10 +185,21 @@ async loadCart() {
     if (validItems.length !== this.cart.items.length) {
       console.warn(`renderCart: Filtered ${this.cart.items.length - validItems.length} invalid items`);
     }
+
+    // Fix for Cloudinary image loading issues
+    const getSafeImageUrl = (image) => {
+      if (!image) return '/asset/grilled.jpg';
+      if (image.startsWith('http')) {
+        return image.includes('cloudinary.com') ? `${image}?crossorigin=anonymous` : image;
+      }
+      // Handle relative/publicId paths
+      return `https://res.cloudinary.com/dtwele294/image/upload/belleful/menu/${image.replace(/^\//, '')}`;
+    };
     
     container.innerHTML = validItems.map(item => `
       <div class="cart-item-card" data-item-id="${item.menuItem}">
-src="${item.image || '/asset/grilled.jpg'}" alt="${item.name}" class="item-image" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300/667eea/ffffff?text=No+Image'; this.onerror=null;">
+        <img src="${getSafeImageUrl(item.image)}" alt="${item.name}" class="item-image" loading="lazy" 
+             onerror="this.src='/asset/grilled.jpg'; this.onerror=null;" crossorigin="anonymous">
         <div class="item-details">
           <h3 class="item-name">${item.name}</h3>
           <div class="item-price">₦${(item.price || 0).toLocaleString()}</div>
