@@ -10,55 +10,25 @@
   <link href="css/cart.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-  <!-- Navbar - Matches other pages -->
-  <!-- Navbar - Conditional based on auth -->
-  <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-warm shadow-lg" id="cartNavbar">
+  <!-- Navbar - Logged-in only, dashboard-focused -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-warm shadow-lg">
     <div class="container">
-      <a class="navbar-brand" href="#">
+      <a class="navbar-brand" href="user-dashboard.html">
         <i class="fas fa-utensils me-2"></i>Belleful
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <!-- Guest Navbar (default) -->
-        <ul class="navbar-nav me-auto guest-nav" id="guestNav">
+        <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link" href="index.html">Home</a>
+            <a class="nav-link" href="user-dashboard.html">Dashboard</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="user-dashboard.html#menu" id="menuLink">Menu</a>
+            <a class="nav-link" href="user-dashboard.html#menu">Menu</a>
           </li>
         </ul>
-        <ul class="navbar-nav" id="guestRightNav">
-          <li class="nav-item">
-            <a class="nav-link" href="cart.html">
-              <i class="fas fa-shopping-cart"></i> Cart 
-              <span class="badge bg-danger cart-count hidden">0</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="contact-us.html">Contact</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-              <i class="fas fa-user"></i> Account
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="login.html">Login</a></li>
-              <li><a class="dropdown-item" href="signup.html">Sign Up</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="admin-login.html">Admin Login</a></li>
-            </ul>
-          </li>
-        </ul>
-        
-        <!-- Logged-in Navbar (hidden by default) -->
-        <ul class="navbar-nav me-auto logged-nav d-none" id="loggedNav">
-          <li class="nav-item"><a class="nav-link" href="user-dashboard.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="user-dashboard.html">Dashboard</a></li>
-        </ul>
-        <ul class="navbar-nav logged-right-nav d-none" id="loggedRightNav">
+        <ul class="navbar-nav">
           <li class="nav-item position-relative">
             <a class="nav-link" href="cart.html">
               <i class="fas fa-shopping-cart fs-5"></i>
@@ -68,7 +38,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
               <img class="rounded-circle me-2" src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff&size=32" width="32" height="32" alt="Profile">
-              <span id="profileName">Welcome Back</span>
+              <span id="profileName">User</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="user-dashboard.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
@@ -82,12 +52,9 @@
   </nav>
 
   <div class="cart-container pt-5">
-    <!-- Header - Conditional -->
+    <!-- Header -->
     <div class="cart-header pb-4 mb-4">
-      <a href="user-dashboard.html" class="btn btn-back guest-back d-block" id="guestBack">
-        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
-      </a>
-      <a href="user-dashboard.html" class="btn btn-back logged-back d-none" id="loggedBack">
+      <a href="user-dashboard.html" class="btn btn-back">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
       </a>
       <h1>My Cart</h1>
@@ -100,38 +67,41 @@
       </div>
 
       <!-- Summary Sidebar -->
-<div class="col-lg-4">
+      <div class="col-lg-4">
         <div class="cart-summary sticky-top" style="top: 100px;"></div>
       </div>
     </div>
   </div>
 
-  <!-- Auth Check & Navbar Setup -->
+  <!-- Auth check - redirect if not logged in -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const token = localStorage.getItem('token');
       if (!token) {
-        // Guest: show public navbar
-        document.getElementById('guestNav')?.classList.remove('d-none');
-        document.getElementById('guestRightNav')?.classList.remove('d-none');
-        document.getElementById('guestBack')?.classList.remove('d-none');
+        if (typeof showToast === 'function') {
+          showToast('Please login to access cart', 'warning');
+        }
+        window.location.href = 'login.html';
         return;
       }
-      
-      // Logged-in: show private navbar + update profile
+
+      // Update profile name
       const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
       const profileName = document.getElementById('profileName');
       if (profileName) {
         profileName.textContent = user.name || 'User';
       }
-      
-      document.getElementById('loggedNav')?.classList.remove('d-none');
-      document.getElementById('loggedRightNav')?.classList.remove('d-none');
-      document.getElementById('loggedBack')?.classList.remove('d-none');
-      document.getElementById('guestNav')?.classList.add('d-none');
-      document.getElementById('guestRightNav')?.classList.add('d-none');
-      document.getElementById('guestBack')?.classList.add('d-none');
+
+      // Load cart
+      if (typeof loadCart === 'function') {
+        loadCart();
+      }
     });
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
   </script>
   
   <!-- Bootstrap JS -->
