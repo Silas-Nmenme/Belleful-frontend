@@ -702,6 +702,68 @@ body {
   }
 }
 
+/* ===== SETTINGS MODAL STYLES ===== */
+#settingsModal .modal-content {
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow-hover);
+  border: none;
+}
+
+#settingsModal .modal-header {
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  padding: 1.5rem 2rem;
+}
+
+.avatar-preview img {
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.avatar-preview img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 40px rgba(102,126,234,0.4);
+}
+
+#avatarInput {
+  cursor: pointer;
+}
+
+.profile-form-group {
+  position: relative;
+}
+
+#uploadProgress .progress-bar {
+  background: linear-gradient(90deg, var(--primary-gradient));
+  transition: width 0.3s ease;
+}
+
+#formError {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Mobile modal optimizations */
+@media (max-width: 576px) {
+  #settingsModal .modal-dialog {
+    margin: 1rem;
+  }
+  
+  .avatar-preview img {
+    width: 100px !important;
+    height: 100px !important;
+  }
+  
+  #settingsModal .modal-body {
+    padding: 1.5rem !important;
+  }
+}
+
+
 /* Utilities */
 .fade-in-up {
   animation: fadeInUp 0.8s ease forwards;

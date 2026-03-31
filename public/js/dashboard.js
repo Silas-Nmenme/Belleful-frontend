@@ -397,5 +397,214 @@ if (document.readyState === 'loading') {
   window.loadUserDashboard();
 }
 
+// ===== PROFILE SETTINGS FUNCTIONS =====
+let currentProfileCache = null; // Cache for settings modal
+
+async function openSettingsModal() {
+  try {
+    // Use cached profile or fetch fresh
+    const cached = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (!cached.name && !cached.email) {
+      showToast('Loading profile...', 'info');
+      currentProfileCache = await loadProfile();
+    } else {
+      currentProfileCache = cached;
+    }
+
+    if (!currentProfileCache) {
+      showToast('Profile not found. Please refresh.', 'warning');
+      return;
+    }
+
+    // Populate form
+    document.getElementById('nameInput').value = currentProfileCache.name || '';
+    document.getElementById('profileEmail').textContent = currentProfileCache.email || 'N/A';
+    document.getElementById('currentAvatar').value = currentProfileCache.avatar || '';
+
+    // Show current avatar or placeholder
+    const preview = document.getElementById('avatarPreview');
+    const placeholder = document.getElementById('avatarPlaceholder');
+    if (currentProfileCache.avatar) {
+      preview.src = currentProfileCache.avatar;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+    } else {
+      preview.style.display = 'none';
+      placeholder.style.display = 'block';
+    }
+
+    // Reset form state
+    document.getElementById('uploadProgress').classList.add('d-none');
+    document.getElementById('formError')?.classList.add('d-none');
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+    modal.show();
+
+    // Auto-focus name input
+    setTimeout(() => document.getElementById('nameInput').focus(), 300);
+  } catch (error) {
+    console.error('openSettingsModal error:', error);
+    showToast('Failed to load profile settings', 'error');
+  }
+}
+
+function previewAvatar(file) {
+  if (!file || !file.type.startsWith('image/')) {
+    showToast('Please select a valid image file', 'warning');
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) { // 5MB
+    showToast('Image too large. Max 5MB.', 'warning');
+    return;
+  }
+
+  const preview = document.getElementById('avatarPreview');
+  const placeholder = document.getElementById('avatarPlaceholder');
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function updateProfile(formData) {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No auth token');
+
+    const submitBtn = document.getElementById('profileSubmit');
+    const progress = document.getElementById('uploadProgress');
+    const progressBar = progress.querySelector('.progress-bar');
+    const formError = document.getElementById('formError');
+
+    // Show loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+    progress.classList.remove('d-none');
+    formError.classList.add('d-none');
+
+    const response = await fetch(`${window.API_BASE}/auth/profile`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    });
+
+    // Progress tracking (for modern browsers)
+    if (response.body) {
+      const reader = response.body.getReader();
+      let loaded = 0;
+      const total = parseInt(response.headers.get('Content-Length')) || 0;
+      
+      // Simulate progress for UX
+      const interval = setInterval(() => {
+        loaded += 10;
+        if (loaded <= 90) {
+          progressBar.style.width = `${loaded}%`;
+        }
+      }, 100);
+
+      // Clean up
+      setTimeout(() => clearInterval(interval), 2000);
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (!result.success || !result.user) {
+      throw new Error(result.message || 'Update failed');
+    }
+
+    // Success
+    progress.classList.add('d-none');
+    showToast('Profile updated successfully! ✅', 'success');
+    
+    return result.user;
+  } catch (error) {
+    console.error('updateProfile error:', error);
+    showToast(error.message || 'Update failed', 'error');
+    throw error;
+  }
+}
+
+async function refreshProfileAfterUpdate(updatedUser) {
+  // Update cache
+  localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+  
+  // Re-render all profile displays
+  renderSidebarProfile(updatedUser);
+  renderMainProfile(updatedUser);
+  updateNavbarProfileFromUser(updatedUser);
+  
+  // Close modal
+  const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+  if (modal) modal.hide();
+}
+
+// ===== DOM EVENT LISTENERS (settings specific) =====
+function initSettingsEvents() {
+  const form = document.getElementById('profileForm');
+  const avatarInput = document.getElementById('avatarInput');
+  
+  if (!form || !avatarInput) return;
+
+  // Form submit
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const name = formData.get('name')?.trim();
+    
+    if (!name || name.length < 2) {
+      showToast('Name must be 2+ characters', 'warning');
+      return;
+    }
+
+    try {
+      const updatedUser = await updateProfile(formData);
+      await refreshProfileAfterUpdate(updatedUser);
+    } catch (error) {
+      // Error handled in updateProfile
+    }
+  });
+
+  // Avatar preview
+  avatarInput.addEventListener('change', (e) => {
+    if (e.target.files[0]) {
+      previewAvatar(e.target.files[0]);
+    }
+  });
+
+  // Reset preview on modal hidden
+  document.getElementById('settingsModal').addEventListener('hidden.bs.modal', () => {
+    avatarInput.value = '';
+    const preview = document.getElementById('avatarPreview');
+    preview.src = '';
+  });
+}
+
+// Auto-init settings when dashboard loads
+if (typeof loadUserDashboard === 'function') {
+  const originalLoad = loadUserDashboard;
+  window.loadUserDashboard = async function(...args) {
+    await originalLoad.apply(this, args);
+    initSettingsEvents();
+  };
+}
+
+// Expose globals
+window.openSettingsModal = openSettingsModal;
+window.previewAvatar = previewAvatar;
+window.updateProfile = updateProfile;
+window.refreshProfileAfterUpdate = refreshProfileAfterUpdate;
+
 console.log('dashboard.js loaded - all functions global & syntax fixed');
+
 

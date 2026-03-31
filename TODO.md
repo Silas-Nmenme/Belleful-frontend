@@ -1,19 +1,20 @@
-# Admin Dashboard Contact View Fix - TODO
+# Settings Functionality Implementation Plan
 
-## Plan Status: ✅ APPROVED
-**Backend flow verified** - Frontend null-safety fix confirmed safe
+## Approved Plan Summary
+✅ **Popup modal** for profile settings (name + avatar update)
+- Integrate with existing "Settings" sidebar link in user-dashboard.html
+- Files: user-dashboard.html, dashboard.js, user-dashboard.css
+- Backend: PUT /api/auth/profile (FormData: name, avatar file)
 
-## Steps to Complete:
+## Implementation Steps (Step-by-step execution)
 
-### ✅ 1. Create TODO.md [COMPLETED]
-### ✅ 2. Fix viewContact null safety in admin-dashboard.js
-### ✅ 3. Test contact modal rendering  
-### ✅ 4. Verify no console errors on View button click
-### ✅ 5. attempt_completion
+### Step 1: Create TODO.md [COMPLETED]
+### Step 2: Add settings modal HTML to user-dashboard.html [✅ COMPLETED]
+### Step 3: Add JS functions (openSettingsModal, updateProfile, previewAvatar) to dashboard.js [✅ COMPLETED]
+### Step 4: Add CSS styles for modal/form to user-dashboard.css [✅ COMPLETED]
+### Step 5: Test integration - login → dashboard → Settings → update → verify [PENDING]
+### Step 6: Update TODO.md on completion [PENDING]
+### Step 7: attempt_completion [PENDING]
 
-**ALL STEPS COMPLETE**
-
-**Current Progress:** Planning complete, ready for code fix
-
-**Expected Result:** No more TypeError on contact view. Safe status rendering with 'unread' fallback.
+**Current Progress: Planning complete, ready for implementation**
 
