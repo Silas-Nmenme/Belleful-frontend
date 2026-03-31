@@ -128,7 +128,7 @@ class ResetPassword {
         this.setResetLoading(true);
         
         try {
-            const response = await fetch(`${window.API_BASE}/api/auth/reset-password`, {
+            const response = await fetch(`${window.API_BASE}/auth/reset-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
