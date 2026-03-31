@@ -740,7 +740,12 @@ function renderPagination(containerId, currentPage, totalPages, loadFn) {
       
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
-      const { data: contact } = await response.json();
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      const contact = result.data || result;
+      if (!contact || !contact._id) {
+        throw new Error('Invalid contact data received from server');
+      }
       
       // Populate modal
       if (modalBody) {
@@ -753,9 +758,9 @@ function renderPagination(containerId, currentPage, totalPages, loadFn) {
             </div>
             <div class="col-md-6">
               <h6><i class="fas fa-tag me-2 text-warning"></i><strong>Subject:</strong> ${contact.subject || 'No subject'}</h6>
-              <h6><i class="fas fa-calendar me-2 text-secondary"></i><strong>Date:</strong> ${new Date(contact.createdAt).toLocaleString()}</h6>
-              <h6><i class="fas fa-info-circle me-2 ${contact.status === 'unread' ? 'text-danger' : 'text-success'}"></i><strong>Status:</strong> 
-                <span class="badge bg-${contact.status === 'unread' ? 'danger' : 'success'}">${contact.status.toUpperCase()}</span>
+              <h6><i class="fas fa-calendar me-2 text-secondary"></i><strong>Date:</strong> ${contact.createdAt ? new Date(contact.createdAt).toLocaleString() : 'Unknown'}</h6>
+              <h6><i class="fas fa-info-circle me-2 ${(contact.status || 'unread') === 'unread' ? 'text-danger' : 'text-success'}"></i><strong>Status:</strong>
+                <span class="badge bg-${(contact.status || 'unread') === 'unread' ? 'danger' : 'success'}">${(contact.status || 'unread').toUpperCase()}</span>
               </h6>
             </div>
           </div>
