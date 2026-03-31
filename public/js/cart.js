@@ -188,7 +188,7 @@ async loadCart() {
     
     container.innerHTML = validItems.map(item => `
       <div class="cart-item-card" data-item-id="${item.menuItem}">
-        <img src="${item.image || '/asset/placeholder-food.jpg'}" alt="${item.name}" class="item-image" loading="lazy">
+src="${item.image || '/asset/grilled.jpg'}" alt="${item.name}" class="item-image" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300/667eea/ffffff?text=No+Image'; this.onerror=null;">
         <div class="item-details">
           <h3 class="item-name">${item.name}</h3>
           <div class="item-price">₦${(item.price || 0).toLocaleString()}</div>
