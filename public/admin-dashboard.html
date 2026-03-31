@@ -16,7 +16,7 @@
                 <i class="fas fa-user-shield me-2"></i>Admin Dashboard
             </a>
             <!-- Sidebar Toggle Button -->
-            <button class="sidebar-toggle btn btn-link text-white p-2 ms-3 me-lg-0 me-xl-3 d-block" type="button" title="Toggle Menu" aria-label="Toggle sidebar menu" aria-expanded="false" aria-controls="sidebar">
+            <button class="sidebar-toggle btn btn-link text-white p-2 ms-3 me-lg-0 me-xl-3 d-block" type="button" onclick="if(window.DashboardManager?.toggleSidebar){window.DashboardManager.toggleSidebar();} else if(typeof toggleSidebar==='function'){toggleSidebar();}" title="Toggle Menu" aria-label="Toggle sidebar menu" aria-expanded="false" aria-controls="sidebar">
                 <i class="fas fa-bars fa-lg sidebar-hamburger"></i>
             </button>
             <ul class="navbar-nav ms-auto">
@@ -440,6 +440,11 @@
         
         // Enhanced auth check + dashboard load
         document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize sidebar FIRST for immediate toggle functionality
+            if (window.DashboardManager?.initSidebar) {
+                window.DashboardManager.initSidebar();
+            }
+            
             // Simple auth check - no checkAuthStatus to avoid redirect loop
             const token = localStorage.getItem('token');
             if (!token) {
@@ -447,7 +452,6 @@
                 return;
             }
 
-            
             loadAdminDashboard();
         });
 
