@@ -121,6 +121,7 @@
 /* Toggle Button Animation */
 .sidebar-toggle {
   transition: transform 0.3s ease;
+  z-index: 1041;
 }
 
 .sidebar-toggle .sidebar-hamburger {
