@@ -1,54 +1,63 @@
-// navigation.js - Auth-aware global navigation for Home/Brand links
-document.addEventListener('DOMContentLoaded', initSmartNavigation);
+// navigation.js - Cart configured for logged-in users only (dashboard interface)
 
-function initSmartNavigation() {
-  // Remove existing listeners to prevent duplicates
-  document.removeEventListener('click', handleSmartNavClick);
-  document.addEventListener('click', handleSmartNavClick);
+// Always redirect to dashboard for logged-in users
+document.addEventListener('DOMContentLoaded', initLoggedInNavigation);
+
+function initLoggedInNavigation() {
+  // Initialize smart navigation for dashboard
+  document.removeEventListener('click', handleDashboardNav);
+  document.addEventListener('click', handleDashboardNav);
 }
 
-function handleSmartNavClick(e) {
+function handleDashboardNav(e) {
   const link = e.target.closest('a');
   if (!link) return;
   
-  // Match Home nav-link or navbar-brand (Belleful logo)
-  const isHomeLink = link.classList.contains('nav-link') && 
-                     (link.textContent.trim().toLowerCase().includes('home') || 
-                      link.getAttribute('href') === 'index.html');
-  const isBrandLink = link.classList.contains('navbar-brand');
+  // Home, brand, menu links always go to dashboard
+  const isNavLink = link.classList.contains('nav-link') || 
+                    link.classList.contains('navbar-brand') ||
+                    link.id === 'menuLink';
   
-  if (isHomeLink || isBrandLink) {
+  if (isNavLink) {
     e.preventDefault();
-    navigateToHome();
+    redirectToDashboard(link.getAttribute('href') || '');
   }
 }
 
-function navigateToHome() {
+function redirectToDashboard(href = '') {
   const token = localStorage.getItem('token');
-  const target = token ? 'user-dashboard.html' : 'index.html';
   
-  // Use existing toast if available, else simple alert
-  if (typeof showToast === 'function') {
-    showToast(`Redirecting to ${token ? 'Dashboard' : 'Home'}...`, 'info');
+  if (!token) {
+    // No token: redirect to login
+    if (typeof showToast === 'function') {
+      showToast('Please login to access cart and menu', 'warning');
+    }
+    window.location.href = 'login.html';
+    return;
   }
-  setTimeout(() => {
-    window.location.href = target;
-  }, token ? 500 : 0);
-}
-
-// Shop Menu function - conditional redirect based on login status
-function goToShopMenu() {
-  const token = localStorage.getItem('token');
-  const target = token ? 'user-dashboard.html#menu' : 'index.html#menu';
+  
+  // Logged-in: always dashboard
+  const target = href.includes('#menu') ? 'user-dashboard.html#menu' : 'user-dashboard.html';
   
   if (typeof showToast === 'function') {
-    showToast(`Redirecting to Menu...`, 'info');
+    showToast(`Navigating to Dashboard...`, 'info');
   }
   window.location.href = target;
 }
 
-// Export for auth.js inclusion
-window.initSmartNavigation = initSmartNavigation;
-window.navigateToHome = navigateToHome;
+// Shop Menu - dashboard only
+function goToShopMenu() {
+  redirectToDashboard('#menu');
+}
+
+// Home navigation - dashboard only
+function navigateToHome() {
+  redirectToDashboard();
+}
+
+// Global exports
+window.initLoggedInNavigation = initLoggedInNavigation;
+window.redirectToDashboard = redirectToDashboard;
 window.goToShopMenu = goToShopMenu;
+window.navigateToHome = navigateToHome;
 
