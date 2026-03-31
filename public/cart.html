@@ -68,7 +68,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
               <img class="rounded-circle me-2" src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff&size=32" width="32" height="32" alt="Profile">
-              Welcome Back
+              <span id="profileName">Welcome Back</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="user-dashboard.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
@@ -120,7 +120,10 @@
       
       // Logged-in: show private navbar + update profile
       const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      document.querySelector('#loggedRightNav .dropdown-toggle span')?.textContent.replace('Welcome Back', user.name || 'User');
+      const profileName = document.getElementById('profileName');
+      if (profileName) {
+        profileName.textContent = user.name || 'User';
+      }
       
       document.getElementById('loggedNav')?.classList.remove('d-none');
       document.getElementById('loggedRightNav')?.classList.remove('d-none');
