@@ -96,7 +96,7 @@ class ResetPassword {
         this.setEmailLoading(true);
         
         try {
-            const response = await fetch(`${window.API_BASE}/api/auth/forgot-password`, {
+            const response = await fetch(`${window.API_BASE}/auth/forgot-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: this.emailField.value.trim().toLowerCase() })
