@@ -49,7 +49,7 @@ class ResetPassword {
         return true;
     }
     
-    sendOtp() {
+    async sendOtp() {
         // Show loading
         this.btn.disabled = true;
         this.spinner.classList.remove('d-none');
