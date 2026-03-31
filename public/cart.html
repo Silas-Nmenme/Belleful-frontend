@@ -122,6 +122,8 @@
       const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
       const profileName = document.getElementById('profileName');
       if (profileName) {
+        profileName.textContent = user.name || 'User';
+      }
       
       document.getElementById('loggedNav')?.classList.remove('d-none');
       document.getElementById('loggedRightNav')?.classList.remove('d-none');
