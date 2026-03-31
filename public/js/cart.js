@@ -220,7 +220,7 @@ src="${item.image || '/asset/grilled.jpg'}" alt="${item.name}" class="item-image
         <div class="empty-icon">🛒</div>
         <h2>Your cart is empty</h2>
         <p>Add delicious meals from our menu to get started. Fresh food delivered hot and fast!</p>
-        <a href="index.html#menu" class="btn-shop">
+        <a href="user-dashboard.html#menu" class="btn-shop">
           <i class="fas fa-utensils me-2"></i> Shop Menu
         </a>
       </div>
