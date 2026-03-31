@@ -23,126 +23,93 @@ function getMenuElements() {
   
   // Load menu items - main entry point
 window.loadMenu = async function() {
-  const elements = getMenuElements();
-  const { menuGrid, menuLoading } = elements;
-  
-  // Ultimate defensive check - skip if ANY required element missing
-  if (!safeElementAccess(menuGrid, 'menuGrid existence') || !safeElementAccess(menuLoading, 'menuLoading existence')) {
-    console.warn('Required menu elements missing - skipping loadMenu');
+  const menuGrid = document.getElementById('menuGridFast') || document.getElementById('menuGrid');
+  const menuLoading = document.getElementById('menuLoadingFast') || document.querySelector('.menu-loading');
+  const countDisplay = document.getElementById('menuCountDisplay');
+
+  if (!menuGrid) {
+    console.warn('menuGrid not found');
     return;
   }
 
+  // Show skeleton/loading fast
+  if (menuLoading) menuLoading.style.display = 'block';
+
   try {
-    // Safe hide/show with double-check
-    safeElementAccess(menuGrid, 'hide grid', () => menuGrid.style.display = 'none');
-    safeElementAccess(menuLoading, 'show loading', () => menuLoading.style.display = 'flex');
-    
-    const response = await fetch(`${window.API_BASE}/menu?page=1&limit=1000&available=true`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+    const response = await fetch(`${window.API_BASE}/menu?page=1&limit=100&available=true`, {
+      cache: 'force-cache',
+      signal: controller.signal,
+      keepalive: true
+    });
+    clearTimeout(timeoutId);
+
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
-    const { data: menuItems = [] } = await response.json();
+    const result = await response.json();
+    const menuItems = result.data || [];
     
-    console.log('🔍 DB Menu Loaded:', menuItems.length, 'items from API');
+    console.log('Menu loaded:', menuItems.length, 'items');
     
-    const itemsToShow = menuItems.filter(item => item && item.name); // Filter invalid
-    console.log('Items to display:', itemsToShow.length);
+    const validItems = menuItems.filter(item => item && item.name && item.price);
     
-    displayMenuItems(itemsToShow, elements);
+    displayMenuItemsFast(validItems, menuGrid, menuLoading, countDisplay);
   } catch (error) {
-    console.error('Menu API failed (no fallback):', error);
-    
-    // Safe error UI update
-    if (safeElementAccess(menuGrid, 'error UI')) {
-      menuGrid.innerHTML = `
-        <div class="col-12 text-center py-5">
-          <i class="fas fa-utensils fa-4x text-muted mb-4"></i>
-          <h4 class="text-warning mb-3">Menu Unavailable</h4>
-          <p class="text-muted mb-4">Please refresh or check connection</p>
-          <button class="btn btn-primary" onclick="loadMenu()">Reload Menu</button>
-        </div>`;
-    }
-    safeElementAccess(menuLoading, 'hide loading on error', () => menuLoading.style.display = 'none');
+    console.error('Menu load error:', error);
+    menuGrid.innerHTML = `
+      <div class="col-12 text-center py-5">
+        <i class="fas fa-utensils fa-4x text-muted mb-4"></i>
+        <h4 class="text-warning mb-3">Menu temporarily unavailable</h4>
+        <p class="text-muted mb-4">Check connection or <button class="btn btn-sm btn-outline-primary" onclick="loadMenu()">retry</button></p>
+      </div>`;
+    if (menuLoading) menuLoading.style.display = 'none';
   }
 }
 
-// Display menu items with animations
-function displayMenuItems(items, elements) {
-  console.log('🎨 Rendering', items.length, 'menu cards');
-  
-  // ULTIMATE defensive checks - use window fallback if elements incomplete
-  const safeElements = {
-    menuGrid: elements?.menuGrid || window.menuElements?.menuGrid || document.getElementById('menuGrid'),
-    menuLoading: elements?.menuLoading || window.menuElements?.menuLoading || document.querySelector('.menu-loading'),
-    menuCountDisplay: elements?.menuCountDisplay || window.menuElements?.menuCountDisplay || document.getElementById('menuCountDisplay')
-  };
-  
-  if (!safeElements.menuGrid) {
-    console.error('CRITICAL: No menuGrid found');
-    return;
-  }
-  
-  // Safe grid clear
-  try {
-    safeElements.menuGrid.innerHTML = '';
-  } catch (e) {
-    console.error('Failed to clear menuGrid:', e);
-    return;
-  }
 
+// Fast display - direct, no fallbacks
+function displayMenuItemsFast(items, menuGrid, menuLoading, countDisplay) {
+  console.log('Rendering', items.length, 'items fast');
+  
+  menuGrid.innerHTML = '';
   
   if (items.length === 0) {
-    safeElements.menuGrid.innerHTML = `
+    menuGrid.innerHTML = `
       <div class="col-12 text-center py-5">
         <i class="fas fa-utensils fa-3x text-muted mb-4"></i>
-        <h5>No menu items available</h5>
-        <p class="text-muted">Check back soon!</p>
-        <button class="btn btn-primary" onclick="loadMenu()">Refresh Menu</button>
-      </div>
-    `;
-    safeElements.menuGrid.style.display = 'block';
+        <h5 class="text-muted">No items available</h5>
+        <button class="btn btn-primary" onclick="loadMenu()">Refresh</button>
+      </div>`;
+    if (menuLoading) menuLoading.style.display = 'none';
     return;
   }
   
-  let renderCount = 0;
-  items.forEach((item, index) => {
+  items.slice(0, 24).forEach((item, index) => { // Limit for perf
     try {
-      const card = createMenuCard(item, index);
-      safeElements.menuGrid.appendChild(card);
-      renderCount++;
+      const card = createMenuCard(item, index * 50); // Staggered AOS
+      menuGrid.appendChild(card);
     } catch (e) {
-      console.error('Failed to render item', index, item, e);
+      console.error('Render error:', e);
     }
   });
-  console.log('Successfully rendered', renderCount, '/', items.length, 'cards');
   
-// Safe display updates
-
-// Remove hidden class and reset for Bootstrap grid
-  const menuGrid = safeElements.menuGrid;
-  menuGrid.classList.remove('hidden');
+  // Reset grid, hide loading smooth
   menuGrid.className = 'row g-4 menu-grid';
-  menuGrid.style.display = 'flex';
-  menuGrid.style.visibility = 'visible';
   menuGrid.style.minHeight = '400px';
-
-  safeElementAccess(safeElements.menuLoading, 'hide loading', () => safeElements.menuLoading.style.display = 'none');
-
   
-  // Update count display
-  const countDisplay = document.getElementById('menuCountDisplay');
-  if (countDisplay) {
-    countDisplay.textContent = items.length;
+  if (menuLoading) {
+    menuLoading.classList.add('hidden');
+    setTimeout(() => menuLoading.style.display = 'none', 300);
   }
   
-  // Show login toast if not authenticated
-  const token = localStorage.getItem('token');
-  if (!token && typeof showToast === 'function') {
-    showToast('Login to enjoy better menu and accessibility to more menu items!', 'info');
-  }
+  if (countDisplay) countDisplay.textContent = items.length;
   
-  // Trigger AOS refresh for new elements
-  setTimeout(() => AOS.refresh(), 100);
+  // AOS refresh
+  if (typeof AOS !== 'undefined') AOS.refresh();
 }
+
 
 // Create individual menu card
 function createMenuCard(item, delayIndex = 0) {
@@ -221,18 +188,16 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.remove(), 4000);
 }
 
-    // Auto-init only if menu elements exist
-    if (document.getElementById('menuGrid')) {
-      window.loadMenu();
-    }
+  // Auto early init if grid exists
+  const grid = document.getElementById('menuGridFast') || document.getElementById('menuGrid');
+  if (grid && typeof window.loadMenu === 'function') {
+    // Delay slight for parallel loads
+    setTimeout(window.loadMenu, 50);
+  }
 
-    // Expose global functions
-    window.MenuManager = window.MenuManager || {};
-    window.MenuManager.initialized = true;
-    window.MenuManager.loadMenu = loadMenu;
-    window.MenuManager.addToCartSafe = addToCartSafe;
-    
-  })();
+  window.MenuManager = { initialized: true, loadMenu, addToCartSafe };
+  
+})();
 
   
 
