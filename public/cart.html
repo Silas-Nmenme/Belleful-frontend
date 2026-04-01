@@ -73,36 +73,7 @@
     </div>
   </div>
 
-  <!-- Auth check - redirect if not logged in -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        if (typeof showToast === 'function') {
-          showToast('Please login to access cart', 'warning');
-        }
-        window.location.href = 'login.html';
-        return;
-      }
-
-      // Update profile name
-      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      const profileName = document.getElementById('profileName');
-      if (profileName) {
-        profileName.textContent = user.name || 'User';
-      }
-
-      // Load cart
-      if (typeof loadCart === 'function') {
-        loadCart();
-      }
-    });
-
-    function logout() {
-      localStorage.clear();
-      window.location.href = 'login.html';
-    }
-  </script>
+  <!-- Auth handled by cart.js singleton -->
   
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

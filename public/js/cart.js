@@ -58,7 +58,7 @@
     document.body.addEventListener('click', async (e) => {
       // Qty +/- buttons
       if (e.target.matches('.qty-btn')) {
-        const cartItem = e.currentTarget.closest('[data-item-id]');
+        const cartItem = e.target.closest('[data-item-id]');
         const itemId = cartItem ? cartItem.dataset.itemId : null;
         if (itemId) {
           const delta = parseInt(e.target.dataset.delta);
@@ -72,7 +72,7 @@
 
       // Remove item
       if (e.target.matches('.btn-remove')) {
-        const cartItem = e.currentTarget.closest('[data-item-id]');
+        const cartItem = e.target.closest('[data-item-id]');
         const itemId = cartItem ? cartItem.dataset.itemId : null;
         if (itemId && confirm('Remove this item?')) {
           console.log('Remove clicked for itemId:', itemId);
@@ -211,8 +211,10 @@ renderCart() {
       return `https://res.cloudinary.com/dtwele294/image/upload/belleful/menu/${image.replace(/^\//, '')}`;
     };
     
-    container.innerHTML = validItems.map(item => `
-      <div class="cart-item-card" data-item-id="${item.menuItem}">
+    container.innerHTML = validItems.map(item => {
+      const safeItemId = item._id || item.id || item.menuItem || item.menuItemId || `item-${Math.random().toString(36).substr(2, 9)}`;
+      return `
+      <div class="cart-item-card" data-item-id="${safeItemId}">
         <img src="${getSafeImageUrl(item.image)}" alt="${item.name}" class="item-image" loading="lazy" 
              onerror="this.src='/asset/grilled.jpg'; this.onerror=null;" crossorigin="anonymous">
         <div class="item-details">
@@ -228,7 +230,8 @@ renderCart() {
           </div>
         </div>
       </div>
-    `).join('');
+      `;
+    }).join('');
 
     this.renderSummary();
     this.updateCartBadge();
@@ -260,10 +263,15 @@ renderCart() {
       console.warn('Cart summary not found');
       return;
     }
-    if (!this.cart.items.length) return;
+    
+    // CRITICAL FIX: Don't render summary for empty cart
+    if (!this.cart.items.length) {
+      summary.innerHTML = '<div class="text-center py-4"><p class="text-muted mb-0">No items in cart</p></div>';
+      return;
+    }
 
-    const subtotal = this.cart.totalAmount;
-    const deliveryFee = 2000; // ₦2k realistic Lagos delivery
+    const subtotal = this.cart.totalAmount || this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = 2000;
     const total = subtotal + deliveryFee;
 
     summary.innerHTML = `
@@ -283,7 +291,9 @@ renderCart() {
 
 async updateQuantity(itemId, delta, event) {
     console.log('updateQuantity:', itemId, delta);
-    const itemIndex = this.cart.items.findIndex(item => String(item.menuItem) === String(itemId));
+    const itemIndex = this.cart.items.findIndex(item => 
+      [item._id, item.id, item.menuItem, item.menuItemId].some(id => String(id) === String(itemId))
+    );
     if (itemIndex === -1) {
       console.warn('Item not found:', itemId);
       return;
@@ -317,7 +327,9 @@ async updateQuantity(itemId, delta, event) {
   async removeItem(itemId) {
     console.log('removeItem:', itemId);
     const removeBtn = document.querySelector(`[data-item-id="${itemId}"] .btn-remove`);
-    const itemIndex = this.cart.items.findIndex(item => String(item.menuItem) === String(itemId));
+    const itemIndex = this.cart.items.findIndex(item => 
+      [item._id, item.id, item.menuItem, item.menuItemId].some(id => String(id) === String(itemId))
+    );
     if (itemIndex === -1) return;
 
     const itemName = this.cart.items[itemIndex].name;

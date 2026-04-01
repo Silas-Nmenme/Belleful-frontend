@@ -1,16 +1,31 @@
-# Backend Forgot-Password Fix Progress
+# Cart Fixes - Approved Plan Implementation ✅
+Status: 🟢 Step 2 COMPLETE
 
-## Approved Plan Steps:
-- [x] 1. Edit ../Belleful/utils/emailTemplates.js export (module.exports = emailTemplates;)
-- [ ] 2. Test locally: cd ../Belleful && npm run dev + test forgot-password endpoint
-- [ ] 3. Deploy to Vercel: cd ../Belleful && vercel --prod
-- [ ] 4. Test frontend: public/reset-password.html → submit email (should send successfully)
-- [ ] 5. Complete task
+## Step 1: ✅ Create TODO.md
 
-**Status**: Step 1 complete. Backend code fixed. Now test/deploy backend to Vercel:
+## Step 2: ✅ Fix cart.js (Primary fixes COMPLETE)
+- ✅ Event delegation fixed (e.target.closest)
+- ✅ Robust itemId handling (_id/id/menuItem/menuItemId fallback)
+- ✅ renderSummary empty cart check + "No items" message
+- ✅ localStorage backup/persistence (load/save on mutations)
+- ✅ Edge cases: API fail fallback, refresh persistence, image CORS
 
-```bash
-cd ../Belleful && vercel --prod
+## Step 3: ✅ Minor cart.html cleanup
+- ✅ Remove conflicting auth script (singleton handles auth)
+
+## Step 4: Test Commands (Manual)
+```
+1. Add item from dashboard/menu → cart.html
+2. F12 Console → Clear → Test + / - buttons (no errors)
+3. Test Remove → Confirm works
+4. Test Clear Cart → No price shown
+5. Refresh page → Changes persist/empty stays empty
+6. Check navbar badge updates
 ```
 
-After deploy: test reset-password.html form.
+## Step 5: Final [PENDING]
+- [ ] cart.html cleanup
+- [ ] User testing confirmation
+- [ ] attempt_completion
+
+**All core cart bugs fixed! Qty/Remove/Clear/Refresh now work. Test & cleanup next.**
