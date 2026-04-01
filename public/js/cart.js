@@ -119,7 +119,7 @@
   }
 
   async apiCall(endpoint, options = {}) {
-    const url = `${this.API_BASE}/cart${endpoint}`;
+    const url = `${this.API_BASE}/cart${endpoint.replace(/[^a-zA-Z0-9-_]/g, '')}`;
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -222,7 +222,7 @@ renderCart() {
     };
     
     container.innerHTML = validItems.map(item => {
-      const safeItemId = String(item.menuItem || item._id); // Backend precise match
+      const safeItemId = String(item._id || item.menuItem || item.menuItem?._id); // Backend precise match - FIXED cart item ID
       return `
       <div class="cart-item-card" data-item-id="${safeItemId}">
         <img src="${getSafeImageUrl(item.image)}" alt="${item.name}" class="item-image" loading="lazy" 
@@ -302,8 +302,8 @@ renderCart() {
 async updateQuantity(itemId, newQty, stepper) {
     console.log('updateQuantity:', itemId, newQty);
     
-    // Precise matching: backend uses item.menuItem.toString()
-    const itemIndex = this.cart.items.findIndex(item => String(item.menuItem) === String(itemId));
+    // Precise matching: use cart item _id (not menuItem reference)
+    const itemIndex = this.cart.items.findIndex(item => String(item._id || item.menuItem) === String(itemId));
     if (itemIndex === -1) {
       console.warn('Item not found:', itemId);
       this.showToast('Item not found', 'error');
