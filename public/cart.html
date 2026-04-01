@@ -32,13 +32,13 @@
           <li class="nav-item position-relative">
             <a class="nav-link" href="cart.html">
               <i class="fas fa-shopping-cart fs-5"></i>
-              <span class="badge bg-danger cart-badge cart-count hidden position-absolute top-0 start-100 translate-middle" id="cartBadge">0</span>
+<span class="badge bg-danger cart-badge cart-count position-absolute top-0 start-100 translate-middle" id="cartBadge">0</span>
             </a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
               <img class="rounded-circle me-2" src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff&size=32" width="32" height="32" alt="Profile">
-              <span id="profileName">User</span>
+<span id="profileNameNav">User</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="user-dashboard.html"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
@@ -53,11 +53,14 @@
 
   <div class="cart-container pt-5">
     <!-- Header -->
-    <div class="cart-header pb-4 mb-4">
-      <a href="user-dashboard.html" class="btn btn-back">
+<div class="cart-header pb-4 mb-4">
+      <a href="user-dashboard.html" class="btn btn-back" aria-label="Back to Dashboard">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
       </a>
-      <h1>My Cart</h1>
+      <h1 class="h2 fw-bold">My Cart</h1>
+      <div class="cart-status ms-auto">
+        <span id="cartItemCount" class="badge bg-primary fs-6">0 items</span>
+      </div>
     </div>
 
     <div class="row g-4">
@@ -73,10 +76,38 @@
     </div>
   </div>
 
-  <!-- Auth handled by cart.js singleton -->
+<!-- Error Banner -->
+  <div id="errorBanner" class="alert alert-warning alert-dismissible fade hide position-fixed top-0 start-50 translate-middle-x mt-5 z-3" role="alert" style="max-width: 500px;">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <span id="errorMessage"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
   
   <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Load profile name on DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const name = user.name || user.email?.split('@')[0] || 'User';
+      document.getElementById('profileNameNav').textContent = name;
+      
+      // Listen for cart updates
+      document.addEventListener('cartUpdated', (e) => {
+        const count = e.detail || 0;
+        const badge = document.getElementById('cartBadge');
+        const itemCount = document.getElementById('cartItemCount');
+        if (badge) {
+          badge.textContent = count;
+          badge.classList.toggle('d-none', count === 0);
+        }
+        if (itemCount) {
+          itemCount.textContent = `${count} item${count !== 1 ? 's' : ''}`;
+        }
+      });
+    });
+  </script>
   
   <!-- Project JS -->
   <script src="js/constants.js"></script>
