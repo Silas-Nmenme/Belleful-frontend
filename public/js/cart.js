@@ -53,42 +53,57 @@
   }
 
   bindEvents() {
-    // Qty controls
-    document.addEventListener('click', (e) => {
+    // Single robust delegated listener for ALL cart interactions
+    // Handles dynamic content perfectly, called once after init
+    document.body.addEventListener('click', async (e) => {
+      // Qty +/- buttons
       if (e.target.matches('.qty-btn')) {
-        const itemId = e.target.closest('.cart-item-card').dataset.itemId;
-        const delta = e.target.dataset.delta;
-        this.updateQuantity(itemId, parseInt(delta), e);
-      }
-    });
-
-    // Remove
-    document.addEventListener('click', async (e) => {
-      if (e.target.matches('.btn-remove')) {
-        const itemId = e.target.closest('.cart-item-card').dataset.itemId;
-        if (confirm('Remove this item?')) {
-          await this.removeItem(itemId);
+        const cartItem = e.currentTarget.closest('[data-item-id]');
+        const itemId = cartItem ? cartItem.dataset.itemId : null;
+        if (itemId) {
+          const delta = parseInt(e.target.dataset.delta);
+          await this.updateQuantity(itemId, delta, e);
+        } else {
+          console.warn('Qty button clicked but no itemId found');
         }
+        e.preventDefault(); // Prevent double-click issues
+        return;
       }
-    });
 
-    // Clear cart
-    document.body.addEventListener('click', (e) => {
+      // Remove item
+      if (e.target.matches('.btn-remove')) {
+        const cartItem = e.currentTarget.closest('[data-item-id]');
+        const itemId = cartItem ? cartItem.dataset.itemId : null;
+        if (itemId && confirm('Remove this item?')) {
+          console.log('Remove clicked for itemId:', itemId);
+          await this.removeItem(itemId);
+        } else {
+          console.warn('Remove clicked but no itemId:', itemId);
+        }
+        e.preventDefault();
+        return;
+      }
+
+      // Clear cart
       if (e.target.matches('.btn-clear')) {
         if (confirm('Clear entire cart?')) {
+          console.log('Clear cart confirmed');
+          e.preventDefault();
+          e.stopPropagation();
           this.clearCart();
         }
+        return;
       }
-    });
 
-    // Proceed to checkout
-    document.body.addEventListener('click', (e) => {
+      // Proceed to checkout
       if (e.target.matches('.btn-proceed')) {
+        e.preventDefault();
         if (this.cart.items.length === 0) {
           this.showToast('Cart is empty!', 'warning');
           return;
         }
         window.location.href = 'checkout.html';
+        return;
       }
     });
   }
@@ -267,65 +282,67 @@ renderCart() {
   }
 
 async updateQuantity(itemId, delta, event) {
-    const itemIndex = this.cart.items.findIndex(item => item.menuItem === itemId);
-    if (itemIndex === -1) return;
+    console.log('updateQuantity:', itemId, delta);
+    const itemIndex = this.cart.items.findIndex(item => String(item.menuItem) === String(itemId));
+    if (itemIndex === -1) {
+      console.warn('Item not found:', itemId);
+      return;
+    }
 
     const btn = event.target.closest('.qty-btn');
     const oldQty = this.cart.items[itemIndex].quantity;
     const newQty = Math.max(1, oldQty + delta);
 
-    // Always update local first (optimistic + persistent)
+    // Optimistic update
     this.cart.items[itemIndex].quantity = newQty;
+    this.cart.totalAmount = this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
     this.renderCart();
     this.updateCartBadge();
-    this.bindEvents(); // Re-bind after re-render
 
     this.setLoading(btn, true);
     
-    // Try API if auth'd (optional)
+    // API sync (non-blocking)
     if (this.token) {
-      try {
-        await this.apiCall(`/${itemId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ quantity: newQty })
-        });
-        console.log('✅ Quantity synced via API:', newQty);
-      } catch (apiError) {
-        console.warn('API update failed, kept local change:', apiError);
-      }
+      this.apiCall(`/${itemId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ quantity: newQty })
+      }).then(() => console.log('API sync OK')).catch(e => console.warn('API sync failed:', e));
     }
 
-    this.showToast(`Quantity: ${newQty}`, 'success');
+    this.showToast(`Qty: ${newQty}`, 'success');
     this.setLoading(btn, false);
   }
 
   async removeItem(itemId) {
-    // Find closest remove button for loading state
+    console.log('removeItem:', itemId);
     const removeBtn = document.querySelector(`[data-item-id="${itemId}"] .btn-remove`);
-    const itemIndex = this.cart.items.findIndex(item => item.menuItem === itemId);
+    const itemIndex = this.cart.items.findIndex(item => String(item.menuItem) === String(itemId));
     if (itemIndex === -1) return;
 
     const itemName = this.cart.items[itemIndex].name;
     
-    // Optimistic remove with loading
     if (removeBtn) this.setLoading(removeBtn, true);
+    
+    // Optimistic
     this.cart.items.splice(itemIndex, 1);
+    this.cart.totalAmount = this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     this.renderCart();
     this.updateCartBadge();
 
-    try {
-      await this.apiCall(`/${itemId}`, { method: 'DELETE' });
-      console.log('✅ Item removed via API:', itemName);
+    // API non-blocking
+    if (this.token) {
+      this.apiCall(`/${itemId}`, { method: 'DELETE' })
+        .then(() => this.showToast(`${itemName} removed`, 'success'))
+        .catch(e => {
+          console.warn('Remove API failed:', e);
+          this.showToast('Removed locally', 'success');
+        });
+    } else {
       this.showToast('Item removed', 'success');
-    } catch (error) {
-      // Rollback on error
-      await this.loadCart();
-      console.error('❌ Remove API failed:', error);
-      this.showToast('Removed locally (API sync failed)', 'warning');
-    } finally {
-      if (removeBtn) this.setLoading(removeBtn, false);
     }
+    
+    if (removeBtn) this.setLoading(removeBtn, false);
   }
 
 async clearCart() {
@@ -334,23 +351,17 @@ async clearCart() {
     
     if (clearBtn) this.setLoading(clearBtn, true);
     
-    // Always clear localStorage first
-    // No localStorage - pure API
     this.cart = { items: [], totalAmount: 0 };
     this.renderEmptyCart();
     this.updateCartBadge();
 
-    // Try API clear if auth'd
+    // API non-blocking
     if (this.token) {
-      try {
-        await this.apiCall('/clear', { method: 'DELETE' });
-        console.log('✅ Cart cleared via API');
-      } catch (apiError) {
-        console.warn('API clear failed, local clear complete:', apiError);
-      }
+      this.apiCall('/clear', { method: 'DELETE' })
+        .catch(e => console.warn('Clear API failed:', e));
     }
 
-    this.showToast(`Cleared ${itemCount} items`, 'success');
+    this.showToast(`${itemCount ? itemCount + ' items' : 'Cart'} cleared!`, 'success');
     if (clearBtn) this.setLoading(clearBtn, false);
   }
 
