@@ -180,6 +180,22 @@
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
 
+.qty-stepper.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.qty-input {
+  border: 1px solid #dee2e6;
+  font-weight: 600;
+  text-align: center;
+}
+
+.qty-input:focus {
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 0.2rem rgba(255,107,53,0.25);
+}
+
 .qty-btn {
   width: 36px;
   height: 36px;

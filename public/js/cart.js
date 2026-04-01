@@ -53,22 +53,32 @@
   }
 
   bindEvents() {
-    // Single robust delegated listener for ALL cart interactions
+// Single robust delegated listener for ALL cart interactions
     // Handles dynamic content perfectly, called once after init
+    let debounceTimer;
     document.body.addEventListener('click', async (e) => {
-      // Qty +/- buttons
-      if (e.target.matches('.qty-btn')) {
-        const cartItem = e.target.closest('[data-item-id]');
-        const itemId = cartItem ? cartItem.dataset.itemId : null;
-        if (itemId) {
-          const delta = parseInt(e.target.dataset.delta);
-          await this.updateQuantity(itemId, delta, e);
-        } else {
-          console.warn('Qty button clicked but no itemId found');
-        }
-        e.preventDefault(); // Prevent double-click issues
+      // Qty +/- buttons - DEBOUNCED
+      if (e.target.matches('.qty-btn, .qty-input')) {
+        e.preventDefault();
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+          const cartItem = e.target.closest('[data-item-id]');
+          const itemId = cartItem ? cartItem.dataset.itemId : null;
+          if (itemId) {
+            let newQty;
+            if (e.target.matches('.qty-btn')) {
+              const delta = parseInt(e.target.dataset.delta);
+              newQty = parseInt(cartItem.querySelector('.qty-display, .qty-input').textContent || '1') + delta;
+            } else { // qty-input
+              newQty = parseInt(e.target.value) || 1;
+            }
+            newQty = Math.max(1, newQty);
+            await this.updateQuantity(itemId, newQty, e.target.closest('.qty-stepper'));
+          }
+        }, 300);
         return;
       }
+
 
       // Remove item
       if (e.target.matches('.btn-remove')) {
@@ -212,7 +222,7 @@ renderCart() {
     };
     
     container.innerHTML = validItems.map(item => {
-      const safeItemId = item._id || item.id || item.menuItem || item.menuItemId || `item-${Math.random().toString(36).substr(2, 9)}`;
+      const safeItemId = String(item.menuItem || item._id); // Backend precise match
       return `
       <div class="cart-item-card" data-item-id="${safeItemId}">
         <img src="${getSafeImageUrl(item.image)}" alt="${item.name}" class="item-image" loading="lazy" 
@@ -223,7 +233,7 @@ renderCart() {
           <div class="item-controls">
             <div class="qty-stepper">
               <button class="qty-btn" data-delta="-1" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
-              <span class="qty-display">${item.quantity}</span>
+              <input type="number" class="qty-input form-control form-control-sm mx-2" min="1" value="${item.quantity}" style="width:60px;">
               <button class="qty-btn" data-delta="1">+</button>
             </div>
             <button class="btn-remove">Remove</button>
@@ -289,72 +299,64 @@ renderCart() {
     `;
   }
 
-async updateQuantity(itemId, delta, event) {
-    console.log('updateQuantity:', itemId, delta);
-    const itemIndex = this.cart.items.findIndex(item => 
-      [item._id, item.id, item.menuItem, item.menuItemId].some(id => String(id) === String(itemId))
-    );
+async updateQuantity(itemId, newQty, stepper) {
+    console.log('updateQuantity:', itemId, newQty);
+    
+    // Precise matching: backend uses item.menuItem.toString()
+    const itemIndex = this.cart.items.findIndex(item => String(item.menuItem) === String(itemId));
     if (itemIndex === -1) {
       console.warn('Item not found:', itemId);
+      this.showToast('Item not found', 'error');
       return;
     }
 
-    const btn = event.target.closest('.qty-btn');
-    const oldQty = this.cart.items[itemIndex].quantity;
-    const newQty = Math.max(1, oldQty + delta);
+    // Disable stepper during API
+    this.setLoading(stepper, true);
 
-    // Optimistic update
-    this.cart.items[itemIndex].quantity = newQty;
-    this.cart.totalAmount = this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    this.renderCart();
-    this.updateCartBadge();
+    try {
+      // API first (no optimistic - sync state)
+      if (this.token) {
+        await this.apiCall(`/${itemId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ quantity: newQty })
+        });
+      }
 
-    this.setLoading(btn, true);
-    
-    // API sync (non-blocking)
-    if (this.token) {
-      this.apiCall(`/${itemId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ quantity: newQty })
-      }).then(() => console.log('API sync OK')).catch(e => console.warn('API sync failed:', e));
+      // Reload full cart to sync
+      await this.loadCart();
+      this.updateCartBadge();
+      this.showToast(`Updated to ${newQty}`, 'success');
+      
+    } catch (error) {
+      console.error('Update failed:', error);
+      this.showToast(`Update failed: ${error.message}. Refresh page.`, 'error');
+      // Re-render from current cart (may be stale)
+      this.renderCart();
+    } finally {
+      this.setLoading(stepper, false);
     }
-
-    this.showToast(`Qty: ${newQty}`, 'success');
-    this.setLoading(btn, false);
   }
 
   async removeItem(itemId) {
     console.log('removeItem:', itemId);
+
     const removeBtn = document.querySelector(`[data-item-id="${itemId}"] .btn-remove`);
-    const itemIndex = this.cart.items.findIndex(item => 
-      [item._id, item.id, item.menuItem, item.menuItemId].some(id => String(id) === String(itemId))
-    );
-    if (itemIndex === -1) return;
-
-    const itemName = this.cart.items[itemIndex].name;
-    
     if (removeBtn) this.setLoading(removeBtn, true);
-    
-    // Optimistic
-    this.cart.items.splice(itemIndex, 1);
-    this.cart.totalAmount = this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    this.renderCart();
-    this.updateCartBadge();
 
-    // API non-blocking
-    if (this.token) {
-      this.apiCall(`/${itemId}`, { method: 'DELETE' })
-        .then(() => this.showToast(`${itemName} removed`, 'success'))
-        .catch(e => {
-          console.warn('Remove API failed:', e);
-          this.showToast('Removed locally', 'success');
-        });
-    } else {
+    try {
+      if (this.token) {
+        await this.apiCall(`/${itemId}`, { method: 'DELETE' });
+      }
+      await this.loadCart(); // Sync
+      this.updateCartBadge();
       this.showToast('Item removed', 'success');
+    } catch (error) {
+      console.error('Remove failed:', error);
+      this.showToast(`Remove failed: ${error.message}. Refresh page.`, 'error');
+      this.renderCart();
+    } finally {
+      if (removeBtn) this.setLoading(removeBtn, false);
     }
-    
-    if (removeBtn) this.setLoading(removeBtn, false);
   }
 
 async clearCart() {
@@ -362,19 +364,21 @@ async clearCart() {
     const clearBtn = document.querySelector('.btn-clear');
     
     if (clearBtn) this.setLoading(clearBtn, true);
-    
-    this.cart = { items: [], totalAmount: 0 };
-    this.renderEmptyCart();
-    this.updateCartBadge();
 
-    // API non-blocking
-    if (this.token) {
-      this.apiCall('/clear', { method: 'DELETE' })
-        .catch(e => console.warn('Clear API failed:', e));
+    try {
+      if (this.token) {
+        await this.apiCall('/clear', { method: 'DELETE' });
+      }
+      await this.loadCart();
+      this.updateCartBadge();
+      this.showToast(`${itemCount ? itemCount + ' items' : 'Cart'} cleared!`, 'success');
+    } catch (error) {
+      console.error('Clear failed:', error);
+      this.showToast(`Clear failed: ${error.message}`, 'error');
+      this.renderEmptyCart();
+    } finally {
+      if (clearBtn) this.setLoading(clearBtn, false);
     }
-
-    this.showToast(`${itemCount ? itemCount + ' items' : 'Cart'} cleared!`, 'success');
-    if (clearBtn) this.setLoading(clearBtn, false);
   }
 
   updateCartBadge() {
@@ -393,11 +397,21 @@ async clearCart() {
   }
 
   setLoading(element, loading = true) {
+    if (!element) return;
     element.classList.toggle('loading', loading);
     if (loading) {
-      element.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${element.dataset.originalText || 'Loading...'}`;
-    } else if (element.dataset.originalText) {
-      element.innerHTML = element.dataset.originalText;
+      const spinners = element.querySelectorAll('.spinner-border');
+      if (!spinners.length) {
+        element.dataset.originalHTML = element.innerHTML;
+        element.innerHTML = element.innerHTML.replace(/(<i[^>]*>.*?<\/i>|<span[^>]*>.*?<\/span>)?\s*/g, '') 
+          + '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+      }
+    } else {
+      if (element.dataset.originalHTML) {
+        element.innerHTML = element.dataset.originalHTML;
+        delete element.dataset.originalHTML;
+      }
+      element.classList.remove('loading');
     }
   }
 
