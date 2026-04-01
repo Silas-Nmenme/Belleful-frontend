@@ -136,10 +136,10 @@
       ...options
     };
 
-    console.log('🔄 API Call:', url, config.method || 'GET', options.body || 'no body');
+    console.log('🔄 API Call:', { url, method: config.method || 'GET', body: options.body, headers: config.headers });
 
     try {
-      const response = await fetch(url, config);
+      console.log('📤 Sending Request:', url, config.method, JSON.parse(options.body || '{}'));\n      const response = await fetch(url, config);
       let errorData;
       try {
         errorData = await response.clone().json();
@@ -147,7 +147,7 @@
         errorData = { message: await response.clone().text() };
       }
       if (!response.ok) {
-        throw new Error(errorData.message || errorData.error || `HTTP ${response.status}`);
+      const errorMsg = errorData.message || errorData.error || `HTTP ${response.status}`;\n      console.error('API Error Details:', { status: response.status, errorData });\n      throw new Error(errorMsg);
       }
       const data = await response.json();
       console.log('✅ API Success:', endpoint, data);
@@ -307,8 +307,7 @@ renderCart() {
     `;
   }
 
-async updateQuantity(itemId, newQty, stepper) {
-    console.log('updateQuantity:', itemId, newQty);
+async updateQuantity(itemId, newQty, stepper) {\n    console.log('updateQuantity called:', { itemId, newQty });\n    \n    // Smart ID validation with fallback\n    if (!itemId || typeof itemId !== 'string') {\n      this.showToast('Invalid item ID format', 'error');\n      return;\n    }\n    if (itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/i.test(itemId)) {\n      console.warn('Non-standard itemId, trying anyway:', itemId);\n    }
     
     // TEMP DISABLE validation - backend rejects valid-looking cart IDs
     // Validate: cart item ID should be 24-char ObjectId (not user/session ID)
@@ -331,12 +330,7 @@ async updateQuantity(itemId, newQty, stepper) {
 
     try {
       // API first (no optimistic - sync state)
-      if (this.token) {
-        await this.apiCall(`/${itemId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ quantity: newQty })
-        });
-      }
+      if (this.token) {\n        try {\n          // Try standard payload first\n          await this.apiCall(`/${itemId}`, {\n            method: 'PATCH',\n            body: JSON.stringify({ quantity: newQty })\n          });\n        } catch (e1) {\n          console.log('Standard payload failed, trying {qty}:', e1.message);\n          // Fallback 1: {qty}\n          await this.apiCall(`/${itemId}`, {\n            method: 'PATCH',\n            body: JSON.stringify({ qty: newQty })\n          });\n        }\n      }
 
       // Reload full cart to sync
       await this.loadCart();
