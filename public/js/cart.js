@@ -11,6 +11,8 @@
     this.token = localStorage.getItem('token');
     this.cart = { items: [], totalAmount: 0 };
     this.isCartPage = this.isCartPage.bind(this);
+    this.saveCart = this.saveCart.bind(this);
+    this.loadLocalCart = this.loadLocalCart.bind(this);
     this.init();
   }
 
@@ -158,7 +160,7 @@
     }
   }
 
-async loadCart() {
+  async loadCart() {
     // Skip full load on badge-only pages (menu/dashboard)
     if (!this.isCartPage()) {
       console.log('Badge-only page - skipping full cart load');
@@ -176,27 +178,53 @@ async loadCart() {
     try {
       let cartData = { items: [], totalAmount: 0 };
 
-      // Always try API first (auth users)
+      // Try API first for auth users, fallback to local
       if (this.token) {
-        const result = await this.apiCall('/');
-        cartData = result.data || cartData;
+        try {
+          const result = await this.apiCall('/');
+          cartData = result.data || cartData;
+        } catch (apiError) {
+          console.warn('API load failed, using local cart:', apiError.message);
+        }
       }
 
-// Auth required - no guest cart
+      // Merge/override with local cart
+      const localCart = this.loadLocalCart();
+      cartData.items = localCart.items.length > cartData.items.length ? localCart.items : cartData.items;
+      cartData.totalAmount = localCart.totalAmount || cartData.totalAmount;
+
+      // No token: use local cart only
       if (!this.token) {
-        this.showToast('Please login to view cart', 'warning');
-        setTimeout(() => window.location.href = 'login.html', 1500);
-        return;
+        cartData = this.loadLocalCart();
+        // Optional: prompt login but don't redirect for guest support
+        if (document.querySelector('.cart-empty')) {
+          this.showToast('Login to sync cart with orders', 'info');
+        }
       }
-      
-
 
       this.cart = cartData;
+      await this.saveCart();
       this.renderCart();
     } catch (error) {
       console.error('Load cart failed:', error);
-      this.cart = { items: [], totalAmount: 0 };
-      this.renderEmptyCart();
+      this.cart = this.loadLocalCart();
+      await this.saveCart();
+      this.renderCart();
+    }
+  }
+
+  saveCart() {
+    localStorage.setItem('belleful_cart', JSON.stringify(this.cart));
+  }
+
+  loadLocalCart() {
+    try {
+      const cartStr = localStorage.getItem('belleful_cart');
+      return cartStr ? JSON.parse(cartStr) : { items: [], totalAmount: 0 };
+    } catch (e) {
+      console.warn('Local cart parse failed:', e);
+      localStorage.removeItem('belleful_cart');
+      return { items: [], totalAmount: 0 };
     }
   }
 

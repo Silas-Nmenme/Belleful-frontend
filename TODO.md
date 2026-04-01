@@ -1,1 +1,13 @@
-# Cart Quantity Update Bug Fix - Approved Plan\nStatus: ✅ Complete - Frontend Fixes Applied\n\n## Implemented Changes:\n✅ 1. Created TODO.md\n✅ 2. Read/analyzed cart.js\n✅ 3. Enhanced apiCall() logging (request/response details)\n✅ 4. Added payload fallbacks: {quantity} → {qty}\n✅ 5. Smart ID validation + detailed error parsing\n✅ 6. Applied all 5 code edits\n\n## Test Instructions:\n1. Open cart.html in browser (login first)\n2. Change item quantity (+/- or input)\n3. Check Console + Network tab for:\n   - Request payload sent\n   - Backend response details\n   - Success/fallback behavior\n\n**If still 400 error**: Backend expects different payload. Check Network tab → share screenshot/console logs.\n\n**Result**: Cart.js now has robust debugging + multiple payload formats to handle common backend variations.
+# Cart.js SyntaxError Fix - TODO
+
+## Plan Breakdown (Approved by user)
+1. [ ] **Create TODO.md** (this file - CURRENT)
+2. [ ] **Fix unescaped newlines in apiCall() console statements**
+3. [ ] **Fix updateQuantity console.log newline**
+4. [ ] **Verify no other syntax issues**
+5. [ ] **Test cart.html** (attempt_completion + open command)
+6. [ ] **Mark complete**
+
+**Progress**: Starting edits...
+
+
