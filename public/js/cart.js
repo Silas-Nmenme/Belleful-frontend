@@ -310,12 +310,13 @@ renderCart() {
 async updateQuantity(itemId, newQty, stepper) {
     console.log('updateQuantity:', itemId, newQty);
     
+    // TEMP DISABLE validation - backend rejects valid-looking cart IDs
     // Validate: cart item ID should be 24-char ObjectId (not user/session ID)
-    if (!itemId || itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
-      console.error('Invalid itemId:', itemId);
-      this.showToast('Invalid item ID', 'error');
-      return;
-    }
+    // if (!itemId || itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
+    //   console.error('Invalid itemId:', itemId);
+    //   this.showToast('Invalid item ID', 'error');
+    //   return;
+    // }
     
     // Precise matching: use cart item _id (not menuItem reference)
     const itemIndex = this.cart.items.findIndex(item => String(item._id) === String(itemId));
@@ -355,12 +356,13 @@ async updateQuantity(itemId, newQty, stepper) {
   async removeItem(itemId) {
     console.log('removeItem:', itemId);
     
+    // TEMP DISABLE validation - backend rejects valid-looking cart IDs
     // Validate ID
-    if (!itemId || itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
-      console.error('Invalid itemId:', itemId);
-      this.showToast('Invalid item ID', 'error');
-      return;
-    }
+    // if (!itemId || itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
+    //   console.error('Invalid itemId:', itemId);
+    //   this.showToast('Invalid item ID', 'error');
+    //   return;
+    // }
 
     const removeBtn = document.querySelector(`[data-item-id="${itemId}"] .btn-remove`);
     if (removeBtn) this.setLoading(removeBtn, true);
