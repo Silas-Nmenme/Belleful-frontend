@@ -28,7 +28,7 @@
     if (!this.isCartPage()) {
       console.log('Initializing cart badge-only mode');
       this.updateCartBadge();
-      this.bindEvents(); // Still bind global events
+      this.bindEvents();
       return;
     }
 
@@ -55,11 +55,8 @@
   }
 
   bindEvents() {
-// Single robust delegated listener for ALL cart interactions
-    // Handles dynamic content perfectly, called once after init
     let debounceTimer;
     document.body.addEventListener('click', async (e) => {
-      // Qty +/- buttons - DEBOUNCED
       if (e.target.matches('.qty-btn, .qty-input')) {
         e.preventDefault();
         clearTimeout(debounceTimer);
@@ -71,7 +68,7 @@
             if (e.target.matches('.qty-btn')) {
               const delta = parseInt(e.target.dataset.delta);
               newQty = parseInt(cartItem.querySelector('.qty-display, .qty-input').textContent || '1') + delta;
-            } else { // qty-input
+            } else {
               newQty = parseInt(e.target.value) || 1;
             }
             newQty = Math.max(1, newQty);
@@ -81,8 +78,6 @@
         return;
       }
 
-
-      // Remove item
       if (e.target.matches('.btn-remove')) {
         const cartItem = e.target.closest('[data-item-id]');
         const itemId = cartItem ? cartItem.dataset.itemId : null;
@@ -96,7 +91,6 @@
         return;
       }
 
-      // Clear cart
       if (e.target.matches('.btn-clear')) {
         if (confirm('Clear entire cart?')) {
           console.log('Clear cart confirmed');
@@ -107,7 +101,6 @@
         return;
       }
 
-      // Proceed to checkout
       if (e.target.matches('.btn-proceed')) {
         e.preventDefault();
         if (this.cart.items.length === 0) {
@@ -121,10 +114,9 @@
   }
 
     async apiCall(endpoint, options = {}) {
-    // Fix: Proper path handling - preserve / for /:id routes
     let cleanEndpoint = endpoint;
     if (endpoint.startsWith('/')) {
-      cleanEndpoint = endpoint; // Keep as-is: e.g. /${itemId} → /api/cart/${itemId}
+      cleanEndpoint = endpoint;
     } else {
       cleanEndpoint = `/${endpoint}`;
     }
@@ -138,10 +130,10 @@
       ...options
     };
 
-    console.log('🔄 API Call:', { url, method: config.method || 'GET', body: options.body, headers: config.headers });
+    console.log('🔄 API Call:', { url, method: config.method || 'GET', body: options.body });
 
     try {
-      console.log('📤 Sending Request:', url, config.method, JSON.parse(options.body || '{}'));\n      const response = await fetch(url, config);
+      const response = await fetch(url, config);
       let errorData;
       try {
         errorData = await response.clone().json();
@@ -149,7 +141,9 @@
         errorData = { message: await response.clone().text() };
       }
       if (!response.ok) {
-      const errorMsg = errorData.message || errorData.error || `HTTP ${response.status}`;\n      console.error('API Error Details:', { status: response.status, errorData });\n      throw new Error(errorMsg);
+        const errorMsg = errorData.message || errorData.error || `HTTP ${response.status}`;
+        console.error('API Error Details:', { status: response.status, errorData });
+        throw new Error(errorMsg);
       }
       const data = await response.json();
       console.log('✅ API Success:', endpoint, data);
@@ -161,14 +155,12 @@
   }
 
   async loadCart() {
-    // Skip full load on badge-only pages (menu/dashboard)
     if (!this.isCartPage()) {
       console.log('Badge-only page - skipping full cart load');
       this.updateCartBadge();
       return;
     }
 
-    // DOM safety check for cart page
     if (!document.getElementById('cartItems')) {
       console.warn('Cart DOM not ready, retrying...');
       setTimeout(() => this.loadCart(), 100);
@@ -178,7 +170,6 @@
     try {
       let cartData = { items: [], totalAmount: 0 };
 
-      // Try API first for auth users, fallback to local
       if (this.token) {
         try {
           const result = await this.apiCall('/');
@@ -188,15 +179,12 @@
         }
       }
 
-      // Merge/override with local cart
       const localCart = this.loadLocalCart();
       cartData.items = localCart.items.length > cartData.items.length ? localCart.items : cartData.items;
       cartData.totalAmount = localCart.totalAmount || cartData.totalAmount;
 
-      // No token: use local cart only
       if (!this.token) {
         cartData = this.loadLocalCart();
-        // Optional: prompt login but don't redirect for guest support
         if (document.querySelector('.cart-empty')) {
           this.showToast('Login to sync cart with orders', 'info');
         }
@@ -228,7 +216,7 @@
     }
   }
 
-renderCart() {
+  renderCart() {
     const container = document.getElementById('cartItems');
     if (!container) {
       console.warn('Cart items container not found');
@@ -247,18 +235,16 @@ renderCart() {
       console.warn(`renderCart: Filtered ${this.cart.items.length - validItems.length} invalid items`);
     }
 
-    // Fix for Cloudinary image loading issues
     const getSafeImageUrl = (image) => {
       if (!image) return '/asset/grilled.jpg';
       if (image.startsWith('http')) {
         return image.includes('cloudinary.com') ? `${image}?crossorigin=anonymous` : image;
       }
-      // Handle relative/publicId paths
       return `https://res.cloudinary.com/dtwele294/image/upload/belleful/menu/${image.replace(/^\//, '')}`;
     };
     
     container.innerHTML = validItems.map(item => {
-      const safeItemId = String(item._id || item.menuItem || item.menuItem?._id); // Backend precise match - FIXED cart item ID
+      const safeItemId = String(item._id || item.menuItem || item.menuItem?._id);
       return `
       <div class="cart-item-card" data-item-id="${safeItemId}">
         <img src="${getSafeImageUrl(item.image)}" alt="${item.name}" class="item-image" loading="lazy" 
@@ -281,7 +267,7 @@ renderCart() {
 
     this.renderSummary();
     this.updateCartBadge();
-    this.bindEvents(); // Re-bind dynamic elements
+    this.bindEvents();
   }
 
   renderEmptyCart() {
@@ -310,13 +296,13 @@ renderCart() {
       return;
     }
     
-    // CRITICAL FIX: Don't render summary for empty cart
     if (!this.cart.items.length) {
       summary.innerHTML = '<div class="text-center py-4"><p class="text-muted mb-0">No items in cart</p></div>';
       return;
     }
 
-    const subtotal = this.cart.totalAmount || this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    this.cart.totalAmount = subtotal;
     const deliveryFee = 2000;
     const total = subtotal + deliveryFee;
 
@@ -335,17 +321,14 @@ renderCart() {
     `;
   }
 
-async updateQuantity(itemId, newQty, stepper) {\n    console.log('updateQuantity called:', { itemId, newQty });\n    \n    // Smart ID validation with fallback\n    if (!itemId || typeof itemId !== 'string') {\n      this.showToast('Invalid item ID format', 'error');\n      return;\n    }\n    if (itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/i.test(itemId)) {\n      console.warn('Non-standard itemId, trying anyway:', itemId);\n    }
+  async updateQuantity(itemId, newQty, stepper) {
+    console.log('updateQuantity called:', { itemId, newQty });
     
-    // TEMP DISABLE validation - backend rejects valid-looking cart IDs
-    // Validate: cart item ID should be 24-char ObjectId (not user/session ID)
-    // if (!itemId || itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
-    //   console.error('Invalid itemId:', itemId);
-    //   this.showToast('Invalid item ID', 'error');
-    //   return;
-    // }
+    if (!itemId || typeof itemId !== 'string') {
+      this.showToast('Invalid item ID format', 'error');
+      return;
+    }
     
-    // Precise matching: use cart item _id (not menuItem reference)
     const itemIndex = this.cart.items.findIndex(item => String(item._id) === String(itemId));
     if (itemIndex === -1) {
       console.warn('Item not found:', itemId);
@@ -353,22 +336,26 @@ async updateQuantity(itemId, newQty, stepper) {\n    console.log('updateQuantity
       return;
     }
 
-    // Disable stepper during API
     this.setLoading(stepper, true);
-
     try {
-      // API first (no optimistic - sync state)
-      if (this.token) {\n        try {\n          // Try standard payload first\n          await this.apiCall(`/${itemId}`, {\n            method: 'PATCH',\n            body: JSON.stringify({ quantity: newQty })\n          });\n        } catch (e1) {\n          console.log('Standard payload failed, trying {qty}:', e1.message);\n          // Fallback 1: {qty}\n          await this.apiCall(`/${itemId}`, {\n            method: 'PATCH',\n            body: JSON.stringify({ qty: newQty })\n          });\n        }\n      }
-
-      // Reload full cart to sync
-      await this.loadCart();
+      newQty = Math.max(1, newQty);
+      
+      if (newQty <= 0) {
+        await this.removeItem(itemId);
+        return;
+      }
+      
+      this.cart.items[itemIndex].quantity = newQty;
+      this.cart.totalAmount = this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      await this.saveCart();
+      this.renderCart();
       this.updateCartBadge();
       this.showToast(`Updated to ${newQty}`, 'success');
       
     } catch (error) {
       console.error('Update failed:', error);
-      this.showToast(`Update failed: ${error.message}. Refresh page.`, 'error');
-      // Re-render from current cart (may be stale)
+      this.showToast('Update failed', 'error');
       this.renderCart();
     } finally {
       this.setLoading(stepper, false);
@@ -378,49 +365,42 @@ async updateQuantity(itemId, newQty, stepper) {\n    console.log('updateQuantity
   async removeItem(itemId) {
     console.log('removeItem:', itemId);
     
-    // TEMP DISABLE validation - backend rejects valid-looking cart IDs
-    // Validate ID
-    // if (!itemId || itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
-    //   console.error('Invalid itemId:', itemId);
-    //   this.showToast('Invalid item ID', 'error');
-    //   return;
-    // }
-
     const removeBtn = document.querySelector(`[data-item-id="${itemId}"] .btn-remove`);
     if (removeBtn) this.setLoading(removeBtn, true);
 
     try {
-      if (this.token) {
-        await this.apiCall(`/${itemId}`, { method: 'DELETE' });
-      }
-      await this.loadCart(); // Sync
+      this.cart.items = this.cart.items.filter(item => String(item._id) !== String(itemId));
+      this.cart.totalAmount = this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      await this.saveCart();
+      this.renderCart();
       this.updateCartBadge();
       this.showToast('Item removed', 'success');
     } catch (error) {
       console.error('Remove failed:', error);
-      this.showToast(`Remove failed: ${error.message}. Refresh page.`, 'error');
+      this.showToast('Remove failed', 'error');
       this.renderCart();
     } finally {
       if (removeBtn) this.setLoading(removeBtn, false);
     }
   }
 
-async clearCart() {
+  async clearCart() {
     const itemCount = this.cart.items.length;
     const clearBtn = document.querySelector('.btn-clear');
     
     if (clearBtn) this.setLoading(clearBtn, true);
 
     try {
-      if (this.token) {
-        await this.apiCall('/clear', { method: 'DELETE' });
-      }
-      await this.loadCart();
+      this.cart = { items: [], totalAmount: 0 };
+      localStorage.removeItem('belleful_cart');
+      
+      this.renderEmptyCart();
       this.updateCartBadge();
       this.showToast(`${itemCount ? itemCount + ' items' : 'Cart'} cleared!`, 'success');
     } catch (error) {
       console.error('Clear failed:', error);
-      this.showToast(`Clear failed: ${error.message}`, 'error');
+      this.showToast('Clear failed', 'error');
       this.renderEmptyCart();
     } finally {
       if (clearBtn) this.setLoading(clearBtn, false);
@@ -431,7 +411,6 @@ async clearCart() {
     const count = this.cart.items.reduce((sum, item) => sum + item.quantity, 0);
     document.dispatchEvent(new CustomEvent('cartUpdated', { detail: count }));
     
-    // Direct updates for cart page badges
     document.querySelectorAll('.cart-count, .cart-badge').forEach(badge => {
       badge.textContent = count;
       if (count > 0) {
@@ -462,7 +441,6 @@ async clearCart() {
   }
 
   showToast(message, type = 'info') {
-    // Simple toast without Bootstrap dependency
     const toast = document.createElement('div');
     toast.className = `toast alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} shadow-lg`;
     toast.innerHTML = `
@@ -486,53 +464,48 @@ async clearCart() {
   }
 }
 
-    window.CartSingleton = true;
-    
-    // Global styles for toasts (singleton)
-    if (!document.querySelector('#cart-toast-styles')) {
-      const style = document.createElement('style');
-      style.id = 'cart-toast-styles';
-      style.textContent = `
-        @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
-        @keyframes slideOut { from { transform: translateX(0); } to { transform: translateX(400px); opacity: 0; } }
-      `;
-      document.head.appendChild(style);
-    }
-    
-    // Export singleton instance
-    window.CartManager = window.CartManager || new CartManager();
-    window.CartSingleton = window.CartManager;
-    
-  })();
+  window.CartSingleton = true;
   
-  // API-only addToCart - direct POST to /cart
-  window.addToCart = async (menuItemId, quantity = 1) => {
-    if (!window.CartManager?.token) {
-      window.CartManager?.showToast('Please login to add items', 'warning');
-      setTimeout(() => window.location.href = 'login.html', 1000);
-      return;
-    }
-    
-    try {
-      await window.CartManager.apiCall('/', {
-        method: 'POST',
-        body: JSON.stringify({ menuItemId, quantity })
-      });
-      window.CartManager.updateCartBadge();
-      window.CartManager.showToast('Added to cart!', 'success');
-      document.dispatchEvent(new CustomEvent('cartUpdated', { detail: (window.CartManager.cart.items.reduce((sum, item) => sum + item.quantity, 0) + quantity) }));
-    } catch (e) {
-      console.error('Add to cart failed:', e);
-      window.CartManager.showToast('Failed to add item. Server error.', 'error');
-    }
-  };
-  
-  // Auto-init safely
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      window.CartManager.init();
-    });
-  } else {
-    window.CartManager.init();
+  if (!document.querySelector('#cart-toast-styles')) {
+    const style = document.createElement('style');
+    style.id = 'cart-toast-styles';
+    style.textContent = `
+      @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+      @keyframes slideOut { from { transform: translateX(0); } to { transform: translateX(400px); opacity: 0; } }
+    `;
+    document.head.appendChild(style);
   }
+  
+  window.CartManager = window.CartManager || new CartManager();
+  window.CartSingleton = window.CartManager;
+  
+})();
 
+window.addToCart = async (menuItemId, quantity = 1) => {
+  if (!window.CartManager?.token) {
+    window.CartManager?.showToast('Please login to add items', 'warning');
+    setTimeout(() => window.location.href = 'login.html', 1000);
+    return;
+  }
+  
+  try {
+    await window.CartManager.apiCall('/', {
+      method: 'POST',
+      body: JSON.stringify({ menuItemId, quantity })
+    });
+    window.CartManager.updateCartBadge();
+    window.CartManager.showToast('Added to cart!', 'success');
+    document.dispatchEvent(new CustomEvent('cartUpdated', { detail: (window.CartManager.cart.items.reduce((sum, item) => sum + item.quantity, 0) + quantity) }));
+  } catch (e) {
+    console.error('Add to cart failed:', e);
+    window.CartManager.showToast('Failed to add item. Server error.', 'error');
+  }
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.CartManager.init();
+  });
+} else {
+  window.CartManager.init();
+}
