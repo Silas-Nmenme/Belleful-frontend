@@ -36,7 +36,7 @@
             const currentQty = parseInt(itemEl.dataset.quantity) || 1;
             const delta = parseInt(qtyBtn.dataset.delta);
             const newQty = Math.max(1, currentQty + delta);
-            await this.updateQuantity(itemId, newQty);
+await this.updateQuantity(itemId, newQty, qtyBtn, e);
           }
           return;
         }
@@ -47,18 +47,20 @@
           const itemEl = qtyInput.closest('[data-menuitem-id]');
           if (itemEl) {
             const itemId = itemEl.dataset.menuitemId;
-            const newQty = parseInt(qtyInput.value) || 1;
+        const newQty = parseInt(qtyInput.value) || 1;
             qtyInput.value = newQty;
-            await this.updateQuantity(itemId, newQty);
+            await this.updateQuantity(itemId, newQty, qtyInput, e);
           }
           return;
         }
 
         if (e.target.matches('.btn-cart-remove')) {
           e.preventDefault();
-          const itemId = e.target.closest('[data-menuitem-id]').dataset.menuitemId;
+          const itemEl = e.target.closest('[data-menuitem-id]');
+          const itemId = itemEl.dataset.menuitemId;
+          const removeBtn = e.target.closest('.btn-cart-remove');
           if (confirm('Remove this item from cart?')) {
-            await this.removeItem(itemId);
+            await this.removeItem(itemId, removeBtn, e);
           }
           return;
         }
@@ -153,12 +155,12 @@
       return result;
     }
 
-    async updateQuantity(menuItemId, quantity) {
+async updateQuantity(menuItemId, quantity, buttonEl, event) {
       if (!this.token) throw new Error('Login required');
       if (!this.isValidMongoId(menuItemId)) throw new Error('Invalid item ID');
       if (quantity < 1) return this.removeItem(menuItemId);
 
-      await this.setElementLoading(e.target.closest('.qty-stepper'), true);
+      await this.setElementLoading(buttonEl.closest('.qty-stepper'), true);
       
       try {
         const result = await this.apiCall(`/${menuItemId}`, {
@@ -178,13 +180,13 @@
         this.showToast(error.message || 'Update failed', 'error');
         this.render();
       } finally {
-        this.setElementLoading(e.target.closest('.qty-stepper'), false);
+        this.setElementLoading(buttonEl.closest('.qty-stepper'), false);
       }
     }
 
-    async removeItem(menuItemId) {
+    async removeItem(menuItemId, buttonEl, event) {
       if (!this.token) throw new Error('Login required');
-      await this.setElementLoading(e.target, true);
+      await this.setElementLoading(buttonEl, true);
       
       try {
         await this.apiCall(`/${menuItemId}`, { method: 'DELETE' });
@@ -194,7 +196,7 @@
         this.showToast(error.message || 'Remove failed', 'error');
         this.render();
       } finally {
-        this.setElementLoading(e.target, false);
+        this.setElementLoading(buttonEl, false);
       }
     }
 
