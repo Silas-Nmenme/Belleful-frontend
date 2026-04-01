@@ -1,28 +1,15 @@
-# Cart API Fix - Progress Tracker
+# Cart API 404 Fix - TODO Steps
 
-## ✅ COMPLETED
-- [x] **Breakdown approved plan into TODO.md**
-- [x] **Edit cart.js (3 targeted ID fixes)**
-  * `safeItemId = String(item._id || item.menuItem || item.menuItem?._id)` ✅
-  * `findIndex(item => String(item._id || item.menuItem) === String(itemId))` ✅  
-  * `endpoint.replace(/[^a-zA-Z0-9-_]/g, '')` URL safety ✅
-- [ ] Test quantity update (no more [object Object])
-- [ ] Backend CORS PATCH (server-side) 
-- [ ] Final verification & completion
+## Plan Summary
+Fix frontend cart.js: Correct URL construction in apiCall() for /api/cart/:itemId paths. Remove bad sanitization causing /api/cart[no-slash]ID.
 
-## 🎉 Frontend Fix Complete!
-```
-✅ [object Object] URL bug eliminated
-✅ Proper MongoDB ObjectId extraction  
-✅ Defensive URL sanitization added
-✅ Quantity update now works: /api/cart/507f... 
-```
+## Steps (3/5 complete)
+✅ 1. Edit apiCall() in public/js/cart.js: Fix URL logic to preserve path separator for endpoints starting with '/'.  
+✅ 2. Add itemId validation (24-char hex) in updateQuantity() and removeItem().  
 
-**Test**: Open `public/cart.html`, add items, change quantity → ✅ Fixed!
+- [ ] 3. Test quantity update on cart.html (check Network tab: /api/cart/[24-char-id] → 200).
+- [ ] 4. Test remove item.
+- [ ] 5. Verify cart badge updates. Complete task.
 
-**Remaining**: Backend CORS (PATCH method) - Vercel server config needed.
-```
-Run: open public/cart.html
-```
-
+**Current progress**: Code changes complete. Test next.
 

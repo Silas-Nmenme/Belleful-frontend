@@ -118,8 +118,16 @@
     });
   }
 
-  async apiCall(endpoint, options = {}) {
-    const url = `${this.API_BASE}/cart${endpoint.replace(/[^a-zA-Z0-9-_]/g, '')}`;
+    async apiCall(endpoint, options = {}) {
+    // Fix: Proper path handling - preserve / for /:id routes
+    let cleanEndpoint = endpoint;
+    if (endpoint.startsWith('/')) {
+      cleanEndpoint = endpoint; // Keep as-is: e.g. /${itemId} → /api/cart/${itemId}
+    } else {
+      cleanEndpoint = `/${endpoint}`;
+    }
+    const url = `${this.API_BASE}/cart${cleanEndpoint}`;
+    
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -302,8 +310,15 @@ renderCart() {
 async updateQuantity(itemId, newQty, stepper) {
     console.log('updateQuantity:', itemId, newQty);
     
+    // Validate: cart item ID should be 24-char ObjectId (not user/session ID)
+    if (!itemId || itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
+      console.error('Invalid itemId:', itemId);
+      this.showToast('Invalid item ID', 'error');
+      return;
+    }
+    
     // Precise matching: use cart item _id (not menuItem reference)
-    const itemIndex = this.cart.items.findIndex(item => String(item._id || item.menuItem) === String(itemId));
+    const itemIndex = this.cart.items.findIndex(item => String(item._id) === String(itemId));
     if (itemIndex === -1) {
       console.warn('Item not found:', itemId);
       this.showToast('Item not found', 'error');
@@ -339,6 +354,13 @@ async updateQuantity(itemId, newQty, stepper) {
 
   async removeItem(itemId) {
     console.log('removeItem:', itemId);
+    
+    // Validate ID
+    if (!itemId || itemId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
+      console.error('Invalid itemId:', itemId);
+      this.showToast('Invalid item ID', 'error');
+      return;
+    }
 
     const removeBtn = document.querySelector(`[data-item-id="${itemId}"] .btn-remove`);
     if (removeBtn) this.setLoading(removeBtn, true);
