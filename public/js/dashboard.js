@@ -200,7 +200,19 @@ window.trackOrder = function(orderId) {
 
 function renderMainProfile(user) {
   const container = document.getElementById('mainProfileCard');
-  if (!user || !container) return;
+  if (!container) return;
+
+  if (!user) {
+    container.innerHTML = `
+      <div class="profile-main text-center py-5">
+        <div class="spinner-border text-primary mb-4" style="width: 4rem; height: 4rem;" role="status">
+          <span class="visually-hidden">Loading profile...</span>
+        </div>
+        <h5 class="text-muted">Loading profile...</h5>
+      </div>
+    `;
+    return;
+  }
 
   const avatar = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=667eea&color=fff&size=120`;
   container.innerHTML = `
@@ -273,35 +285,9 @@ async function loadUserDashboard() {
       return;
     }
 
-// Use task-specific fallback + cached profile for immediate sidebar render
-    try {
-      // Task-specific fallback
-      const fallbackUser = {
-        name: 'WebDev SIlas',
-        email: 'silasonyekachi15@gmail.com',
-        totalOrders: 0,
-        totalSpent: 0,
-        role: 'user'
-      };
-      
-      const cachedProfile = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      const profileToRender = cachedProfile.name || cachedProfile.email 
-        ? { ...fallbackUser, ...cachedProfile } 
-        : fallbackUser;
-      
-      renderSidebarProfile(profileToRender);
-      renderMainProfile(profileToRender);
-      updateNavbarProfileFromCache(profileToRender);
-    } catch (e) {
-      console.log('Cached profile render:', e);
-      // Ultimate fallback
-      renderSidebarProfile({
-        name: 'WebDev SIlas',
-        email: 'silasonyekachi15@gmail.com',
-        totalOrders: 0,
-        totalSpent: 0
-      });
-    }
+// Show loading states initially - wait for real API data
+    renderSidebarProfile(null);
+    renderMainProfile(null);
 
     // Parallel loads
     const [stats, profile, ordersRes] = await Promise.allSettled([
@@ -314,16 +300,11 @@ async function loadUserDashboard() {
     renderStats(stats.status === 'fulfilled' ? stats.value : null);
     
     if (profile.status === 'fulfilled' && profile.value) {
-      // Ensure task-specific data present
-      const userWithStats = {
-        ...profile.value,
-        totalOrders: profile.value.totalOrders || 0,
-        totalSpent: profile.value.totalSpent || 0
-      };
-      localStorage.setItem('currentUser', JSON.stringify(userWithStats));
-      renderSidebarProfile(userWithStats);
-      renderMainProfile(userWithStats);
-      updateNavbarProfileFromUser(userWithStats);
+      const realUser = profile.value;
+      localStorage.setItem('currentUser', JSON.stringify(realUser));
+      renderSidebarProfile(realUser);
+      renderMainProfile(realUser);
+      updateNavbarProfileFromUser(realUser);
     }
 
     const orders = ordersRes.status === 'fulfilled' ? ordersRes.value : { data: [] };
