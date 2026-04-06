@@ -49,13 +49,12 @@ async function loadProfile() {
   }
 }
 
-// FIXED: Added missing 'function' keyword
 function renderStats(statsData) {
   const stats = statsData?.data || statsData || { totalOrders: 0, totalSpent: 0, avgOrderValue: 0, monthlyOrders: 0 };
   const container = document.getElementById('statsCards');
   if (!container) return;
   
-container.innerHTML = `
+  container.innerHTML = `
     <div class="row g-4">
       <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-0 h-100" data-aos="zoom-in">
         <div class="card border-start border-primary shadow-sm h-100 py-4">
@@ -124,7 +123,6 @@ container.innerHTML = `
   setTimeout(() => AOS.refresh(), 100);
 }
 
-// FIXED: Added 'function' keyword
 function renderOrders(orders) {
   const tbody = document.getElementById('ordersTableBody');
   if (!tbody) return;
@@ -194,7 +192,9 @@ function formatOrderStatus(status) {
   return labels[status] || status;
 }
 
-window.trackOrder = function(orderId) {\n  window.location.href = `frontend/order-tracking.html?id=${orderId}`;\n};
+window.trackOrder = function(orderId) {
+  window.location.href = `frontend/order-tracking.html?id=${orderId}`;
+};
 
 function renderMainProfile(user) {
   const container = document.getElementById('mainProfileCard');
@@ -283,7 +283,7 @@ async function loadUserDashboard() {
       return;
     }
 
-// Show loading states initially - wait for real API data
+    // Show loading states initially - wait for real API data
     renderSidebarProfile(null);
     renderMainProfile(null);
 
@@ -492,7 +492,7 @@ async function updateProfile(formData) {
     progress.classList.remove('d-none');
     formError.classList.add('d-none');
 
-    const response = await fetch(`${window.API_BASE}/auth/profile`, {
+    const response = await fetch(`${window.API_BASE || '/api'}/auth/profile`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${token}` },
       body: formData
