@@ -706,16 +706,76 @@ function renderPagination(containerId, currentPage, totalPages, loadFn) {
   }
 
   // Order functions (unchanged)
-  window.viewOrder = async function(orderId) {
+window.viewOrder = async function(orderId) {
+    const modalEl = document.getElementById('orderModal');
+    if (!modalEl) {
+      showAdminToast('Order modal not available', 'warning');
+      return;
+    }
+
+    const modalBody = modalEl.querySelector('.modal-body');
+    const spinner = modalBody.querySelector('.spinner-border') || modalBody;
+    spinner.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-3 text-muted">Loading order details...</p></div>';
+
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${window.API_BASE || '/api'}/orders/${orderId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const { data: order } = await response.json();
-      showAdminToast(`Order #${order._id?.slice(-8)} loaded`, 'info');
-      console.log('Order:', order);
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const result = await response.json();
+      const order = result.data || result;
+
+      // Populate modal
+      modalBody.innerHTML = `
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h5><i class="fas fa-hashtag me-2 text-primary"></i>Order #${order._id?.slice(-8)}</h5>
+            <p><strong>Status:</strong> <span class="badge bg-${order.orderStatus === 'pending_approval' ? 'warning' : order.orderStatus === 'vendor_approved' ? 'success' : 'secondary'}">${order.orderStatus?.replace('_', ' ')}</span></p>
+            <p><strong>Total:</strong> ₦${(order.totalAmount || 0).toLocaleString()}</p>
+            <p><strong>Method:</strong> ${order.deliveryMethod || 'Pickup'}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Customer:</strong> ${order.user?.name || 'N/A'}</p>
+            <p><strong>Phone:</strong> ${order.phoneNumber || 'N/A'}</p>
+            <p><strong>Email:</strong> ${order.user?.email || 'N/A'}</p>
+            ${order.deliveryAddress ? `<p><strong>Address:</strong> ${order.deliveryAddress}</p>` : ''}
+            <p><strong>Bank:</strong> ${order.bankName} (${order.bankAccount})</p>
+          </div>
+        </div>
+        <h6 class="mb-3"><i class="fas fa-utensils me-2"></i>Items:</h6>
+        <div class="row g-3 mb-4">
+          ${order.items?.map(item => `
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex">
+                    <img src="${item.menuItem?.image || '/asset/food-particles.svg'}" class="rounded me-3" style="width:60px;height:60px;object-fit:cover">
+                    <div>
+                      <h6>${item.name || item.menuItem?.name || 'Item'}</h6>
+                      <p class="mb-1"><strong>${item.quantity}x</strong> @ ₦${(item.price || 0).toLocaleString()}</p>
+                      <small class="text-muted">₦${(item.quantity * (item.price || 0)).toLocaleString()}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('') || '<p class="text-muted">No items</p>'}
+        </div>
+        <div class="text-end">
+          <button class="btn btn-outline-secondary" onclick="bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide()">Close</button>
+        </div>
+      `;
+
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+      showAdminToast(`Order #${order._id?.slice(-8)} loaded`, 'success');
+
     } catch (error) {
+      console.error('Order load error:', error);
+      spinner.innerHTML = `<div class="alert alert-danger">Failed to load order: ${error.message}</div>`;
       showAdminToast('Order load failed', 'danger');
     }
   };
