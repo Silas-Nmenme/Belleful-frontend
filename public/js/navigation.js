@@ -14,9 +14,10 @@ function handleDashboardNav(e) {
   if (!link) return;
   
   // Home, brand, menu links always go to dashboard
-  const isNavLink = link.classList.contains('nav-link') || 
+const isNavLink = (link.classList.contains('nav-link') || 
                     link.classList.contains('navbar-brand') ||
-                    link.id === 'menuLink';
+                    link.id === 'menuLink') && 
+                    !link.classList.contains('dropdown-toggle');
   
   if (isNavLink) {
     e.preventDefault();

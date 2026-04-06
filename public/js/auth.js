@@ -8,7 +8,7 @@
   // Initialize auth system - check if already initialized
   if (window.AuthManager && window.AuthManager.initialized) return;
   
-  function initAuth() {
+function initAuth() {
     // No localStorage auto-fill - pure URL/form state
     
     // Listen for auth state changes
@@ -22,37 +22,45 @@
       initSmartNavigation();
     }
     
-    // Event listeners
+    // Event listeners - run immediately for login page
     setupEventListeners();
+  }
+
+  // Force toggle setup for login page
+  if (document.getElementById('loginForm')) {
+    setupEventListeners();
+    setupPasswordToggle();
   }
 
 
 function setupEventListeners() {
-  // Get OTP elements dynamically with null checks
-  const otpCodeEl = document.getElementById('otpCode');
-  const otpFormEl = document.getElementById('otpForm');
-  
-  if (otpCodeEl) {
-    otpCodeEl.addEventListener('input', function(e) {
-      this.value = this.value.replace(/[^0-9]/g, '').slice(0,6);
-    });
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get OTP elements dynamically with null checks
+    const otpCodeEl = document.getElementById('otpCode');
+    const otpFormEl = document.getElementById('otpForm');
     
-    otpCodeEl.addEventListener('keyup', function(e) {
-      if (this.value.length === 6 && otpFormEl) {
-        const submitBtn = otpFormEl.querySelector('button[type="submit"]');
-        if (submitBtn) submitBtn.focus();
-      }
-    });
-    
-    otpCodeEl.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter' && this.value.length === 6 && otpFormEl) {
-        otpFormEl.querySelector('form')?.dispatchEvent(new Event('submit'));
-      }
-    });
-  }
+    if (otpCodeEl) {
+      otpCodeEl.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0,6);
+      });
+      
+      otpCodeEl.addEventListener('keyup', function(e) {
+        if (this.value.length === 6 && otpFormEl) {
+          const submitBtn = otpFormEl.querySelector('button[type="submit"]');
+          if (submitBtn) submitBtn.focus();
+        }
+      });
+      
+      otpCodeEl.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && this.value.length === 6 && otpFormEl) {
+          otpFormEl.querySelector('form')?.dispatchEvent(new Event('submit'));
+        }
+      });
+    }
 
-  // Password visibility toggle
-  setupPasswordToggle();
+    // Password visibility toggle
+    setupPasswordToggle();
+  });
 }
 
 // Password show/hide toggle setup
