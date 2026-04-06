@@ -3,43 +3,82 @@ AOS.init();
 let currentOrder = null;
 
 async function initCheckout() {
-    if (!await window.checkAuth('login.html')) return;
+    // Use auth-helpers requireAuth (more reliable)
+    const user = await window.requireAuth('cart.html', 'Please add items to cart first');
+    if (!user) return;
+    
     await loadCheckoutData();
 }
 
 async function loadCheckoutData() {
     const token = localStorage.getItem('token');
+    let cart = null;
+    
     try {
-        const cartRes = await fetch(`${window.API_BASE}/cart`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (!cartRes.ok) {
-            showToast('Cart not found. Redirecting...', 'error');
-            setTimeout(() => window.location.href = 'cart.html', 2000);
-            return;
-        }
-        const cart = await cartRes.json();
-        
-        // Sync delivery preference from cart or localStorage
-        const deliveryPref = localStorage.getItem('deliveryPreference') || cart.data?.deliveryType || 'delivery';
-        if (deliveryPref === 'pickup') {
-            document.getElementById('pickup').checked = true;
-        } else {
-            document.getElementById('delivery').checked = true;
-        }
-        
-        renderCheckoutItems(cart.data.items || cart.data);
-        const total = cart.data.totalAmount || cart.totalAmount || 0;
-        document.getElementById('checkoutTotal').textContent = `₦${(total || 0).toLocaleString()}`;
-        document.getElementById('paymentAmount').textContent = `₦${(total || 0).toLocaleString()}`;
-        
-        // Add delivery toggle listeners
-        document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
-            radio.addEventListener('change', toggleDeliveryAddress);
+        // Primary: Backend API (authenticated)
+        const cartRes = await fetch(`${window.API_BASE}/cart`, { 
+            headers: { 'Authorization': `Bearer ${token}` } 
         });
-        toggleDeliveryAddress();
-    } catch (e) {
-        console.error('Checkout load failed', e);
-        showToast('Failed to load cart', 'error');
+        
+        if (cartRes.ok) {
+            const apiData = await cartRes.json();
+            cart = apiData.data || apiData;
+        }
+    } catch (apiError) {
+        console.warn('API cart fetch failed, using local snapshot:', apiError);
     }
+    
+    // Fallback: Cart snapshot from cart.html proceed button
+    if (!cart || !cart.items?.length) {
+        try {
+            const snapshot = localStorage.getItem('checkoutCartSnapshot');
+            if (snapshot) {
+                cart = JSON.parse(snapshot);
+                console.log('Using cart snapshot:', cart.items.length, 'items');
+            }
+        } catch (snapshotError) {
+            console.error('Snapshot parse failed:', snapshotError);
+        }
+    }
+    
+    if (!cart?.items?.length) {
+        showToast('Cart is empty. Add items from menu first.', 'warning');
+        setTimeout(() => window.location.href = 'cart.html', 1500);
+        return;
+    }
+    
+    // Sync CartManager for consistent calculations
+    if (window.CartManager) {
+        window.CartManager.cart = { ...window.CartManager.cart, ...cart, items: cart.items };
+        window.CartManager.isDelivery = localStorage.getItem('deliveryPreference') !== 'pickup';
+    }
+    
+    renderCheckoutItems(cart.items);
+    
+    // Calculate consistent totals using CartManager logic
+    const totals = window.CartManager ? window.CartManager.getTotals() : {
+        subtotal: cart.items.reduce((sum, i) => sum + i.price * i.quantity, 0),
+        delivery: cart.deliveryPreference === 'delivery' ? 2000 : 0,
+        service: 500,
+        vat: 0.015,
+        grandTotal: 0 // fallback calc
+    };
+    const grandTotal = totals.grandTotal || Math.round(totals.subtotal + totals.delivery + totals.service + totals.subtotal * 0.015);
+    
+    document.getElementById('checkoutTotal').textContent = `₦${grandTotal.toLocaleString()}`;
+    document.getElementById('paymentAmount').textContent = `₦${grandTotal.toLocaleString()}`;
+    
+    // Set delivery radio
+    const deliveryPref = localStorage.getItem('deliveryPreference') || 'delivery';
+    document.getElementById(deliveryPref).checked = true;
+    
+    // Event listeners
+    document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
+        radio.addEventListener('change', toggleDeliveryAddress);
+    });
+    toggleDeliveryAddress();
+    
+    showToast(`${cart.items.length} items • ₦${grandTotal.toLocaleString()}`, 'success');
 }
 
 function toggleDeliveryAddress() {

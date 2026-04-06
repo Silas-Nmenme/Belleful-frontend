@@ -79,7 +79,13 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
             this.showToast('Your cart is empty', 'warning');
             return;
           }
-          // Optional: Save delivery preference to localStorage
+          // Save complete cart snapshot + delivery preference for checkout backup
+          localStorage.setItem('checkoutCartSnapshot', JSON.stringify({
+            items: this.cart.items,
+            itemCount: this.cart.itemCount,
+            totals: this.getTotals(),
+            deliveryPreference: this.isDelivery ? 'delivery' : 'pickup'
+          }));
           localStorage.setItem('deliveryPreference', this.isDelivery ? 'delivery' : 'pickup');
           window.location.href = 'checkout.html';
           return;
