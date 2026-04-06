@@ -272,6 +272,7 @@
     
     const statusBadge = (status) => {
       const badges = {
+        'pending_payment': 'bg-warning text-dark',
         'pending_approval': 'bg-warning text-dark',
         'preparing': 'bg-info',
         'ready_for_pickup': 'bg-primary',
@@ -279,7 +280,7 @@
         'delivered': 'bg-success',
         'cancelled': 'bg-danger'
       };
-      return `<span class="badge ${badges[status] || 'bg-secondary'}">${status.replace('_', ' ').toUpperCase()}</span>`;
+      return `<span class="badge ${badges[status] || 'bg-secondary'}">${status.replace(/_/g, ' ').toUpperCase()}</span>`;
     };
 
     
@@ -300,7 +301,7 @@
             <i class="fas fa-eye"></i>
           </button>
           <select class="form-select form-select-sm status-dropdown" data-order-id="${safeId}" onchange="updateOrderStatus('${safeId}', this.value)" style="width: auto; display: inline-block;">
-            ${validStatuses.map(s => `<option value="${s}" ${order.orderStatus === s ? 'selected disabled' : ''}>${formatStatus(s)}</option>`).join('')}
+            ${validStatuses.map(s => `<option value="${s}" ${order.orderStatus === s ? 'selected' : ''}>${formatStatus(s)}</option>`).join('')}             
           </select>
           ${hasReceipt ? '<small class="d-block text-success mt-1"><i class="fas fa-receipt"></i> Receipt OK</small>' : ''}
         </td>
@@ -776,9 +777,20 @@ window.viewOrder = async function(orderId) {
     }
   };
   
-  window.updateOrderStatus = async function(orderId, status) {
+window.updateOrderStatus = async function(orderId, status) {
+    // Find & disable dropdown during request
+    const dropdown = document.querySelector(`[data-order-id="${orderId}"]`);
+    if (dropdown) {
+      dropdown.disabled = true;
+      dropdown.innerHTML = '<option>Loading...</option>';
+    }
+    
     try {
       const token = localStorage.getItem('token');
+      if (!token) throw new Error('No auth token');
+      
+      console.log(`🔄 Updating ${orderId.slice(-8)} → ${status}`);
+      
       const response = await fetch(`${window.API_BASE || '/api'}/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: { 
@@ -788,12 +800,38 @@ window.viewOrder = async function(orderId) {
         body: JSON.stringify({ status })
       });
       
+      const result = await response.json();
+      
       if (response.ok) {
-        showAdminToast(`Status: ${status.replace('_', ' ')}`, 'success');
-        loadPendingOrders(1);
+        showAdminToast(`✅ Order #${orderId.slice(-8)} → ${status.replace(/_/g, ' ').toUpperCase()}`, 'success');
+        
+        // Refresh table (reloads ALL orders for consistency)
+        await loadPendingOrders(1);
+        
+        // Reset dropdown to show updated status
+        if (dropdown) {
+          dropdown.value = status;
+          dropdown.disabled = false;
+        }
+      } else {
+        // Enhanced error handling
+        const errorMsg = result.message || `HTTP ${response.status}`;
+        console.error('Status update failed:', errorMsg);
+        
+        showAdminToast(`❌ Update failed: ${errorMsg}`, 'danger');
+        
+        // Restore dropdown
+        if (dropdown) dropdown.disabled = false;
       }
     } catch (error) {
-      showAdminToast('Status update failed', 'danger');
+      console.error('Update network error:', error);
+      showAdminToast('❌ Network error - check connection', 'danger');
+      
+      // Restore dropdown
+      if (dropdown) {
+        dropdown.disabled = false;
+        dropdown.innerHTML = dropdown.dataset.originalHtml || '';
+      }
     }
   };
 
