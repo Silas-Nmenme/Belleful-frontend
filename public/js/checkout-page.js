@@ -272,19 +272,12 @@ document.getElementById('paymentUploadForm').onsubmit = async (e) => {
         console.log('Fields type:', typeof uploadData.fields, uploadData.fields);
         const fields = uploadData.fields || {};
         if (fields && typeof fields === 'object') {
-            if (typeof fields.entries === 'function') {
-                // URLSearchParams case
-                for (const [key, value] of fields.entries()) {
-                    formData.append(key, value);
-                }
-            } else {
-                // Plain object
-                for (const [key, value] of Object.entries(fields)) {
-                    formData.append(key, value);
-                }
+            // Always use Object.entries (safe for plain objects)
+            for (const [key, value] of Object.entries(fields)) {
+                formData.append(key, value);
             }
         }
-        console.log('Form fields:', Object.fromEntries(fields));
+        console.log('FormData fields added:', Object.keys(fields));
         
         const cloudRes = await fetch(uploadUrl, {
             method: 'POST',
