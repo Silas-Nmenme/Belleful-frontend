@@ -194,9 +194,7 @@ function formatOrderStatus(status) {
   return labels[status] || status;
 }
 
-window.trackOrder = function(orderId) {
-  window.location.href = `order-tracking.html?id=${orderId}`;
-};
+window.trackOrder = function(orderId) {\n  window.location.href = `frontend/order-tracking.html?id=${orderId}`;\n};
 
 function renderMainProfile(user) {
   const container = document.getElementById('mainProfileCard');
