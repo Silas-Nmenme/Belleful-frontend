@@ -92,6 +92,11 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
               ...response.data,
               itemCount: response.data.itemCount || response.data.items.reduce((sum, i) => sum + i.quantity, 0)
             };
+            console.log('Cart data loaded:', { 
+              totalAmount: this.cart.totalAmount, 
+              itemsCount: this.cart.items?.length || 0,
+              subtotal: this.cart.items?.reduce((sum, i) => sum + (i.price * i.quantity), 0) || 0 
+            });
           }
         }
         // localStorage backup only for guests
@@ -244,7 +249,7 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
     }
 
     getTotals() {
-      const subtotal = this.cart.totalAmount || this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const subtotal = this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       const delivery = this.isDelivery ? this.deliveryFee : 0;
       const service = this.serviceFee;
       const vat = (subtotal + delivery + service) * this.vatRate;
