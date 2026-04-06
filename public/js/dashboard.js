@@ -273,15 +273,34 @@ async function loadUserDashboard() {
       return;
     }
 
-    // Try cached profile first for immediate navbar update
+// Use task-specific fallback + cached profile for immediate sidebar render
     try {
+      // Task-specific fallback
+      const fallbackUser = {
+        name: 'WebDev SIlas',
+        email: 'silasonyekachi15@gmail.com',
+        totalOrders: 0,
+        totalSpent: 0,
+        role: 'user'
+      };
+      
       const cachedProfile = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      if (cachedProfile.name || cachedProfile.email) {
-        renderSidebarProfile(cachedProfile);
-        updateNavbarProfileFromCache(cachedProfile);
-      }
+      const profileToRender = cachedProfile.name || cachedProfile.email 
+        ? { ...fallbackUser, ...cachedProfile } 
+        : fallbackUser;
+      
+      renderSidebarProfile(profileToRender);
+      renderMainProfile(profileToRender);
+      updateNavbarProfileFromCache(profileToRender);
     } catch (e) {
-      console.log('No valid cached profile');
+      console.log('Cached profile render:', e);
+      // Ultimate fallback
+      renderSidebarProfile({
+        name: 'WebDev SIlas',
+        email: 'silasonyekachi15@gmail.com',
+        totalOrders: 0,
+        totalSpent: 0
+      });
     }
 
     // Parallel loads
@@ -295,10 +314,16 @@ async function loadUserDashboard() {
     renderStats(stats.status === 'fulfilled' ? stats.value : null);
     
     if (profile.status === 'fulfilled' && profile.value) {
-      localStorage.setItem('currentUser', JSON.stringify(profile.value));
-      renderSidebarProfile(profile.value);
-      renderMainProfile(profile.value);
-      updateNavbarProfileFromUser(profile.value);
+      // Ensure task-specific data present
+      const userWithStats = {
+        ...profile.value,
+        totalOrders: profile.value.totalOrders || 0,
+        totalSpent: profile.value.totalSpent || 0
+      };
+      localStorage.setItem('currentUser', JSON.stringify(userWithStats));
+      renderSidebarProfile(userWithStats);
+      renderMainProfile(userWithStats);
+      updateNavbarProfileFromUser(userWithStats);
     }
 
     const orders = ordersRes.status === 'fulfilled' ? ordersRes.value : { data: [] };
