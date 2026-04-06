@@ -75,18 +75,20 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
 
         if (e.target.matches('.btn-proceed')) {
           e.preventDefault();
-          if (!this.cart.items.length) {
+          if (!this.cart.items?.length) {
             this.showToast('Your cart is empty', 'warning');
             return;
           }
-          // Save complete cart snapshot + delivery preference for checkout backup
-          localStorage.setItem('checkoutCartSnapshot', JSON.stringify({
-            items: this.cart.items,
-            itemCount: this.cart.itemCount,
+          // Save robust cart snapshot for checkout - prevent payload errors
+          const snapshot = {
+            items: [...this.cart.items],
+            itemCount: this.cart.itemCount || this.cart.items.reduce((sum, i) => sum + i.quantity, 0),
             totals: this.getTotals(),
             deliveryPreference: this.isDelivery ? 'delivery' : 'pickup'
-          }));
-          localStorage.setItem('deliveryPreference', this.isDelivery ? 'delivery' : 'pickup');
+          };
+          localStorage.setItem('checkoutCartSnapshot', JSON.stringify(snapshot));
+          localStorage.setItem('deliveryPreference', snapshot.deliveryPreference);
+          this.showToast('Proceeding to checkout...', 'success');
           window.location.href = 'checkout.html';
           return;
         }
