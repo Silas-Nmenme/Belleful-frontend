@@ -266,16 +266,22 @@
     const countEl = document.getElementById('pendingCount');
     if (!tbody) return;
     
+    // Status dropdown helpers
+    const validStatuses = ['pending_approval', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'delivered', 'cancelled'];
+    const formatStatus = (status) => status.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase());
+    
     const statusBadge = (status) => {
       const badges = {
         'pending_approval': 'bg-warning text-dark',
         'preparing': 'bg-info',
         'ready_for_pickup': 'bg-primary',
+        'out_for_delivery': 'bg-info text-dark',
         'delivered': 'bg-success',
         'cancelled': 'bg-danger'
       };
       return `<span class="badge ${badges[status] || 'bg-secondary'}">${status.replace('_', ' ').toUpperCase()}</span>`;
     };
+
     
     tbody.innerHTML = sortedOrders.map(order => {
       const safeId = order._id || '';
@@ -290,25 +296,15 @@
         <td>₦${(order.totalAmount || 0).toLocaleString()}</td>
         <td>${statusBadge(order.orderStatus || 'pending_approval')}</td>
         <td>
-          <div class="btn-group btn-group-sm" role="group">
-            <button class="btn btn-outline-primary" onclick="viewOrder('${safeId}')" title="View Details">
-              <i class="fas fa-eye"></i>
-            </button>
-            ${isPendingApproval ? `
-            <button class="btn btn-success" onclick="updateOrderStatus('${safeId}', 'preparing')" title="Approve Order">
-              <i class="fas fa-check"></i>
-            </button>
-            <button class="btn btn-danger" onclick="updateOrderStatus('${safeId}', 'cancelled')" title="Reject/Cancel">
-              <i class="fas fa-times"></i>
-            </button>
-            ` : `
-            <button class="btn btn-warning" onclick="updateOrderStatus('${safeId}', 'preparing')" title="Mark Approved" ${order.orderStatus === 'preparing' ? 'disabled' : ''}>
-              <i class="fas fa-thumbs-up"></i>
-            </button>
-            `}
-          </div>
+          <button class="btn btn-outline-primary btn-sm me-1" onclick="viewOrder('${safeId}')" title="View Details">
+            <i class="fas fa-eye"></i>
+          </button>
+          <select class="form-select form-select-sm status-dropdown" data-order-id="${safeId}" onchange="updateOrderStatus('${safeId}', this.value)" style="width: auto; display: inline-block;">
+            ${validStatuses.map(s => `<option value="${s}" ${order.orderStatus === s ? 'selected disabled' : ''}>${formatStatus(s)}</option>`).join('')}
+          </select>
           ${hasReceipt ? '<small class="d-block text-success mt-1"><i class="fas fa-receipt"></i> Receipt OK</small>' : ''}
         </td>
+
       </tr>
       `;
     }).join('') || '<tr><td colspan="6" class="text-center py-5 text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-50"></i><div class="h6 text-muted">No pending orders</div></td></tr>';  
