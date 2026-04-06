@@ -135,8 +135,24 @@ document.getElementById('createOrderBtn').onclick = async () => {
         return;
     }
     
-    // Get current cart snapshot (from loadCheckoutData)\n    const snapshot = localStorage.getItem('checkoutCartSnapshot') ? JSON.parse(localStorage.getItem('checkoutCartSnapshot')) : null;\n    \n    // Clean payload + cart snapshot\n    const payload = {\n        phoneNumber: phoneNumber,\n        bankAccount: bankAccount,\n        bankName: bankName,\n        cartSnapshot: snapshot,\n        grandTotal: window.CartManager ? window.CartManager.getTotals().grandTotal : 0\n    };
-    
+    let snapshot = null;
+    try {
+        const snapshotStr = localStorage.getItem('checkoutCartSnapshot');
+        if (snapshotStr) {
+            snapshot = JSON.parse(snapshotStr);
+        }
+    } catch (e) {
+        console.warn('Invalid cart snapshot:', e);
+    }
+
+    const payload = {
+        phoneNumber,
+        bankAccount,
+        bankName,
+        cartSnapshot: snapshot,
+        grandTotal: window.CartManager ? window.CartManager.getTotals().grandTotal : 0
+    };
+
     if (deliveryMethod === 'delivery') {
         payload.deliveryAddress = deliveryAddress;
     }
