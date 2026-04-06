@@ -11,7 +11,7 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="css/signup.css">
-    </head>
+</head>
 <body class="pt-5">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-warm shadow-lg">
@@ -32,12 +32,6 @@
                         <a class="nav-link" href="#menu" id="menuLink">Menu</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="cart.html">
-                            <i class="fas fa-shopping-cart"></i> Cart 
-                            <span class="badge bg-danger cart-count hidden">0</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="contact-us.html">Contact</a>
                     </li>
                     <li class="nav-item dropdown">
@@ -47,7 +41,6 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="login.html">Login</a></li>
                             <li><a class="dropdown-item" href="signup.html">Sign Up</a></li>
-                           <!--<li><a class="dropdown-item" href="user-dashboard.html">Dashboard</a></li>--> 
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="admin-login.html">Admin Login</a></li>
                         </ul>
@@ -60,11 +53,11 @@
     <div class="container pt-4">
         <div class="contact-box">
             <div class="left">
-                <i class="fas fa-utensils me-2"></i><span>Welcome to Bellefull</span></i>
+                <i class="fas fa-utensils me-2"></i><span>Welcome to Belleful</span>
             </div>
             <div class="right">
                 <h2> Sign Up</h2>
-                <form id="signupForm" class="signup-form" onsubmit="SignupManager.register(event)">
+                <form id="signupForm" class="signup-form" onsubmit="AuthManager.register(event)">
                     <input id="signupName" name="name" type="text" class="field" placeholder="Enter Your Full Name" required>
                     <input id="signupEmail" name="email" type="email" class="field" placeholder="Enter Your Email" required>
                     <div class="password-wrapper">
@@ -91,4 +84,3 @@
     <script src="js/signup.js"></script>
 </body>
 </html>
-
