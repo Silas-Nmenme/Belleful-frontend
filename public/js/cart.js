@@ -73,6 +73,18 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
           return;
         }
 
+        if (e.target.matches('.btn-proceed')) {
+          e.preventDefault();
+          if (!this.cart.items.length) {
+            this.showToast('Your cart is empty', 'warning');
+            return;
+          }
+          // Optional: Save delivery preference to localStorage
+          localStorage.setItem('deliveryPreference', this.isDelivery ? 'delivery' : 'pickup');
+          window.location.href = 'checkout.html';
+          return;
+        }
+
         if (e.target.matches('.btn-delivery-toggle')) {
           e.preventDefault();
           this.isDelivery = !this.isDelivery;
