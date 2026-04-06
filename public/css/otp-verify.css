@@ -12,13 +12,14 @@
 }
 
 body {
-    width: 100%;
+    width: 100vw;
     min-height: 100vh;
+    overflow-x: hidden;
     background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 100px 16px 40px;
 }
 
 .bg-gradient-warm {
@@ -39,6 +40,8 @@ body {
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    max-width: 950px;
+    margin: 0 auto;
 }
 
 .left {
