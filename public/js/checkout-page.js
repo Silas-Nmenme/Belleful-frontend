@@ -254,12 +254,24 @@ document.getElementById('paymentUploadForm').onsubmit = async (e) => {
         const urlRes = await fetch(`${window.API_BASE}/payments/receipt-upload-url?folder=order-receipts`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        const { uploadUrl, publicId } = await urlRes.json();
+        if (!urlRes.ok) {
+            const urlErr = await urlRes.json();
+            throw new Error(urlErr.error || urlErr.message || 'Failed to get upload URL');
+        }
+        const uploadData = await urlRes.json();
+        const { url: uploadUrl } = uploadData;
+        if (!uploadUrl || uploadUrl.includes('undefined')) {
+            throw new Error('Invalid upload URL from server - check Cloudinary config');
+        }
+        console.log('Upload URL ready:', uploadUrl.substring(0, 80) + '...');
         
         // Step 2: Upload to Cloudinary
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', 'belleful-receipts'); // Backend preset
+        // Use preset from server params if available, fallback
+        if (uploadData.fields?.upload_preset) {
+            formData.append('upload_preset', uploadData.fields.upload_preset);
+        }
         
         const cloudRes = await fetch(uploadUrl, {
             method: 'POST',
@@ -287,8 +299,14 @@ document.getElementById('paymentUploadForm').onsubmit = async (e) => {
             throw new Error(error.message || 'Receipt submission failed');
         }
         
-        // Start live status polling
-        currentOrderId = currentOrder.data._id || currentOrder.data.id;
+        // Start live status polling - fix undefined
+        const orderId = currentOrder?.data?._id;
+        if (!orderId) {
+            console.error('No order ID for polling');
+            showToast('Receipt submitted! Check dashboard for status.', 'success');
+            return;
+        }
+        currentOrderId = orderId;
         showToast('Receipt submitted! Tracking approval status...', 'success');
         startStatusPolling(currentOrderId);
 
