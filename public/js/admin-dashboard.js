@@ -269,8 +269,8 @@
     const statusBadge = (status) => {
       const badges = {
         'pending_approval': 'bg-warning text-dark',
-        'vendor_approved': 'bg-info',
-        'preparing': 'bg-primary',
+        'preparing': 'bg-info',
+        'ready_for_pickup': 'bg-primary',
         'delivered': 'bg-success',
         'cancelled': 'bg-danger'
       };
@@ -295,14 +295,14 @@
               <i class="fas fa-eye"></i>
             </button>
             ${isPendingApproval ? `
-            <button class="btn btn-success" onclick="updateOrderStatus('${safeId}', 'vendor_approved')" title="Approve Order">
+            <button class="btn btn-success" onclick="updateOrderStatus('${safeId}', 'preparing')" title="Approve Order">
               <i class="fas fa-check"></i>
             </button>
             <button class="btn btn-danger" onclick="updateOrderStatus('${safeId}', 'cancelled')" title="Reject/Cancel">
               <i class="fas fa-times"></i>
             </button>
             ` : `
-            <button class="btn btn-warning" onclick="updateOrderStatus('${safeId}', 'vendor_approved')" title="Mark Approved" ${order.orderStatus === 'vendor_approved' ? 'disabled' : ''}>
+            <button class="btn btn-warning" onclick="updateOrderStatus('${safeId}', 'preparing')" title="Mark Approved" ${order.orderStatus === 'preparing' ? 'disabled' : ''}>
               <i class="fas fa-thumbs-up"></i>
             </button>
             `}
@@ -733,7 +733,7 @@ window.viewOrder = async function(orderId) {
         <div class="row mb-4">
           <div class="col-md-6">
             <h5><i class="fas fa-hashtag me-2 text-primary"></i>Order #${order._id?.slice(-8)}</h5>
-            <p><strong>Status:</strong> <span class="badge bg-${order.orderStatus === 'pending_approval' ? 'warning' : order.orderStatus === 'vendor_approved' ? 'success' : 'secondary'}">${order.orderStatus?.replace('_', ' ')}</span></p>
+              <span class="badge bg-${order.orderStatus === 'pending_approval' ? 'warning' : order.orderStatus === 'preparing' ? 'success' : 'secondary'}">${order.orderStatus?.replace('_', ' ')}</span>
             <p><strong>Total:</strong> ₦${(order.totalAmount || 0).toLocaleString()}</p>
             <p><strong>Method:</strong> ${order.deliveryMethod || 'Pickup'}</p>
           </div>
