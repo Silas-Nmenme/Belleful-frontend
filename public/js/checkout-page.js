@@ -268,11 +268,23 @@ document.getElementById('paymentUploadForm').onsubmit = async (e) => {
         // Step 2: Upload to Cloudinary
         const formData = new FormData();
         formData.append('file', file);
-        // Copy ALL server fields to formData (standard Cloudinary pattern)
-        Object.entries(uploadData.fields || {}).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
-        console.log('Form fields:', Object.fromEntries(uploadData.fields || {}));
+        // Copy ALL server fields to formData (SAFE iteration - fix iterable error)
+        console.log('Fields type:', typeof uploadData.fields, uploadData.fields);
+        const fields = uploadData.fields || {};
+        if (fields && typeof fields === 'object') {
+            if (typeof fields.entries === 'function') {
+                // URLSearchParams case
+                for (const [key, value] of fields.entries()) {
+                    formData.append(key, value);
+                }
+            } else {
+                // Plain object
+                for (const [key, value] of Object.entries(fields)) {
+                    formData.append(key, value);
+                }
+            }
+        }
+        console.log('Form fields:', Object.fromEntries(fields));
         
         const cloudRes = await fetch(uploadUrl, {
             method: 'POST',
@@ -409,4 +421,3 @@ function showToast(msg, type='info') {
     document.body.appendChild(toast);
     setTimeout(() => { toast.classList.remove('animate__fadeInRight'); toast.classList.add('animate__fadeOutRight'); setTimeout(() => toast.remove(), 300); }, 4000);
 }
-
