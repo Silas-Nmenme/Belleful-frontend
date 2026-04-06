@@ -10,7 +10,12 @@
     constructor() {
       this.API_BASE = window.API_BASE || 'https://belleful-gold.vercel.app/api';
       this.token = localStorage.getItem('token');
-      this.cart = { items: [], totalAmount: 0, itemCount: 0 };
+      // Defensive initialization - prevent undefined items
+      this.cart = { 
+        items: [], 
+        totalAmount: 0, 
+        itemCount: 0 
+      };
       this.deliveryFee = 2000; // ₦2000 delivery, ₦0 pickup
       this.serviceFee = 500;    // Fixed service fee
       this.vatRate = 0.015;     // 1.5% VAT
@@ -103,32 +108,64 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
       });
     }
 
+    ensureValidCart() {
+      if (!Array.isArray(this.cart.items)) {
+        console.warn('Invalid cart.items, resetting to []:', this.cart.items);
+        this.cart.items = [];
+      }
+      if (typeof this.cart.itemCount !== 'number') {
+        this.cart.itemCount = 0;
+      }
+      if (typeof this.cart.totalAmount !== 'number') {
+        this.cart.totalAmount = 0;
+      }
+    }
+
+    recalculateCartMetrics() {
+      const items = this.cart.items || [];
+      this.cart.itemCount = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+      // totalAmount from backend is authoritative, but recalc subtotal for logging
+    }
+
     async updateFromBackend() {
       try {
+        this.ensureValidCart();
+        
         if (this.token) {
           const response = await this.apiCall('');
-          if (response.success) {
+          if (response.success && response.data) {
+            const backendItems = Array.isArray(response.data.items) ? response.data.items : [];
+            const backendItemCount = response.data.itemCount ?? backendItems.reduce((sum, i) => sum + (i.quantity || 0), 0);
+            
             this.cart = {
-              ...response.data,
-              itemCount: response.data.itemCount || response.data.items.reduce((sum, i) => sum + i.quantity, 0)
+              items: backendItems,
+              totalAmount: response.data.totalAmount ?? 0,
+              itemCount: backendItemCount,
+              ...response.data
             };
-            console.log('Cart data loaded:', { 
-              totalAmount: this.cart.totalAmount, 
-              itemsCount: this.cart.items?.length || 0,
-              subtotal: this.cart.items?.reduce((sum, i) => sum + (i.price * i.quantity), 0) || 0 
+            
+            console.log('Cart loaded:', {
+              items: backendItems.length,
+              itemCount: backendItemCount,
+              totalAmount: this.cart.totalAmount
             });
           }
-        }
-        // localStorage backup only for guests
-        else {
+        } else {
           const local = this.loadLocalBackup();
-          this.cart = local || this.cart;
+          if (local && Array.isArray(local.items)) {
+            this.cart = local;
+            console.log('Guest cart loaded:', local.items.length, 'items');
+          }
         }
+        
+        this.ensureValidCart();
+        this.recalculateCartMetrics();
         this.saveLocalBackup();
         this.updateBadge();
         this.render();
       } catch (error) {
-        console.error('Cart sync failed:', error);
+        console.error('Cart sync error:', error);
+        this.ensureValidCart();
         if (error.status === 401) {
           this.redirectToLogin();
         }
@@ -269,7 +306,9 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
     }
 
     getTotals() {
-      const subtotal = this.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      // Safe reduce with array check
+      const items = Array.isArray(this.cart.items) ? this.cart.items : [];
+      const subtotal = items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0);
       const delivery = this.isDelivery ? this.deliveryFee : 0;
       const service = this.serviceFee;
       const vat = (subtotal + delivery + service) * this.vatRate;
@@ -290,6 +329,12 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
       const container = document.getElementById('cartItems');
       if (!container) return;
 
+      // Defensive check - ensure items is always array
+      if (!Array.isArray(this.cart.items)) {
+        console.warn('Cart items is not an array, resetting:', this.cart.items);
+        this.cart.items = [];
+      }
+
       if (!this.cart.items.length) {
         container.innerHTML = this.emptyCartHTML();
         return;
@@ -298,20 +343,22 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
       container.innerHTML = this.cart.items.map(item => {
         const menuItemId = String(item.menuItem || item.menuItemId || '');
         const image = item.image || '/asset/grilled.jpg';
+        const quantity = item.quantity || 1;
+        const price = item.price || 0;
         
         return `
-          <div class="cart-item-card" data-menuitem-id="${menuItemId}" data-quantity="${item.quantity}">
-            <img src="${image}" alt="${item.name}" class="item-image" loading="lazy" onerror="this.src='/asset/grilled.jpg'">
+          <div class="cart-item-card" data-menuitem-id="${menuItemId}" data-quantity="${quantity}">
+            <img src="${image}" alt="${this.escapeHtml(item.name || 'Item')}" class="item-image" loading="lazy" onerror="this.src='/asset/grilled.jpg'">
             <div class="item-details">
-              <h3 class="item-name">${this.escapeHtml(item.name)}</h3>
-              <div class="item-price">₦${(item.price * item.quantity).toLocaleString()}</div>
-              <div class="item-price-small">Unit: ₦${item.price.toLocaleString()}</div>
+              <h3 class="item-name">${this.escapeHtml(item.name || 'Unnamed Item')}</h3>
+              <div class="item-price">₦${(price * quantity).toLocaleString()}</div>
+              <div class="item-price-small">Unit: ₦${price.toLocaleString()}</div>
               <div class="item-controls">
                 <div class="qty-stepper">
-                  <button class="qty-btn" data-delta="-1" ${item.quantity <= 1 ? 'disabled' : ''} aria-label="Decrease">
+                  <button class="qty-btn" data-delta="-1" ${quantity <= 1 ? 'disabled' : ''} aria-label="Decrease">
                     <i class="fas fa-minus"></i>
                   </button>
-                  <span class="qty-display">${item.quantity}</span>
+                  <span class="qty-display">${quantity}</span>
                   <button class="qty-btn" data-delta="1" aria-label="Increase">
                     <i class="fas fa-plus"></i>
                   </button>
@@ -380,7 +427,19 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
     }
 
     updateBadge() {
-      const count = this.cart.itemCount || this.cart.items.reduce((sum, i) => sum + i.quantity, 0);
+      // Defensive checks before any operations
+      if (!Array.isArray(this.cart.items)) {
+        console.warn('updateBadge: cart.items is not array, using itemCount only');
+        const count = this.cart.itemCount || 0;
+        this.setBadgeCount(count);
+        return;
+      }
+      
+      const count = this.cart.itemCount ?? this.cart.items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+      this.setBadgeCount(count);
+    }
+    
+    setBadgeCount(count) {
       document.querySelectorAll('.cart-badge, .cart-count').forEach(badge => {
         badge.textContent = count;
         badge.classList.toggle('d-none', count === 0);
