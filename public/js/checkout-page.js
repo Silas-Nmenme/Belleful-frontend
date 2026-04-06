@@ -268,10 +268,12 @@ document.getElementById('paymentUploadForm').onsubmit = async (e) => {
         // Step 2: Upload to Cloudinary
         const formData = new FormData();
         formData.append('file', file);
-        // Use preset from server params if available, fallback
-        if (uploadData.fields?.upload_preset) {
-            formData.append('upload_preset', uploadData.fields.upload_preset);
+        // REQUIRED: Always use server-provided preset (fallback removed)
+        if (!uploadData.fields?.upload_preset) {
+            throw new Error('Server missing upload_preset - contact admin');
         }
+        formData.append('upload_preset', uploadData.fields.upload_preset);
+        console.log('Using preset:', uploadData.fields.upload_preset);
         
         const cloudRes = await fetch(uploadUrl, {
             method: 'POST',
