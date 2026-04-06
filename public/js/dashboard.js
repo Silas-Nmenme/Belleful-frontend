@@ -193,7 +193,7 @@ function formatOrderStatus(status) {
 }
 
 window.trackOrder = function(orderId) {
-  window.location.href = `frontend/order-tracking.html?id=${orderId}`;
+  window.location.href = `order-tracking.html?id=${orderId}`;
 };
 
 function renderMainProfile(user) {
