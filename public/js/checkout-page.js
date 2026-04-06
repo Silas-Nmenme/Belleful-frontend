@@ -147,8 +147,13 @@ document.getElementById('createOrderBtn').onclick = async () => {
                         showToast(`Invalid cart item: ${item.name || 'Unknown'}`, 'error');
                         return;
                     }
-                    // Ensure menuItem is string ID for backend
-                    item.menuItem = String(item.menuItem || item.menuItem._id || '');
+                    // Ensure menuItem is string ID for backend (double-check)
+                    const menuItemId = String(item.menuItem?._id || item.menuItem || item.menuItemId || '');
+                    if (!menuItemId || menuItemId === '[object Object]') {
+                        showToast(`Invalid menuItem ID for ${item.name || 'item'}: ${menuItemId}`, 'error');
+                        return;
+                    }
+                    item.menuItem = menuItemId;
                 }
             } else {
                 showToast('Invalid cart snapshot - go back to cart', 'error');

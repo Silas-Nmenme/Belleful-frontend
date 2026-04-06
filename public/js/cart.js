@@ -85,13 +85,19 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
             return;
           }
           // Save robust cart snapshot for checkout - prevent payload errors
+          // Fix menuItem object → string ID for checkout
+          const snapshotItems = this.cart.items.map(item => ({
+            ...item,
+            menuItem: String(item.menuItem?._id || item.menuItem || item.menuItemId || '')
+          }));
           const snapshot = {
-            items: [...this.cart.items],
+            items: snapshotItems,
             itemCount: this.cart.itemCount || this.cart.items.reduce((sum, i) => sum + i.quantity, 0),
             totals: this.getTotals(),
             deliveryPreference: this.isDelivery ? 'delivery' : 'pickup'
           };
           localStorage.setItem('checkoutCartSnapshot', JSON.stringify(snapshot));
+          console.log('Fixed snapshot saved - menuItem IDs:', snapshotItems.map(i => i.menuItem).slice(0,2));
           localStorage.setItem('deliveryPreference', snapshot.deliveryPreference);
           this.showToast('Proceeding to checkout...', 'success');
           window.location.href = 'checkout.html';
