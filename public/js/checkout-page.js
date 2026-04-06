@@ -17,12 +17,21 @@ async function loadCheckoutData() {
             return;
         }
         const cart = await cartRes.json();
+        
+        // Sync delivery preference from cart or localStorage
+        const deliveryPref = localStorage.getItem('deliveryPreference') || cart.data?.deliveryType || 'delivery';
+        if (deliveryPref === 'pickup') {
+            document.getElementById('pickup').checked = true;
+        } else {
+            document.getElementById('delivery').checked = true;
+        }
+        
         renderCheckoutItems(cart.data.items || cart.data);
         const total = cart.data.totalAmount || cart.totalAmount || 0;
         document.getElementById('checkoutTotal').textContent = `₦${(total || 0).toLocaleString()}`;
         document.getElementById('paymentAmount').textContent = `₦${(total || 0).toLocaleString()}`;
         
-        // Add delivery toggle
+        // Add delivery toggle listeners
         document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
             radio.addEventListener('change', toggleDeliveryAddress);
         });
@@ -35,10 +44,15 @@ async function loadCheckoutData() {
 
 function toggleDeliveryAddress() {
     const deliverySelected = document.getElementById('delivery').checked;
-    const addressGroup = document.querySelector('#deliveryAddressGroup, [name="deliveryAddress"]').closest('.mb-3, .mb-4');
+    const addressGroup = document.getElementById('deliveryAddressGroup');
     if (addressGroup) {
         addressGroup.style.display = deliverySelected ? 'block' : 'none';
+        document.getElementById('deliveryAddress').required = deliverySelected;
     }
+    
+    // Sync with localStorage for cart consistency
+    const preference = deliverySelected ? 'delivery' : 'pickup';
+    localStorage.setItem('deliveryPreference', preference);
 }
 
 function renderCheckoutItems(items) {
@@ -59,6 +73,9 @@ document.getElementById('createOrderBtn').onclick = async () => {
     const form = document.getElementById('checkoutForm');
     const formData = new FormData(form);
     const data = Object.fromEntries(formData);
+    
+    // Ensure deliveryMethod matches backend expectation
+    data.deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked')?.value || 'pickup';
     
     // Validate delivery address if delivery selected
     if (data.deliveryMethod === 'delivery' && !data.deliveryAddress.trim()) {
