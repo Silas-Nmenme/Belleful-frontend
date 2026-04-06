@@ -134,19 +134,100 @@ document.getElementById('paymentUploadForm').onsubmit = async (e) => {
             body: JSON.stringify({ receiptUrl })
         });
         
+
         if (!submitRes.ok) {
             const error = await submitRes.json();
             throw new Error(error.message || 'Receipt submission failed');
         }
         
-        showToast('Payment receipt submitted! Admin will verify shortly.', 'success');
-        setTimeout(() => window.location.href = 'user-dashboard.html', 2000);
+        // Start live status polling
+        currentOrderId = currentOrder.data._id || currentOrder.data.id;
+        showToast('Receipt submitted! Tracking approval status...', 'success');
+        startStatusPolling(currentOrderId);
+
     } catch (error) {
         showToast('Upload failed: ' + error.message, 'error');
     }
 };
 
 initCheckout();
+
+
+let pollInterval;
+let currentOrderId = null;
+
+function startStatusPolling(orderId) {
+  currentOrderId = orderId;
+  const token = localStorage.getItem('token');
+  
+  // Show status container
+  const statusContainer = document.getElementById('statusContainer') || createStatusContainer();
+  
+  pollInterval = setInterval(async () => {
+    try {
+      const res = await fetch(`${window.API_BASE}/orders/my-orders`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      const order = data.data.find(o => o._id === orderId);
+      
+      if (order) {
+        updateStatusDisplay(order);
+        if (['vendor_approved', 'preparing', 'delivered', 'cancelled'].includes(order.orderStatus)) {
+          stopPolling();
+          if (order.orderStatus === 'cancelled') {
+            showToast('Order cancelled by admin.', 'error');
+          } else {
+            showToast(`Order ${order.orderStatus.replace('_', ' ')}!`, 'success');
+            setTimeout(() => window.location.href = 'user-dashboard.html', 3000);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Polling error:', e);
+    }
+  }, 10000); // Poll every 10s
+}
+
+function stopPolling() {
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
+  }
+}
+
+function createStatusContainer() {
+  const container = document.createElement('div');
+  container.id = 'statusContainer';
+  container.className = 'status-live mt-4 p-4 border rounded-3 bg-light shadow-sm';
+  container.innerHTML = `
+    <h5 class="text-primary mb-3"><i class="fas fa-sync-alt fa-spin me-2"></i>Live Status</h5>
+    <div id="statusProgress" class="progress mb-3" style="height: 25px;">
+      <div class="progress-bar" role="progressbar"></div>
+    </div>
+    <div id="statusText" class="h6 fw-bold text-center"></div>
+    <small class="text-muted text-center d-block mt-2">Refreshing every 10 seconds...</small>
+  `;
+  document.querySelector('.container, main')?.appendChild(container) || document.body.appendChild(container);
+  return container;
+}
+
+function updateStatusDisplay(order) {
+  const progressBar = document.querySelector('#statusProgress .progress-bar');
+  const statusText = document.getElementById('statusText');
+  
+  const statusMap = {
+    'pending_approval': { width: '30%', color: 'warning', text: 'Payment verified - Awaiting admin approval' },
+    'vendor_approved': { width: '60%', color: 'success', text: '✅ Approved! Preparing your order' },
+    'preparing': { width: '80%', color: 'info', text: 'Cooking your delicious meal' },
+    'delivered': { width: '100%', color: 'success', text: 'Delivered! Enjoy your meal!' }
+  };
+  
+  const status = statusMap[order.orderStatus] || statusMap['pending_approval'];
+  progressBar.style.width = status.width;
+  progressBar.className = `progress-bar bg-${status.color}`;
+  statusText.textContent = status.text;
+}
 
 function showToast(msg, type='info') {
     const toast = document.createElement('div');
@@ -162,3 +243,4 @@ function showToast(msg, type='info') {
     document.body.appendChild(toast);
     setTimeout(() => { toast.classList.remove('animate__fadeInRight'); toast.classList.add('animate__fadeOutRight'); setTimeout(() => toast.remove(), 300); }, 4000);
 }
+
