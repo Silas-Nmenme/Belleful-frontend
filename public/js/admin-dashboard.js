@@ -233,7 +233,7 @@
     if (!tbody) return;
     
     try {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3"><div class="spinner-border text-danger" role="status"></div></td></tr>';
+tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3"><div class="spinner-border text-danger" role="status"></div></td></tr>';
       
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({ page, limit: 10, ...(search && { search }), ...(status && { status }) });
@@ -284,9 +284,8 @@
     };
 
     
-    tbody.innerHTML = sortedOrders.map(order => {
+tbody.innerHTML = sortedOrders.map(order => {
       const safeId = order._id || '';
-      const isPendingApproval = order.orderStatus === 'pending_approval';
       const hasReceipt = order.receiptImage;
       
       return `
@@ -296,19 +295,19 @@
         <td>${order.items?.map(i => i.name).slice(0,2).join(', ') || 'Items'}</td>
         <td>₦${(order.totalAmount || 0).toLocaleString()}</td>
         <td>${statusBadge(order.orderStatus || 'pending_approval')}</td>
+        <td>${hasReceipt ? `<button class="btn btn-sm btn-success" onclick="showReceiptPreview('${order.receiptImage}')" title="View Receipt"><i class="fas fa-eye"></i></button><small class="d-block text-success mt-1"><i class="fas fa-check"></i></small>` : '<span class="text-muted"><i class="fas fa-receipt-slash"></i></span>'}</td>
         <td>
           <button class="btn btn-outline-primary btn-sm me-1" onclick="viewOrder('${safeId}')" title="View Details">
             <i class="fas fa-eye"></i>
           </button>
           <select class="form-select form-select-sm status-dropdown" data-order-id="${safeId}" onchange="updateOrderStatus('${safeId}', this.value)" style="width: auto; display: inline-block;">
-            ${validStatuses.map(s => `<option value="${s}" ${order.orderStatus === s ? 'selected' : ''}>${formatStatus(s)}</option>`).join('')}             
+            ${validStatuses.map(s => `<option value="${s}" ${order.orderStatus === s ? 'selected' : ''}>${formatStatus(s)}</option>`).join('')}
           </select>
-          ${hasReceipt ? '<small class="d-block text-success mt-1"><i class="fas fa-receipt"></i> Receipt OK</small>' : ''}
         </td>
-
       </tr>
       `;
-    }).join('') || '<tr><td colspan="6" class="text-center py-5 text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-50"></i><div class="h6 text-muted">No pending orders</div></td></tr>';  
+    }).join('') || '<tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-50"></i><div class="h6 text-muted">No pending orders</div></td></tr>';  
+
     
     if (countEl) countEl.textContent = sortedOrders.filter(o => o.orderStatus === 'pending_approval').length;
   }
@@ -761,6 +760,19 @@ window.viewOrder = async function(orderId) {
             </div>
           `).join('') || '<p class="text-muted">No items</p>'}
         </div>
+        ${order.receiptImage ? `
+        <div class="mb-4" id="orderReceiptSection">
+          <h6 class="mb-3"><i class="fas fa-receipt text-success me-2"></i>Payment Receipt</h6>
+          <div class="text-center p-4 border rounded shadow-sm bg-light">
+            <img src="${order.receiptImage}" alt="Payment Receipt" class="img-fluid rounded shadow" style="max-height: 400px; max-width: 100%; object-fit: contain;" onerror="this.style.display='none'; document.getElementById('orderReceiptSection').innerHTML='<p class="text-muted">Receipt image not available</p>';">
+          </div>
+          <div class="text-center mt-2">
+            <a href="${order.receiptImage}" target="_blank" class="btn btn-outline-success btn-sm">
+              <i class="fas fa-external-link-alt me-1"></i>Open Full Size
+            </a>
+          </div>
+        </div>
+        ` : ''}
         <div class="text-end">
           <button class="btn btn-outline-secondary" onclick="bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide()">Close</button>
         </div>
@@ -955,6 +967,48 @@ window.updateOrderStatus = async function(orderId, status) {
     }
   };
   
-  console.log('✅ admin-dashboard.js ENHANCED - Active Sidebar + Bulletproof menu save');
+window.showReceiptPreview = function(url) {
+  if (!url) {
+    showAdminToast('No receipt available', 'warning');
+    return;
+  }
+  const receiptModal = document.getElementById('receiptModal');
+  if (!receiptModal) {
+    // Create modal if not exists
+    const modalHtml = `
+      <div class="modal fade" id="receiptModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title"><i class="fas fa-receipt me-2"></i>Payment Receipt</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-5">
+              <img id="receiptModalImg" src="" class="img-fluid rounded shadow" style="max-height: 70vh;">
+            </div>
+            <div class="modal-footer">
+              <a href="#" id="receiptFullLink" target="_blank" class="btn btn-success">
+                <i class="fas fa-external-link-alt me-1"></i>Open Full Size
+              </a>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+  }
+  
+  const img = document.getElementById('receiptModalImg');
+  const link = document.getElementById('receiptFullLink');
+  if (img && link) {
+    img.src = url;
+    link.href = url;
+    const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
+    modal.show();
+  }
+};
+
+  console.log('✅ admin-dashboard.js ENHANCED - Receipt viewing enabled');
 })();
 
