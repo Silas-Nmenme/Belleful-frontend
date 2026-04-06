@@ -113,39 +113,81 @@ document.getElementById('createOrderBtn').onclick = async () => {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData);
     
-    // Ensure deliveryMethod matches backend expectation
-    data.deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked')?.value || 'pickup';
+    // Frontend fields → backend expects these exact names
+    const phoneNumber = data.phoneNumber?.trim();
+    const bankAccount = data.bankAccount?.trim();
+    const bankName = data.bankName?.trim();
+    const deliveryAddress = data.deliveryAddress?.trim();
     
-    // Validate delivery address if delivery selected
-    if (data.deliveryMethod === 'delivery' && !data.deliveryAddress.trim()) {
-        showToast('Delivery address required for delivery orders', 'error');
+    const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked')?.value || 'pickup';
+    
+    // Strict frontend validation matching backend controller
+    if (!phoneNumber) {
+        showToast('Phone number is required', 'error');
         return;
+    }
+    if (!bankAccount || !bankName) {
+        showToast('Your bank account number and bank name are required', 'error');
+        return;
+    }
+    if (deliveryMethod === 'delivery' && !deliveryAddress) {
+        showToast('Delivery address is required for delivery orders', 'error');
+        return;
+    }
+    
+    // Clean payload - only send required fields
+    const payload = {
+        phoneNumber: phoneNumber,
+        bankAccount: bankAccount,
+        bankName: bankName
+    };
+    
+    if (deliveryMethod === 'delivery') {
+        payload.deliveryAddress = deliveryAddress;
     }
     
     const token = localStorage.getItem('token');
     try {
+        const btn = document.getElementById('createOrderBtn');
+        btn.dataset.originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating order...';
+        
         const res = await fetch(`${window.API_BASE}/orders/checkout`, {
             method: 'POST',
             headers: { 
                 'Authorization': `Bearer ${token}`, 
                 'Content-Type': 'application/json' 
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(payload)
         });
         
+        // Reset button
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.originalText || '<i class="fas fa-shopping-cart me-2"></i>Create Pending Order';
+        
         if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.message || 'Checkout failed');
+            const errorData = await res.json().catch(() => ({}));
+            const errorMsg = errorData.message || `Server error (${res.status})`;
+            throw new Error(errorMsg);
         }
         
-        currentOrder = await res.json();
-        document.getElementById('uploadOrderId').textContent = currentOrder.data.displayId || currentOrder.data._id.slice(-6).toUpperCase();
+        const result = await res.json();
+        currentOrder = result;
+        document.getElementById('uploadOrderId').textContent = result.data?.displayId || result.data?._id?.slice(-6).toUpperCase() || 'ORDER';
         document.getElementById('uploadSection').classList.remove('hidden');
         document.getElementById('checkoutForm').classList.add('hidden');
-        document.getElementById('createOrderBtn').classList.add('hidden');
-        showToast(`Order ${currentOrder.data.displayId || '#' + currentOrder.data._id.slice(-6).toUpperCase()} created successfully! Upload payment proof.`, 'success');
+        btn.style.display = 'none';
+        
+        showToast(`Order created successfully! #${result.data?._id?.slice(-6).toUpperCase()}`, 'success');
     } catch (error) {
-        showToast('Checkout failed: ' + error.message, 'error');
+        // Reset button on error
+        const btn = document.getElementById('createOrderBtn');
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.originalText || '<i class="fas fa-shopping-cart me-2"></i>Create Pending Order';
+        
+        console.error('Order creation failed:', error);
+        showToast(error.message || 'Failed to create order - check form fields', 'error');
     }
 };
 
