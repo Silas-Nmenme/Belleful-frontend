@@ -135,12 +135,7 @@ document.getElementById('createOrderBtn').onclick = async () => {
         return;
     }
     
-    // Clean payload - only send required fields
-    const payload = {
-        phoneNumber: phoneNumber,
-        bankAccount: bankAccount,
-        bankName: bankName
-    };
+    // Get current cart snapshot (from loadCheckoutData)\n    const snapshot = localStorage.getItem('checkoutCartSnapshot') ? JSON.parse(localStorage.getItem('checkoutCartSnapshot')) : null;\n    \n    // Clean payload + cart snapshot\n    const payload = {\n        phoneNumber: phoneNumber,\n        bankAccount: bankAccount,\n        bankName: bankName,\n        cartSnapshot: snapshot,\n        grandTotal: window.CartManager ? window.CartManager.getTotals().grandTotal : 0\n    };
     
     if (deliveryMethod === 'delivery') {
         payload.deliveryAddress = deliveryAddress;
@@ -174,12 +169,13 @@ document.getElementById('createOrderBtn').onclick = async () => {
         
         const result = await res.json();
         currentOrder = result;
-        document.getElementById('uploadOrderId').textContent = result.data?.displayId || result.data?._id?.slice(-6).toUpperCase() || 'ORDER';
+        const orderIdStr = result.data?.displayId || String(result.data?._id || '').slice(-6).toUpperCase() || 'ORDER';
+        document.getElementById('uploadOrderId').textContent = orderIdStr;
         document.getElementById('uploadSection').classList.remove('hidden');
         document.getElementById('checkoutForm').classList.add('hidden');
         btn.style.display = 'none';
         
-        showToast(`Order created successfully! #${result.data?._id?.slice(-6).toUpperCase()}`, 'success');
+        showToast(`Order created successfully! #${String(result.data?._id || '').slice(-6).toUpperCase()}`, 'success');
     } catch (error) {
         // Reset button on error
         const btn = document.getElementById('createOrderBtn');
