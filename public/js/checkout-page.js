@@ -140,9 +140,27 @@ document.getElementById('createOrderBtn').onclick = async () => {
         const snapshotStr = localStorage.getItem('checkoutCartSnapshot');
         if (snapshotStr) {
             snapshot = JSON.parse(snapshotStr);
+            // VALIDATE snapshot before send - prevent backend 400s
+            if (snapshot?.items?.length) {
+                for (let item of snapshot.items) {
+                    if (!item.menuItem || !item.name || !item.quantity || item.quantity < 1 || !item.price || item.price <= 0) {
+                        showToast(`Invalid cart item: ${item.name || 'Unknown'}`, 'error');
+                        return;
+                    }
+                    // Ensure menuItem is string ID for backend
+                    item.menuItem = String(item.menuItem || item.menuItem._id || '');
+                }
+            } else {
+                showToast('Invalid cart snapshot - go back to cart', 'error');
+                setTimeout(() => window.location.href = 'cart.html', 1500);
+                return;
+            }
         }
     } catch (e) {
         console.warn('Invalid cart snapshot:', e);
+        showToast('Cart data corrupted - returning to cart', 'error');
+        setTimeout(() => window.location.href = 'cart.html', 1500);
+        return;
     }
 
     const payload = {
@@ -150,6 +168,7 @@ document.getElementById('createOrderBtn').onclick = async () => {
         bankAccount,
         bankName,
         cartSnapshot: snapshot,
+        deliveryMethod,  // Pass explicitly
         grandTotal: window.CartManager ? window.CartManager.getTotals().grandTotal : 0
     };
 
@@ -157,9 +176,12 @@ document.getElementById('createOrderBtn').onclick = async () => {
         payload.deliveryAddress = deliveryAddress;
     }
     
+    console.log('Sending checkout payload:', payload);
+    
     const token = localStorage.getItem('token');
+    const btn = document.getElementById('createOrderBtn');
+    
     try {
-        const btn = document.getElementById('createOrderBtn');
         btn.dataset.originalText = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating order...';
@@ -173,33 +195,43 @@ document.getElementById('createOrderBtn').onclick = async () => {
             body: JSON.stringify(payload)
         });
         
-        // Reset button
-        btn.disabled = false;
-        btn.innerHTML = btn.dataset.originalText || '<i class="fas fa-shopping-cart me-2"></i>Create Pending Order';
-        
         if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            const errorMsg = errorData.message || `Server error (${res.status})`;
+            let errorData = {};
+            try {
+                errorData = await res.json();
+            } catch {}
+            const errorMsg = errorData.message || errorData.error || `Server error (${res.status})`;
             throw new Error(errorMsg);
         }
         
         const result = await res.json();
+        
+        // SAFER ORDER ID HANDLING - fix _id.slice error
+        if (!result.data || !result.data._id) {
+            console.error('Invalid order response:', result);
+            throw new Error('Invalid order created - missing ID');
+        }
+        
         currentOrder = result;
-        const orderIdStr = result.data?.displayId || String(result.data?._id || '').slice(-6).toUpperCase() || 'ORDER';
+        // Prefer backend displayId virtual, fallback safe slice
+        const orderIdStr = result.data.displayId || String(result.data._id).slice(-6).toUpperCase() || 'ORDER123';
         document.getElementById('uploadOrderId').textContent = orderIdStr;
         document.getElementById('uploadSection').classList.remove('hidden');
         document.getElementById('checkoutForm').classList.add('hidden');
         btn.style.display = 'none';
         
-        showToast(`Order created successfully! #${String(result.data?._id || '').slice(-6).toUpperCase()}`, 'success');
+        showToast(`Order created! #${orderIdStr}`, 'success');
+        
+        // Clear local cart snapshots
+        localStorage.removeItem('checkoutCartSnapshot');
+        
     } catch (error) {
-        // Reset button on error
-        const btn = document.getElementById('createOrderBtn');
+        console.error('Order creation failed:', error);
+        showToast(error.message || 'Failed to create order', 'error');
+    } finally {
+        // Always reset button
         btn.disabled = false;
         btn.innerHTML = btn.dataset.originalText || '<i class="fas fa-shopping-cart me-2"></i>Create Pending Order';
-        
-        console.error('Order creation failed:', error);
-        showToast(error.message || 'Failed to create order - check form fields', 'error');
     }
 };
 
