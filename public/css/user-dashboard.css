@@ -392,11 +392,7 @@ body {
 }
 
 .menu-grid {
-  display: flex !important;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  width: 100%;
-  padding: 0;
+  /* Let Bootstrap handle the grid layout */
 }
 
 .menu-grid img {

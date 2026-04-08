@@ -280,11 +280,18 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
       await this.setElementLoading(buttonEl, true);
       
       try {
-        await this.apiCall('/clear', { method: 'DELETE' });
-        this.cart = { items: [], totalAmount: 0, itemCount: 0 };
-        this.saveLocalBackup();
-        this.updateBadge();
-        this.render();
+        // Try clearing by deleting all items individually first
+        if (this.cart.items && this.cart.items.length > 0) {
+          for (const item of this.cart.items) {
+            const menuItemId = String(item.menuItem?._id || item.menuItem || item.menuItemId || item._id || '');
+            if (menuItemId) {
+              await this.apiCall(`/${menuItemId}`, { method: 'DELETE' });
+            }
+          }
+        }
+        
+        // Then update from backend to ensure sync
+        await this.updateFromBackend();
         this.showToast('Cart cleared', 'success');
       } catch (error) {
         this.showToast(error.message || 'Clear failed', 'error');
@@ -347,7 +354,7 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
       }
 
       container.innerHTML = this.cart.items.map(item => {
-        const menuItemId = String(item.menuItem || item.menuItemId || '');
+        const menuItemId = String(item.menuItem?._id || item.menuItem || item.menuItemId || item._id || '');
         const image = item.image || '/asset/grilled.jpg';
         const quantity = item.quantity || 1;
         const price = item.price || 0;

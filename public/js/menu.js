@@ -33,9 +33,7 @@ window.loadMenu = async function() {
   }
 
   try {
-    // No spinner - direct load for index.html-style immediate display
-    menuGrid.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary mx-auto mb-4" style="width:3rem;height:3rem" role="status"></div><p class="text-muted">Loading menu...</p></div>';
-    
+    // Direct load without spinner for smooth display
     const response = await fetch(`${window.API_BASE}/menu?page=1&limit=1000&available=true`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
