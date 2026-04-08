@@ -145,12 +145,12 @@ function displayMenuItems(items, elements) {
 
 // Create individual menu card
 function createMenuCard(item, delayIndex = 0) {
-  const card = document.createElement('div');
-  card.className = 'menu-card';
-  card.setAttribute('data-aos', 'fade-up');
-  card.setAttribute('data-aos-delay', delayIndex * 100);
+  const colWrapper = document.createElement('div');
+  colWrapper.className = 'col-lg-3 col-md-4 col-sm-6 menu-card';
+  colWrapper.setAttribute('data-aos', 'fade-up');
+  colWrapper.setAttribute('data-aos-delay', delayIndex * 100);
   
-  card.innerHTML = `
+  colWrapper.innerHTML = `
     <div class="card h-100">
       <img src="${item.image || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'}" 
            class="card-img-top" alt="${item.name}"
@@ -177,7 +177,7 @@ ${isLoggedIn() ? `
     </div>
   `;
   
-  return card;
+  return colWrapper;
 }
 
 // API-only addToCart wrapper
