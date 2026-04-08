@@ -412,7 +412,11 @@ window.setActiveNav = window.setActiveNav || function(section) {
   if (activeLink) activeLink.classList.add('active');
   
   const target = document.getElementById(section);
-  if (target) target.scrollIntoView({ behavior: 'smooth' });
+  if (target) {
+    const navbarHeight = 80;
+    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 20; // extra padding
+    window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+  }
   
   window.closeSidebar?.();
 };
