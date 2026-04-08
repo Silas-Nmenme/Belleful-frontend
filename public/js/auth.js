@@ -348,7 +348,7 @@ function logout() {
 // localStorage.removeItem('lastEmail'); // Removed
   localStorage.removeItem('pendingEmail');
   currentUser = null;
-  showToast('Logged out successfully', 'info');
+  showToast('logged out', 'info');
   updateNavbarForAdmin();
   setTimeout(() => {
     window.location.href = 'index.html';
