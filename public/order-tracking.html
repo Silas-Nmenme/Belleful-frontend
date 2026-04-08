@@ -123,17 +123,20 @@
                 : '/api';
         }
 
-        // Status config
+        // Status config - matches dashboard labels
         const statusConfig = {
-            'pending_approval': {width: '25%', color: 'warning', text: 'Payment Verification', sub: 'Checking your payment details'},
-            'preparing': {width: '50%', color: 'info', text: 'Preparing Order', sub: 'Your meal is being cooked fresh'},
-            'ready': {width: '75%', color: 'success', text: 'Ready for Pickup/Delivery', sub: 'Order complete and waiting'},
-            'off_for_delivery': {width: '90%', color: 'primary', text: 'Out for Delivery', sub: 'Driver assigned'},
+            'pending_approval': {width: '25%', color: 'success', text: 'Pending', sub: 'Payment verification in progress'},
+            'vendor_approved': {width: '40%', color: 'success', text: 'Approved', sub: 'Order approved by vendor'},
+            'preparing': {width: '60%', color: 'success', text: 'Preparing', sub: 'Your meal is being cooked fresh'},
+            'ready_for_pickup': {width: '80%', color: 'success', text: 'Ready for Pickup', sub: 'Order complete and ready'},
+            'ready': {width: '80%', color: 'success', text: 'Ready', sub: 'Order complete and waiting'},
+            'off_for_delivery': {width: '90%', color: 'success', text: 'On the Way', sub: 'Driver assigned and heading your way'},
             'delivered': {width: '100%', color: 'success', text: 'Delivered ✓', sub: 'Enjoy your meal!'},
             'cancelled': {width: '0%', color: 'danger', text: 'Cancelled', sub: 'Order was cancelled'}
         };
 
         let pollInterval;
+        let currentOrderStatus = null;
         const orderId = new URLSearchParams(window.location.search).get('id');
 
         async function loadOrder() {
@@ -170,6 +173,20 @@
             document.getElementById('loadingScreen').classList.add('d-none');
             document.getElementById('trackingScreen').classList.remove('d-none');
             document.getElementById('orderId').textContent = order._id.slice(-8).toUpperCase();
+
+            // Detect status change and animate
+            const statusChanged = currentOrderStatus !== order.orderStatus;
+            const statusCard = document.querySelector('.card.shadow-lg.border-0');
+            
+            if (statusChanged && currentOrderStatus !== null) {
+                // Pulse animation on status change
+                statusCard?.classList.add('animate__animated', 'animate__pulse');
+                setTimeout(() => {
+                    statusCard?.classList.remove('animate__animated', 'animate__pulse');
+                }, 1000);
+            }
+            
+            currentOrderStatus = order.orderStatus;
 
             // Progress
             const status = statusConfig[order.orderStatus] || statusConfig['pending_approval'];
@@ -249,6 +266,15 @@
             if (pollInterval) clearInterval(pollInterval);
         }
 
+        // Pause polling when user leaves tab, resume when they return
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopPolling();
+            } else {
+                startPolling();
+            }
+        });
+
         // Init
         if (orderId) {
             startPolling();
@@ -261,7 +287,7 @@
             console.log(`[${type}] ${msg}`);
         };
 
-        // Cleanup
+        // Cleanup on page exit
         window.addEventListener('beforeunload', stopPolling);
     </script>
 </body>
