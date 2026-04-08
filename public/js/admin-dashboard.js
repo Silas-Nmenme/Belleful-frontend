@@ -613,7 +613,7 @@ const method = menuId ? 'PUT' : 'POST';
           throw new Error(errorMsg);
         }
         
-        console.log('✅ Save success');
+        console.log('Save success');
         showAdminToast(`Menu ${menuId ? 'updated' : 'created'} successfully!`, 'success');
         
         const modalEl = document.getElementById('menuModal');
@@ -622,7 +622,7 @@ const method = menuId ? 'PUT' : 'POST';
         loadAdminMenu(1);
         
       } catch (error) {
-        console.error('❌ Menu save FAILED:', error);
+        console.error('Menu save FAILED:', error);
         showAdminToast('DANGER: Save failed - ' + error.message, 'danger');
       } finally {
         formElements.submitBtn.disabled = false;
@@ -815,7 +815,7 @@ window.updateOrderStatus = async function(orderId, status) {
       const result = await response.json();
       
       if (response.ok) {
-        showAdminToast(`✅ Order #${orderId.slice(-8)} → ${status.replace(/_/g, ' ').toUpperCase()}`, 'success');
+        showAdminToast(`Order #${orderId.slice(-8)} → ${status.replace(/_/g, ' ').toUpperCase()}`, 'success');
         
         // Refresh table (reloads ALL orders for consistency)
         await loadPendingOrders(1);
@@ -830,14 +830,14 @@ window.updateOrderStatus = async function(orderId, status) {
         const errorMsg = result.message || `HTTP ${response.status}`;
         console.error('Status update failed:', errorMsg);
         
-        showAdminToast(`❌ Update failed: ${errorMsg}`, 'danger');
+        showAdminToast(`Update failed: ${errorMsg}`, 'danger');
         
         // Restore dropdown
         if (dropdown) dropdown.disabled = false;
       }
     } catch (error) {
       console.error('Update network error:', error);
-      showAdminToast('❌ Network error - check connection', 'danger');
+      showAdminToast('Network error - check connection', 'danger');
       
       // Restore dropdown
       if (dropdown) {
@@ -1009,6 +1009,6 @@ window.showReceiptPreview = function(url) {
   }
 };
 
-  console.log('✅ admin-dashboard.js ENHANCED - Receipt viewing enabled');
+  console.log('admin-dashboard.js ENHANCED - Receipt viewing enabled');
 })();
 

@@ -392,7 +392,7 @@ function updateStatusDisplay(order) {
   
   const statusMap = {
     'pending_approval': { width: '30%', color: 'warning', text: 'Payment verified - Awaiting admin approval' },
-    'vendor_approved': { width: '60%', color: 'success', text: '✅ Approved! Preparing your order' },
+    'vendor_approved': { width: '60%', color: 'success', text: 'Approved! Preparing your order' },
     'preparing': { width: '80%', color: 'info', text: 'Cooking your delicious meal' },
     'delivered': { width: '100%', color: 'success', text: 'Delivered! Enjoy your meal!' }
   };
