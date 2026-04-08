@@ -515,7 +515,7 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
     }
 
     redirectToLogin() {
-      this.showToast('Please login to manage cart', 'warning');
+      // Removed login toast - handled by redirect
       setTimeout(() => {
         window.location.href = 'login.html';
       }, 1500);

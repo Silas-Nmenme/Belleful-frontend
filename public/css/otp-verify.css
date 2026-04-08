@@ -19,7 +19,13 @@ body {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 100px 16px 40px;
+    padding: 80px 16px 20px;
+}
+
+@media screen and (max-width: 576px) {
+    body {
+        padding: 70px 12px 20px;
+    }
 }
 
 .bg-gradient-warm {
@@ -42,6 +48,16 @@ body {
     box-shadow: 0 20px 60px rgba(0,0,0,0.18);
     max-width: 950px;
     margin: 0 auto;
+    min-height: 500px;
+}
+
+@media screen and (max-width: 768px) {
+    .contact-box {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        max-width: 100%;
+        margin: 0 8px;
+    }
 }
 
 .left {
@@ -58,6 +74,22 @@ body {
     padding: 0 40px;
     position: relative;
     overflow: hidden;
+}
+
+@media screen and (max-width: 768px) {
+    .left {
+        min-height: 250px;
+        padding: 0 20px;
+        font-size: 28px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .left {
+        min-height: 200px;
+        padding: 0 16px;
+        font-size: 24px;
+    }
 }
 
 .left i {
@@ -78,6 +110,21 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    min-height: 420px;
+}
+
+@media screen and (max-width: 768px) {
+    .right {
+        padding: 32px 30px;
+        min-height: auto;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .right {
+        padding: 24px 20px;
+        min-height: auto;
+    }
 }
 
 h2 {
@@ -87,6 +134,13 @@ h2 {
     color: var(--text-primary);
     font-size: 1.8rem;
     font-weight: 700;
+}
+
+@media screen and (max-width: 576px) {
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 16px;
+    }
 }
 
 h2::after {
@@ -113,6 +167,14 @@ h2::after {
     border-radius: 8px;
 }
 
+@media screen and (max-width: 576px) {
+    .field {
+        padding: 14px 16px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        margin-bottom: 16px;
+    }
+}
+
 .otp-input {
     width: 60px;
     height: 60px;
@@ -121,6 +183,17 @@ h2::after {
     text-align: center;
     margin-bottom: 0;
     flex: 0 0 auto;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+@media screen and (max-width: 576px) {
+    .otp-input {
+        width: 48px;
+        height: 48px;
+        font-size: 1.3rem;
+        border-radius: 10px;
+    }
 }
 
 .otp-inputs {
@@ -128,6 +201,20 @@ h2::after {
     justify-content: center;
     gap: 12px;
     margin-bottom: 24px;
+    flex-wrap: wrap;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media screen and (max-width: 576px) {
+    .otp-inputs {
+        gap: 8px;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        max-width: 100%;
+        padding: 0 10px;
+    }
 }
 
 .otp-input:hover {
@@ -154,6 +241,14 @@ h2::after {
     color: #28a745;
     border: 2px solid rgba(40,167,69,0.3);
     font-family: 'Courier New', monospace;
+    margin-bottom: 20px;
+}
+
+@media screen and (max-width: 576px) {
+    .timer {
+        padding: 8px 16px;
+        margin-bottom: 16px;
+    }
 }
 
 #emailDisplay {
@@ -189,6 +284,18 @@ h2::after {
     font-weight: 600;
     position: relative;
     overflow: hidden;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media screen and (max-width: 576px) {
+    .btn {
+        padding: 14px 20px;
+        font-size: 15px;
+        min-height: 50px;
+    }
 }
 
 .btn:hover:not(:disabled) {
@@ -258,6 +365,14 @@ h2::after {
 
 .account-links {
     font-size: 0.9rem;
+    margin-top: 20px;
+}
+
+@media screen and (max-width: 576px) {
+    .account-links {
+        margin-top: 16px;
+        font-size: 0.85rem;
+    }
 }
 
 @media screen and (max-width: 850px) {
@@ -285,10 +400,22 @@ h2::after {
     padding: 0.75rem 1rem;
 }
 
+@media screen and (max-width: 576px) {
+    .navbar {
+        padding: 0.5rem 0.75rem;
+    }
+}
+
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: -0.5px;
+}
+
+@media screen and (max-width: 576px) {
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
 }
 
 .navbar-brand:hover {
@@ -298,4 +425,43 @@ h2::after {
 .navbar-brand i {
     font-size: 1.4rem;
     margin-right: 0.5rem;
+}
+
+@media screen and (max-width: 576px) {
+    .navbar-brand i {
+        font-size: 1.2rem;
+    }
+}
+
+/* ===== CONTAINER AND RESPONSIVE IMPROVEMENTS ===== */
+.container-fluid {
+    padding: 0 16px;
+}
+
+@media screen and (max-width: 576px) {
+    .container-fluid {
+        padding: 0 8px;
+    }
+}
+
+@media screen and (max-width: 992px) and (min-width: 769px) {
+    .contact-box {
+        max-width: 800px;
+    }
+    
+    .left {
+        min-height: 380px;
+        font-size: 32px;
+        padding: 0 30px;
+    }
+    
+    .right {
+        padding: 32px 35px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .navbar-brand i {
+        font-size: 1.2rem;
+    }
 }

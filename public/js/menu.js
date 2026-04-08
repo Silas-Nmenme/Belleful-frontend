@@ -134,7 +134,7 @@ function displayMenuItems(items, elements) {
   // Show login toast if not authenticated
   const token = localStorage.getItem('token');
   if (!token && typeof showToast === 'function') {
-    showToast('Login to enjoy better menu and accessibility to more menu items!', 'info');
+    // Removed informational login toast
   }
   
   // Trigger AOS refresh for new elements
@@ -215,7 +215,7 @@ function showToast(message, type = 'info') {
   toast.innerHTML = '<strong>' + (type === 'success' ? '✅' : '❌') + ' ' + message + '</strong><button class="btn-close ms-2" onclick="this.parentElement.remove()"></button>';
 
   document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
+  setTimeout(() => toast.remove(), 1000); // Changed to 1 second
 }
 
     // Auto-init only if menu elements exist

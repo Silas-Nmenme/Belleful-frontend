@@ -8,7 +8,7 @@ window.showToast = window.showToast || function(message, type = 'info') {
     toast.style.cssText = 'top:20px;right:20px;z-index:9999;max-width:350px;';
     toast.innerHTML = `<strong>${type.toUpperCase()}</strong>: ${message}`;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000);
+    setTimeout(() => toast.remove(), 1000); // Changed to 1 second
   }
 };
 
@@ -128,7 +128,7 @@ function refreshOrders() {
   const icon = document.getElementById('refreshIcon');
   const text = document.getElementById('refreshText');
   if (!btn || !icon || !text) {
-    showToast('Refresh button not found', 'error');
+    // Removed toast notification
     return;
   }
 
@@ -142,12 +142,12 @@ function refreshOrders() {
   window.OrderManager?.getUserOrders()
     .then(r => {
       renderOrders(r.data || []);
-      showToast('Orders refreshed successfully!', 'success');
+      // Removed success toast
     })
     .catch(err => {
       console.error('Refresh orders failed:', err);
       renderOrders([]); // Show empty state
-      showToast('Failed to refresh orders: ' + (err.message || 'Please try again'), 'error');
+      // Removed error toast
     })
     .finally(() => {
       // Reset button
@@ -370,7 +370,7 @@ async function loadUserDashboard() {
     // Auth check
     const token = localStorage.getItem('token');
     if (!token) {
-      showToast('Please login to view dashboard', 'warning');
+      // Removed toast notification
       setTimeout(() => window.location.href = 'login.html', 1500);
       return;
     }
@@ -406,10 +406,10 @@ async function loadUserDashboard() {
     }
 
     console.log('loadUserDashboard complete');
-    showToast('Dashboard loaded successfully!', 'success');
+    // Removed success toast
   } catch (error) {
     console.error('loadUserDashboard error:', error);
-    showToast('Dashboard load failed: ' + error.message, 'error');
+    // Removed error toast
     
     // Always render fallback stats
     renderStats({ totalOrders: 0, totalSpent: 0, avgOrderValue: 0, monthlyOrders: 0 });
@@ -505,14 +505,14 @@ async function openSettingsModal() {
     // Use cached profile or fetch fresh
     const cached = JSON.parse(localStorage.getItem('currentUser') || '{}');
     if (!cached.name && !cached.email) {
-      showToast('Loading profile...', 'info');
+      // Removed loading toast
       currentProfileCache = await loadProfile();
     } else {
       currentProfileCache = cached;
     }
 
     if (!currentProfileCache) {
-      showToast('Profile not found. Please refresh.', 'warning');
+      // Removed profile not found toast
       return;
     }
 
@@ -545,18 +545,18 @@ async function openSettingsModal() {
     setTimeout(() => document.getElementById('nameInput').focus(), 300);
   } catch (error) {
     console.error('openSettingsModal error:', error);
-    showToast('Failed to load profile settings', 'error');
+    // Removed error toast
   }
 }
 
 function previewAvatar(file) {
   if (!file || !file.type.startsWith('image/')) {
-    showToast('Please select a valid image file', 'warning');
+    // Removed invalid file toast
     return;
   }
 
   if (file.size > 5 * 1024 * 1024) { // 5MB
-    showToast('Image too large. Max 5MB.', 'warning');
+    // Removed file too large toast
     return;
   }
 
@@ -618,12 +618,12 @@ async function updateProfile(formData) {
 
     // Success
     progress.classList.add('d-none');
-    showToast('Profile updated successfully! ✅', 'success');
+    // Removed success toast
     
     return result.user;
   } catch (error) {
     console.error('updateProfile error:', error);
-    showToast(error.message || 'Update failed', 'error');
+    // Removed error toast
     throw error;
   }
 }
@@ -657,7 +657,7 @@ function initSettingsEvents() {
     const name = formData.get('name')?.trim();
     
     if (!name || name.length < 2) {
-      showToast('Name must be 2+ characters', 'warning');
+      // Removed validation toast
       return;
     }
 

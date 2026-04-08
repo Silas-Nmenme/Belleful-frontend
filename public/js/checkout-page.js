@@ -147,26 +147,26 @@ document.getElementById('createOrderBtn').onclick = async () => {
             if (snapshot?.items?.length) {
                 for (let item of snapshot.items) {
                     if (!item.menuItem || !item.name || !item.quantity || item.quantity < 1 || !item.price || item.price <= 0) {
-                        showToast(`Invalid cart item: ${item.name || 'Unknown'}`, 'error');
+                        // Removed invalid cart item toast
                         return;
                     }
                     // Ensure menuItem is string ID for backend (double-check)
                     const menuItemId = String(item.menuItem?._id || item.menuItem || item.menuItemId || '');
                     if (!menuItemId || menuItemId === '[object Object]') {
-                        showToast(`Invalid menuItem ID for ${item.name || 'item'}: ${menuItemId}`, 'error');
+                        // Removed invalid menuItem ID toast
                         return;
                     }
                     item.menuItem = menuItemId;
                 }
             } else {
-                showToast('Invalid cart snapshot - go back to cart', 'error');
+                // Removed invalid cart snapshot toast
                 setTimeout(() => window.location.href = 'cart.html', 1500);
                 return;
             }
         }
     } catch (e) {
         console.warn('Invalid cart snapshot:', e);
-        showToast('Cart data corrupted - returning to cart', 'error');
+        // Removed cart data corrupted toast
         setTimeout(() => window.location.href = 'cart.html', 1500);
         return;
     }
@@ -415,5 +415,5 @@ function showToast(msg, type='info') {
     `;
     toast.querySelector('.btn-close')?.addEventListener('click', () => toast.remove());
     document.body.appendChild(toast);
-    setTimeout(() => { toast.classList.remove('animate__fadeInRight'); toast.classList.add('animate__fadeOutRight'); setTimeout(() => toast.remove(), 300); }, 4000);
+    setTimeout(() => { toast.classList.remove('animate__fadeInRight'); toast.classList.add('animate__fadeOutRight'); setTimeout(() => toast.remove(), 300); }, 1000); // Changed to 1 second
 }
