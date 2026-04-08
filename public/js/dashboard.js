@@ -156,7 +156,7 @@ function renderOrders(orders) {
                 </div>
                 <div class="col-4 col-sm-3 text-end">
                   <button class="btn btn-primary btn-sm w-100 fs-6 fw-bold" onclick="trackOrder('${orderId}')" style="min-height: 44px;">
-                    <i class="fas fa-map-marker-alt me-1"></i>Track Order
+                    <i class="fas fa-map-marker-alt me-1"></i>Track 
                   </button>
                 </div>
               </div>
