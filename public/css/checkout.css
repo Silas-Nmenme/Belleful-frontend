@@ -317,6 +317,7 @@ textarea.form-control {
   background: linear-gradient(45deg, transparent 30%, rgba(255,107,53,0.05) 50%, transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .dropzone:hover::before {
