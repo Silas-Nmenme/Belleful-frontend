@@ -252,9 +252,12 @@ window.addEventListener('resize', handleResize);
 function getOrderStatusClass(status) {
   const classes = {
     'delivered': 'table-success',
-    'ready': 'table-info',
-    'preparing': 'table-warning',
-    'pending': 'table-secondary'
+    'ready': 'table-success',
+    'ready_for_pickup': 'table-success',
+    'preparing': 'table-success',
+    'pending_approval': 'table-success',
+    'vendor_approved': 'table-success',
+    'ordered': 'table-secondary'
   };
   return classes[status] || 'table-light';
 }
@@ -263,9 +266,10 @@ function getOrderStatusBadge(status) {
   const badges = {
     'delivered': 'success',
     'ready': 'success',
-    'preparing': 'warning',
-    'pending_approval': 'warning',
-    'vendor_approved': 'info',
+    'ready_for_pickup': 'success',
+    'preparing': 'success',
+    'pending_approval': 'success',
+    'vendor_approved': 'success',
     'ordered': 'secondary'
   };
   return badges[status] || 'light';
@@ -274,10 +278,11 @@ function getOrderStatusBadge(status) {
 function formatOrderStatus(status) {
   const labels = {
     'ordered': 'New Order',
-    'pending_approval': 'Payment Check',
+    'pending_approval': 'Pending',
     'vendor_approved': 'Approved',
-    'preparing': 'Cooking',
+    'preparing': 'Preparing',
     'ready': 'Ready',
+    'ready_for_pickup': 'Ready for Pickup',
     'off_for_delivery': 'On Way',
     'delivered': 'Delivered ✓'
   };
