@@ -124,38 +124,96 @@ function renderStats(statsData) {
 }
 
 function renderOrders(orders) {
-  const tbody = document.getElementById('ordersTableBody');
-  if (!tbody) return;
+  const container = document.getElementById('ordersTableBody');
+  if (!container) return;
+
+  const isMobile = window.innerWidth < 768;
   
-  tbody.innerHTML = (orders || []).map(order => {
-    const safeTotal = (order?.totalAmount || 0);
-    const safeItems = Array.isArray(order?.items) ? order.items : [];
-    const itemNames = safeItems.map(item => item?.name || 'Item').slice(0, 3).join(', ');
-    const itemCount = safeItems.length;
-    
-    return `
-      <tr class="${getOrderStatusClass(order?.orderStatus || 'pending')}">
-        <td><strong>#${(order?._id || 'N/A').slice(-8)}</strong></td>
-        <td>
-          ${itemNames}${itemCount > 3 ? '...' : ''}
-          <br><small class="text-muted">${itemCount} items</small>
-        </td>
-        <td><strong>₦${safeTotal.toLocaleString()}</strong></td>
-        <td>
-          <span class="badge bg-${getOrderStatusBadge(order?.orderStatus || 'pending')} fs-6 px-3 py-2">
-            ${formatOrderStatus(order?.orderStatus || 'pending')}
-          </span>
-        </td>
-        <td>${order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary" onclick="trackOrder('${order?._id || ''}')">
-            Track
-          </button>
-        </td>
-      </tr>
-    `;
-  }).join('') || '<tr><td colspan="6" class="text-center text-muted py-5"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>No orders yet</td></tr>';
+  if (isMobile) {
+    // Mobile Card View - Track button prominent
+    container.innerHTML = (orders || []).map(order => {
+      const safeTotal = (order?.totalAmount || 0);
+      const safeItems = Array.isArray(order?.items) ? order.items : [];
+      const itemNames = safeItems.map(item => item?.name || 'Item').slice(0, 2).join(', ');
+      const itemCount = safeItems.length;
+      const statusClass = getOrderStatusClass(order?.orderStatus || 'pending');
+      const statusBadge = getOrderStatusBadge(order?.orderStatus || 'pending');
+      const statusText = formatOrderStatus(order?.orderStatus || 'pending');
+      const orderId = order?._id || '';
+      
+      return `
+        <tr class="border-bottom ${statusClass}">
+          <td colspan="6" class="p-0">
+            <div class="card border-0 bg-transparent shadow-sm mb-2 p-3 rounded-3">
+              <div class="row g-3 align-items-center">
+                <div class="col-8 col-sm-9">
+                  <div class="d-flex align-items-center mb-1">
+                    <strong class="me-2 text-primary">#${orderId.slice(-8)}</strong>
+                    <span class="badge bg-${statusBadge} fs-6 px-2 py-1">${statusText}</span>
+                  </div>
+                  <div class="small text-muted">${itemNames}${itemCount > 2 ? '...' : ''} • ${itemCount} items</div>
+                  <div class="small">₦${safeTotal.toLocaleString()} • ${order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</div>
+                </div>
+                <div class="col-4 col-sm-3 text-end">
+                  <button class="btn btn-primary btn-sm w-100 fs-6 fw-bold" onclick="trackOrder('${orderId}')" style="min-height: 44px;">
+                    <i class="fas fa-map-marker-alt me-1"></i>Track Order
+                  </button>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="6" class="text-center text-muted py-5"><i class="fas fa-shopping-bag fa-3x mb-3 opacity-50"></i><h6>No orders yet</h6><p class="mb-0">Your orders will appear here</p></td></tr>';
+  } else {
+    // Desktop Table View
+    container.innerHTML = (orders || []).map(order => {
+      const safeTotal = (order?.totalAmount || 0);
+      const safeItems = Array.isArray(order?.items) ? order.items : [];
+      const itemNames = safeItems.map(item => item?.name || 'Item').slice(0, 3).join(', ');
+      const itemCount = safeItems.length;
+      
+      return `
+        <tr class="${getOrderStatusClass(order?.orderStatus || 'pending')}">
+          <td><strong>#${(order?._id || 'N/A').slice(-8)}</strong></td>
+          <td>
+            ${itemNames}${itemCount > 3 ? '...' : ''}
+            <br><small class="text-muted">${itemCount} items</small>
+          </td>
+          <td><strong>₦${safeTotal.toLocaleString()}</strong></td>
+          <td>
+            <span class="badge bg-${getOrderStatusBadge(order?.orderStatus || 'pending')} fs-6 px-3 py-2">
+              ${formatOrderStatus(order?.orderStatus || 'pending')}
+            </span>
+          </td>
+          <td>${order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary track-btn" onclick="trackOrder('${order?._id || ''}')">
+              <i class="fas fa-map-marker-alt me-1"></i>Track
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="6" class="text-center text-muted py-5"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>No orders yet</td></tr>';
+  }
 }
+
+// Responsive re-render on resize
+let resizeTimeout;
+function handleResize() {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    // Re-fetch and re-render orders if data available
+    if (window.OrderManager?.getUserOrders) {
+      window.OrderManager.getUserOrders().then(ordersRes => {
+        const orders = ordersRes?.data || [];
+        renderOrders(orders);
+      }).catch(console.error);
+    }
+  }, 250);
+}
+
+window.addEventListener('resize', handleResize);
 
 function getOrderStatusClass(status) {
   const classes = {

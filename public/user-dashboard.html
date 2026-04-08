@@ -118,30 +118,36 @@
             <!-- Orders & Actions Row -->
             <div class="row g-4">
                 <!-- Recent Orders -->
-                <div class="col-lg-8">
+<div class="col-xl-8 col-lg-8 col-md-12">
                     <section class="orders-section card h-100" data-aos="fade-up" data-aos-delay="300">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h3 class="h4 mb-0 fw-bold">
                                 <i class="fas fa-list me-2 text-primary"></i>Recent Orders
                             </h3>
+                            <a href="#" class="btn btn-sm btn-outline-primary" onclick="window.OrderManager?.getUserOrders().then(r => renderOrders(r.data)); return false;">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                            </a>
                         </div>
                         <div class="card-body p-0">
-                            <div class="table-responsive">
+                            <div class="table-responsive table-responsive-scroll">
                                 <table class="table table-hover orders-table mb-0">
-                                    <thead class="table-dark">
+                                    <thead class="table-dark table-sticky-header">
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Items</th>
-                                            <th>Total</th>
-                                            <th>Status</th>
-                                            <th>Date</th>
-                                            <th></th>
+                                            <th scope="col" class="th-nowrap">Order ID</th>
+                                            <th scope="col">Items</th>
+                                            <th scope="col" class="th-nowrap">Total</th>
+                                            <th scope="col" class="th-nowrap">Status</th>
+                                            <th scope="col" class="th-nowrap">Date</th>
+                                            <th scope="col" class="th-nowrap text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ordersTableBody">
-                                        <!-- Orders loaded here -->
+                                        <!-- Orders loaded dynamically -->
                                     </tbody>
                                 </table>
+                                <div class="scroll-indicator d-none d-md-block">
+                                    <i class="fas fa-chevron-left"></i> Swipe left to see Track <i class="fas fa-chevron-right"></i>
+                                </div>
                             </div>
                         </div>
                     </section>
