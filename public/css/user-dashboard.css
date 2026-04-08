@@ -47,6 +47,15 @@ body {
   align-items: center;
 }
 
+@media (min-width: 992px) {
+  .mobile-menu-toggle,
+  .navbar-toggler {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
 .navbar-nav.ms-auto {
   display: flex !important;
   align-items: center;
