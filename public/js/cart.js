@@ -59,7 +59,7 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
           return;
         }
 
-        if (e.target.matches('.btn-cart-remove')) {
+        if (e.target.closest('.btn-cart-remove')) {
           e.preventDefault();
           const itemEl = e.target.closest('[data-menuitem-id]');
           const itemId = itemEl.dataset.menuitemId;
@@ -70,15 +70,15 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
           return;
         }
 
-        if (e.target.matches('.btn-cart-clear')) {
+        if (e.target.closest('.btn-cart-clear')) {
           e.preventDefault();
           if (confirm('Clear entire cart? All stock will be restored.')) {
-            await this.clearCart();
+            await this.clearCart(e.target.closest('.btn-cart-clear'));
           }
           return;
         }
 
-        if (e.target.matches('.btn-proceed')) {
+        if (e.target.closest('.btn-proceed')) {
           e.preventDefault();
           if (!this.cart.items?.length) {
             this.showToast('Your cart is empty', 'warning');
@@ -104,7 +104,7 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
           return;
         }
 
-        if (e.target.matches('.btn-delivery-toggle')) {
+        if (e.target.closest('.btn-delivery-toggle')) {
           e.preventDefault();
           this.isDelivery = !this.isDelivery;
           this.updateDeliveryToggle();
@@ -275,9 +275,9 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
       }
     }
 
-    async clearCart() {
+    async clearCart(buttonEl) {
       if (!this.token) throw new Error('Login required');
-      await this.setElementLoading(e.target.closest('.btn-cart-clear'), true);
+      await this.setElementLoading(buttonEl, true);
       
       try {
         await this.apiCall('/clear', { method: 'DELETE' });
@@ -290,7 +290,7 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
         this.showToast(error.message || 'Clear failed', 'error');
         this.render();
       } finally {
-        this.setElementLoading(e.target.closest('.btn-cart-clear'), false);
+        this.setElementLoading(buttonEl, false);
       }
     }
 
@@ -469,9 +469,23 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
 
     setElementLoading(el, loading) {
       if (!el) return;
-      el.classList.toggle('loading', loading);
+      
       if (loading) {
+        // Store original content
+        if (!el._originalHTML) {
+          el._originalHTML = el.innerHTML;
+        }
+        el.classList.add('loading');
         el.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Loading...';
+        el.disabled = true;
+      } else {
+        // Restore original content
+        if (el._originalHTML) {
+          el.innerHTML = el._originalHTML;
+          el._originalHTML = null;
+        }
+        el.classList.remove('loading');
+        el.disabled = false;
       }
     }
 
