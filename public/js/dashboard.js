@@ -618,7 +618,7 @@ async function updateProfile(formData) {
 
     // Success
     progress.classList.add('d-none');
-    // Removed success toast
+    showToast('Profile updated successfully!', 'success');
     
     return result.user;
   } catch (error) {
