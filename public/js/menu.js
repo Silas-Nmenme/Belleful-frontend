@@ -145,9 +145,6 @@ function displayMenuItems(items, elements) {
 
 // Create individual menu card
 function createMenuCard(item, delayIndex = 0) {
-const colWrapper = document.createElement('div');
-  colWrapper.className = 'col-lg-3 col-md-4 col-sm-6';
-  
   const card = document.createElement('div');
   card.className = 'menu-card';
   card.setAttribute('data-aos', 'fade-up');
@@ -180,8 +177,7 @@ ${isLoggedIn() ? `
     </div>
   `;
   
-  colWrapper.appendChild(card);
-  return colWrapper;
+  return card;
 }
 
 // API-only addToCart wrapper
