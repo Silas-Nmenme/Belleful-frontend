@@ -96,13 +96,16 @@ function toggleDeliveryAddress() {
 
 function renderCheckoutItems(items) {
     document.getElementById('checkoutItems').innerHTML = items.map(item => `
-        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
-            <div>
-                <h6 class="fw-bold">${item.menuItem?.name || item.name}</h6>
-                <small class="text-muted">${item.quantity} × ₦${(item.price || 0).toLocaleString()}</small>
+        <div class="checkout-item">
+            <div class="d-flex align-items-center">
+                <img src="${item.image || '/asset/grilled.jpg'}" alt="${item.menuItem?.name || item.name}" class="checkout-item-image" onerror="this.src='/asset/grilled.jpg'">
+                <div class="checkout-item-details">
+                    <h6 class="mb-1">${item.menuItem?.name || item.name}</h6>
+                    <small class="text-muted">${item.quantity} × ₦${(item.price || 0).toLocaleString()}</small>
+                </div>
             </div>
-            <div class="text-end">
-                <div class="h6 fw-bold">₦${((item.price || 0) * item.quantity).toLocaleString()}</div>
+            <div class="checkout-item-price">
+                ₦${((item.price || 0) * item.quantity).toLocaleString()}
             </div>
         </div>
     `).join('');

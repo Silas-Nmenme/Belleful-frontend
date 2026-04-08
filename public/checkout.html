@@ -11,18 +11,63 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-primary shadow-lg">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="user-dashboard.html">
                 <i class="fas fa-utensils me-2"></i>Belleful
             </a>
-            <div class="navbar-nav ms-auto" id="checkoutNavbarNav">
-                <a class="nav-link" href="cart.html"><i class="fas fa-arrow-left"></i> Cart</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="user-dashboard.html">
+                            <i class="fas fa-home me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="user-dashboard.html#menu">
+                            <i class="fas fa-utensils me-1"></i>Menu
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="cart.html">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Cart
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown" id="userDropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img class="rounded-circle me-2" src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff&size=32" width="32" height="32" alt="Profile" id="profileAvatar">
+                            <span id="profileName">User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="user-dashboard.html">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button class="dropdown-item text-danger" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button></li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
     <div class="container py-5 mt-5">
+        <div class="row justify-content-center mb-4">
+            <div class="col-12 text-center">
+                <h1 class="display-5 fw-bold text-dark mb-3">
+                    <i class="fas fa-credit-card text-primary me-3"></i>Checkout
+                </h1>
+                <p class="lead text-muted">Complete your order securely</p>
+            </div>
+        </div>
+
         <div class="row g-5">
             <!-- Order Summary -->
             <div class="col-lg-7">
@@ -33,10 +78,13 @@
                         </h4>
                     </div>
                     <div class="card-body">
-                        <div id="checkoutItems"></div>
+                        <div id="checkoutItems" class="mb-4">
+                            <!-- Items will be populated by JavaScript -->
+                        </div>
                         <hr class="my-4">
-                        <div class="h3 fw-bold text-end text-success mb-4">
-                            Total: <span id="checkoutTotal">₦0</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h4 fw-bold text-dark mb-0">Total Amount:</span>
+                            <div class="h3 fw-bold text-success mb-0" id="checkoutTotal">₦0</div>
                         </div>
                     </div>
                 </div>
@@ -47,8 +95,8 @@
                 <div class="card shadow-xl border-0 rounded-4 h-100" data-aos="fade-left">
                     <div class="card-header bg-success text-white text-center py-4">
                         <i class="fas fa-university fa-3x mb-3"></i>
-                        <h4 class="mb-0 fw-bold">Bank Transfer Payment</h4>
-                        <p class="mb-0 opacity-75">Pay directly to our account</p>
+                        <h4 class="mb-2 fw-bold">Secure Bank Transfer</h4>
+                        <p class="mb-0 opacity-75 small">Pay directly to our verified account</p>
                     </div>
     <div class="card-body p-4">
                         <form id="checkoutForm">
@@ -89,27 +137,30 @@
                         </form>
                         
                         <div class="payment-details mb-4 p-4 bg-light rounded-3">
+                            <h5 class="text-center fw-bold mb-4 text-dark">
+                                <i class="fas fa-money-bill-wave me-2 text-success"></i>Payment Details
+                            </h5>
 
-                            <div class="row text-center">
-                                <div class="col-md-6 mb-3">
-                                    <div class="h2 fw-bold text-primary mb-1" id="accountNumber">8107586167</div>
-                                    <div class="text-muted small">Account Number</div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="h4 fw-bold text-success mb-1">Opay</div>
-                                    <div class="text-muted small">Bank Name</div>
-                                </div>
-                            </div>
-                            <div class="row g-3 mt-3">
-                                <div class="col-6">
-                                    <div class="form-control border-primary bg-white py-3 text-center fw-bold h4" id="paymentAmount">₦0</div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-control border-success bg-white py-3 text-center">
-                                        <i class="fas fa-copy text-muted me-2"></i>
-                                        Copy Details
+                            <div class="row text-center mb-4">
+                                <div class="col-12 mb-3">
+                                    <div class="bg-white p-3 rounded-3 border border-primary">
+                                        <div class="h2 fw-bold text-primary mb-1" id="accountNumber">8107586167</div>
+                                        <div class="text-muted small">Opay Account Number</div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-center w-100 mb-2">Amount to Transfer</label>
+                                    <div class="form-control border-primary bg-white py-3 text-center fw-bold h4 text-primary" id="paymentAmount" readonly>₦0</div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button type="button" class="btn btn-outline-success btn-sm" onclick="copyPaymentDetails()">
+                                    <i class="fas fa-copy me-1"></i>Copy Account Details
+                                </button>
                             </div>
                         </div>
 
@@ -142,12 +193,42 @@
                         </button>
 
 
-                        <div class="mt-4 p-3 bg-light rounded-3 small">
-                            <strong>Instructions:</strong>
-                            <div>1. Transfer exact amount to account above</div>
-                            <div>2. Upload receipt after payment</div>
-                            <div>3. Admin will verify within 10 mins</div>
-                            <div>4. Order confirmed → Real-time tracking</div>
+                        <div class="mt-4 p-3 bg-light rounded-3">
+                            <h6 class="fw-bold mb-3 text-primary">
+                                <i class="fas fa-list-check me-2"></i>Payment Instructions
+                            </h6>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <div class="d-flex align-items-start">
+                                        <span class="badge bg-primary me-2 mt-1">1</span>
+                                        <small>Transfer the exact amount to Opay account: <strong>8107586167</strong></small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-start">
+                                        <span class="badge bg-primary me-2 mt-1">2</span>
+                                        <small>Take a screenshot/photo of the successful transfer</small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-start">
+                                        <span class="badge bg-primary me-2 mt-1">3</span>
+                                        <small>Upload the receipt using the form below</small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-start">
+                                        <span class="badge bg-success me-2 mt-1">4</span>
+                                        <small>Admin will verify within 10 minutes</small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-start">
+                                        <span class="badge bg-success me-2 mt-1">5</span>
+                                        <small>Order confirmed → Real-time tracking begins</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -166,18 +247,50 @@
     <script>
         AOS.init({duration: 800});
         
+        // Copy payment details function
+        function copyPaymentDetails() {
+            const accountNumber = document.getElementById('accountNumber').textContent;
+            const amount = document.getElementById('paymentAmount').textContent;
+            
+            const details = `Opay Account: ${accountNumber}\nAmount: ${amount}\nBank: Opay`;
+            
+            navigator.clipboard.writeText(details).then(() => {
+                showToast('Payment details copied to clipboard!', 'success');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = details;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Payment details copied to clipboard!', 'success');
+            });
+        }
+        
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `page-toast page-toast--${type} fade-in-up`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                ${message}
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
-            // Load navbar profile
+            // Load user profile
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             const name = user.name || user.email?.split('@')[0] || 'User';
-            const profileNav = document.querySelector('#checkoutNavbarNav');
-            if (profileNav && localStorage.getItem('token')) {
-                profileNav.innerHTML += `
-                    <span class="navbar-text me-3">Welcome, ${name}</span>
-                    <a class="nav-link" href="user-dashboard.html">Dashboard</a>
-                    <button class="nav-link btn btn-link p-0 text-white" onclick="logout()">Logout</button>
-                `;
-            }
+            const avatarUrl = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=667eea&color=fff&size=32`;
+            
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profileAvatar').src = avatarUrl;
             
             // Initialize checkout after DOM ready
             if (typeof initCheckout === 'function') {
