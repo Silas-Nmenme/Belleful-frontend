@@ -117,8 +117,8 @@
                             <h3 class="h4 mb-0 fw-bold">
                                 <i class="fas fa-list me-2 text-primary"></i>Recent Orders
                             </h3>
-                            <a href="#" class="btn btn-sm btn-outline-primary" onclick="window.OrderManager?.getUserOrders().then(r => renderOrders(r.data)); return false;">
-                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                            <a href="#" class="btn btn-sm btn-outline-primary" id="refreshOrdersBtn" onclick="refreshOrders(); return false;">
+                                <i class="fas fa-sync-alt me-1" id="refreshIcon"></i><span id="refreshText">Refresh</span>
                             </a>
                         </div>
                         <div class="card-body p-0">

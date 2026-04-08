@@ -123,6 +123,40 @@ function renderStats(statsData) {
   setTimeout(() => AOS.refresh(), 100);
 }
 
+function refreshOrders() {
+  const btn = document.getElementById('refreshOrdersBtn');
+  const icon = document.getElementById('refreshIcon');
+  const text = document.getElementById('refreshText');
+  if (!btn || !icon || !text) {
+    showToast('Refresh button not found', 'error');
+    return;
+  }
+
+  // Loading state
+  const originalIcon = icon.innerHTML;
+  const originalText = text.textContent;
+  btn.disabled = true;
+  icon.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>';
+  text.textContent = 'Refreshing...';
+
+  window.OrderManager?.getUserOrders()
+    .then(r => {
+      renderOrders(r.data || []);
+      showToast('Orders refreshed successfully!', 'success');
+    })
+    .catch(err => {
+      console.error('Refresh orders failed:', err);
+      renderOrders([]); // Show empty state
+      showToast('Failed to refresh orders: ' + (err.message || 'Please try again'), 'error');
+    })
+    .finally(() => {
+      // Reset button
+      btn.disabled = false;
+      icon.innerHTML = originalIcon;
+      text.textContent = originalText;
+    });
+}
+
 function renderOrders(orders) {
   const container = document.getElementById('ordersTableBody');
   if (!container) return;
