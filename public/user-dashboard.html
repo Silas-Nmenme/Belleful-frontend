@@ -37,38 +37,31 @@
     <div class="sidebar persistent d-none d-lg-flex" id="userSidebar">
         <div class="sidebar-content">
 <div id="sidebarProfile" class="profile-card">
-                <div class="p-4 text-center">
-                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px; font-size: 1.2rem; font-weight: bold;">SO</div>
-                    <h6 class="fw-bold mb-1">Silas Onyekachi</h6>
-                    <p class="text-muted small mb-2">silas@example.com</p>
-                    <span class="badge bg-primary">Member</span>
+                <div class="p-4 text-center text-muted">
+                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+                        <i class="fas fa-user fa-lg text-muted"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">Loading profile...</h6>
+                    <p class="small mb-0">Welcome</p>
                 </div>
             </div>
             
-            <nav class="sidebar-nav p-0">
-                <a href="#dashboard" class="nav-link active" onclick="setActiveNav('dashboard')">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a href="#orders" class="nav-link" onclick="setActiveNav('orders')">
+<nav class="sidebar-nav p-0">
+                <a href="#orders" class="nav-link" onclick="setActiveNav('orders'); closeSidebar()">
                     <i class="fas fa-shopping-bag"></i> Orders
                 </a>
-                <a href="#menu" class="nav-link" onclick="setActiveNav('menu')">
+                <a href="#menu" class="nav-link" onclick="setActiveNav('menu'); closeSidebar()">
                     <i class="fas fa-utensils"></i> Menu
                 </a>
                 <a href="cart.html" class="nav-link" onclick="closeSidebar()">
                     <i class="fas fa-shopping-cart"></i> Cart
                 </a>
-                <a href="#" class="nav-link" onclick="closeSidebar()">
-                    <i class="fas fa-heart"></i> Favorites
-                </a>
-
                 <a href="#" class="nav-link" onclick="openSettingsModal(); closeSidebar()">
                     <i class="fas fa-cog"></i> Settings
                 </a>
                 <a href="#" class="nav-link text-danger" onclick="closeSidebar(); logout()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
-
             </nav>
         </div>
     </div>
