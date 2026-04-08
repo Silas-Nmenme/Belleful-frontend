@@ -26,16 +26,15 @@ window.loadMenu = async function() {
   const elements = getMenuElements();
   const { menuGrid, menuLoading } = elements;
   
-  // Ultimate defensive check - skip if ANY required element missing
-  if (!safeElementAccess(menuGrid, 'menuGrid existence') || !safeElementAccess(menuLoading, 'menuLoading existence')) {
-    console.warn('Required menu elements missing - skipping loadMenu');
+  // Ultimate defensive check - only require menuGrid (index.html style, no loading spinner needed)
+  if (!safeElementAccess(menuGrid, 'menuGrid existence')) {
+    console.warn('menuGrid missing - skipping loadMenu');
     return;
   }
 
   try {
-    // Safe hide/show with double-check
-    safeElementAccess(menuGrid, 'hide grid', () => menuGrid.style.display = 'none');
-    safeElementAccess(menuLoading, 'show loading', () => menuLoading.style.display = 'flex');
+    // No spinner - direct load for index.html-style immediate display
+    menuGrid.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary mx-auto mb-4" style="width:3rem;height:3rem" role="status"></div><p class="text-muted">Loading menu...</p></div>';
     
     const response = await fetch(`${window.API_BASE}/menu?page=1&limit=1000&available=true`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -61,7 +60,7 @@ window.loadMenu = async function() {
           <button class="btn btn-primary" onclick="loadMenu()">Reload Menu</button>
         </div>`;
     }
-    safeElementAccess(menuLoading, 'hide loading on error', () => menuLoading.style.display = 'none');
+    // No menuLoading element
   }
 }
 
@@ -125,7 +124,7 @@ function displayMenuItems(items, elements) {
   menuGrid.style.visibility = 'visible';
   menuGrid.style.minHeight = '400px';
 
-  safeElementAccess(safeElements.menuLoading, 'hide loading', () => safeElements.menuLoading.style.display = 'none');
+  // No menuLoading element - grid shows immediately
 
   
   // Update count display
