@@ -1,0 +1,16 @@
+.logo-img {
+  height: 30px;
+  width: auto;
+  vertical-align: middle;
+  border-radius: 4px;
+}
+
+.navbar-brand .logo-img {
+  max-height: 35px;
+}
+
+@media (max-width: 768px) {
+  .logo-img {
+    height: 25px;
+  }
+}
