@@ -1,16 +1,19 @@
 .logo-img {
+  width: 30px;
   height: 30px;
-  width: auto;
+  object-fit: cover;
   vertical-align: middle;
-  border-radius: 4px;
+  border-radius: 50%;
 }
 
 .navbar-brand .logo-img {
   max-height: 35px;
+  max-width: 35px;
 }
 
 @media (max-width: 768px) {
   .logo-img {
+    width: 25px;
     height: 25px;
   }
 }
