@@ -165,11 +165,14 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transform: translateX(-100%);
 }
 
-.sidebar.persistent {
+.sidebar.show {
   transform: translateX(0);
 }
+
+
 
 /* Main content push */
 .app-wrapper {
@@ -307,7 +310,7 @@ body {
 
 /* Main Content */
 .main-content {
-  margin-left: var(--sidebar-width);
+  margin-left: 0;
   transition: var(--transition);
 }
 
