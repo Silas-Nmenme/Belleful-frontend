@@ -164,7 +164,11 @@
                             </div>
                         </div>
 
-                        <div id="uploadSection" class="hidden">
+                        <button type="submit" form="checkoutForm" id="createOrderBtn" class="btn btn-primary w-100 btn-lg py-4 fw-bold shadow-lg mb-4">
+                            <i class="fas fa-shopping-cart me-2"></i>Create Pending Order
+                        </button>
+
+                        <div id="uploadSection" class="d-none">
                             <form id="paymentUploadForm" enctype="multipart/form-data" class="dropzone p-4 border-dashed rounded-3 mb-4" novalidate>
                                 <div class="text-center">
                                     <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-4"></i>
@@ -187,10 +191,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <button type="submit" form="checkoutForm" id="createOrderBtn" class="btn btn-primary w-100 btn-lg py-4 fw-bold shadow-lg">
-                            <i class="fas fa-shopping-cart me-2"></i>Create Pending Order
-                        </button>
 
 
                         <div class="mt-4 p-3 bg-light rounded-3">

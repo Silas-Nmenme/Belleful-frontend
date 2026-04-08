@@ -224,8 +224,8 @@ document.getElementById('createOrderBtn').onclick = async () => {
         // Prefer backend displayId virtual, fallback safe slice
         const orderIdStr = result.data.displayId || String(result.data._id).slice(-6).toUpperCase() || 'ORDER123';
         document.getElementById('uploadOrderId').textContent = orderIdStr;
-        document.getElementById('uploadSection').classList.remove('hidden');
-        document.getElementById('checkoutForm').classList.add('hidden');
+        document.getElementById('uploadSection').classList.remove('d-none');
+        document.getElementById('checkoutForm').classList.add('d-none');
         btn.style.display = 'none';
         
         showToast(`Order created! #${orderIdStr}`, 'success');
