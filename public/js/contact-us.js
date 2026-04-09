@@ -107,13 +107,12 @@ function validateField(e) {
             }
             break;
         case 'phone':
-            const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
-            if (!field.value.trim()) {
+            const phoneVal = field.value.trim();
+            if (!phoneVal) {
                 errorMsg = 'Phone number required';
-            } else if (!phoneRegex.test(field.value.replace(/[\s\-\(\)]/g, ''))) {
-                errorMsg = 'Valid phone required';
             }
             break;
+
         case 'message':
             const msgVal = field.value.trim();
             if (!msgVal) {
