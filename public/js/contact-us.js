@@ -1,9 +1,6 @@
-// EmailJS Configuration (REPLACE WITH YOUR KEYS from emailjs.com)
-const EMAILJS_CONFIG = {
-    service_id: 'YOUR_SERVICE_ID',        
-    template_id: 'YOUR_TEMPLATE_ID',      
-    public_key: 'YOUR_PUBLIC_KEY'         
-};
+// Backend API endpoint
+const CONTACT_API_URL = `${window.API_BASE}/contact`;
+
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Contact Us page loaded');
@@ -18,13 +15,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Real-time validation
-    ['name', 'email', 'message'].forEach(fieldId => {
+    ['name', 'email', 'phone', 'message'].forEach(fieldId => {
         const field = document.getElementById(fieldId);
         if (field) {
             field.addEventListener('blur', validateField);
             field.addEventListener('input', clearFieldError);
         }
     });
+
 });
 
 // Form submission handler
@@ -38,6 +36,7 @@ async function handleSubmit(e) {
     
     const submitBtn = document.getElementById('submitBtn');
     const spinner = submitBtn.querySelector('.spinner-border');
+    const formMessage = document.getElementById('formMessage');
     
     // Show loading
     submitBtn.disabled = true;
@@ -45,33 +44,34 @@ async function handleSubmit(e) {
     submitBtn.innerHTML = 'Sending... <span class="spinner-border spinner-border-sm ms-2" role="status"></span>';
     
     try {
-        // Check EmailJS config
-        if (!isEmailJSConfigured()) {
-            throw new Error('EmailJS not configured. Please set your service_id, template_id, and public_key.');
+        const formData = getFormData(e.target);
+        const response = await fetch(CONTACT_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log('Contact success:', result);
+            showMessage(`Thank you! Your message has been saved successfully. Contact ID: ${result.contactId || 'N/A'}. We'll reply soon.`, 'success');
+            e.target.reset();
+        } else {
+            throw new Error(result.message || 'Validation failed');
         }
-        
-        // Submit via EmailJS
-        const result = await emailjs.send(
-            EMAILJS_CONFIG.service_id,
-            EMAILJS_CONFIG.template_id,
-            getFormData(form),
-            EMAILJS_CONFIG.public_key
-        );
-        
-        console.log('EmailJS success:', result);
-        showMessage('Thank you! Your message has been sent. We\'ll respond within 24 hours.', 'success');
-        form.reset();
         
     } catch (error) {
         console.error('Submission error:', error);
-        let errorMsg = 'Failed to send message. ';
+        let errorMsg = 'Failed to send message.';
         
-        if (error.text?.includes('service')) {
-            errorMsg += 'EmailJS service not configured.';
-        } else if (error.status === 402) {
-            errorMsg += 'EmailJS quota exceeded.';
+        if (error.message.includes('Validation failed') || result?.errors) {
+            const errors = result?.errors || [error.message];
+            errorMsg = errors.join(', ');
         } else {
-            errorMsg += 'Please try again or contact us directly.';
+            errorMsg += ' Please try again or contact us directly.';
         }
         
         showMessage(errorMsg, 'error');
@@ -83,6 +83,7 @@ async function handleSubmit(e) {
     }
 }
 
+
 // Validate individual field
 function validateField(e) {
     const field = e.target;
@@ -92,48 +93,63 @@ function validateField(e) {
     
     switch(fieldName) {
         case 'name':
-            if (field.value.trim().length < 2) {
-                isValid = false;
-                errorMsg = 'Name must be at least 2 characters.';
+            const nameVal = field.value.trim();
+            if (!nameVal) {
+                errorMsg = 'Name is required';
+            } else if (nameVal.length > 100) {
+                errorMsg = 'Name too long (max 100 chars)';
             }
             break;
         case 'email':
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(field.value)) {
-                isValid = false;
-                errorMsg = 'Please enter a valid email address.';
+                errorMsg = 'Valid email required';
+            }
+            break;
+        case 'phone':
+            const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+            if (!field.value.trim()) {
+                errorMsg = 'Phone number required';
+            } else if (!phoneRegex.test(field.value.replace(/[\s\-\(\)]/g, ''))) {
+                errorMsg = 'Valid phone required';
             }
             break;
         case 'message':
-            if (field.value.trim().length < 10) {
-                isValid = false;
-                errorMsg = 'Message must be at least 10 characters.';
+            const msgVal = field.value.trim();
+            if (!msgVal) {
+                errorMsg = 'Message required';
+            } else if (msgVal.length > 1000) {
+                errorMsg = 'Message too long (max 1000 chars)';
             }
             break;
     }
     
-    if (!isValid) {
+    if (errorMsg) {
+        isValid = false;
         showFieldError(field, errorMsg);
+    } else {
+        field.classList.remove('is-invalid');
+        field.classList.add('is-valid');
+        const errorEl = field.parentNode.querySelector('.invalid-feedback');
+        if (errorEl) errorEl.remove();
     }
     
     return isValid;
 }
 
+
 // Validate entire form
 function validateForm() {
     let isValid = true;
-    const requiredFields = ['name', 'email', 'message'];
-    
-    requiredFields.forEach(fieldId => {
+    ['name', 'email', 'phone', 'message'].forEach(fieldId => {
         const field = document.getElementById(fieldId);
-        if (!field.value.trim()) {
-            showFieldError(field, `${field.name} is required.`);
-            isValid = false;
-        }
+        if (field) validateField({target: field});
     });
-    
+    const hasErrors = document.querySelector('.is-invalid');
+    isValid = !hasErrors;
     return isValid;
 }
+
 
 // Show field error
 function showFieldError(field, message) {
@@ -197,21 +213,9 @@ function showMessage(message, type = 'info') {
     }
 }
 
-// Check if EmailJS is configured
-function isEmailJSConfigured() {
-    return EMAILJS_CONFIG.service_id !== 'YOUR_SERVICE_ID' &&
-           EMAILJS_CONFIG.template_id !== 'YOUR_TEMPLATE_ID' &&
-           EMAILJS_CONFIG.public_key !== 'YOUR_PUBLIC_KEY';
-}
+// Backend API ready
+console.log('Contact form ready. API:', CONTACT_API_URL);
 
-
-
-// Load EmailJS SDK (only if configured)
-if (isEmailJSConfigured()) {
-    (function() {
-        emailjs.init(EMAILJS_CONFIG.public_key);
-    })();
-}
 
 // Export functions for global access
 window.ContactUs = {
