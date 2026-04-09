@@ -1,5 +1,5 @@
-// Backend API endpoint
-const CONTACT_API_URL = `${window.API_BASE}/contact`;
+// Backend API endpoint - Matches /api/contact/contact route
+const CONTACT_API_URL = `${window.API_BASE}/api/contact/contact`;
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -57,23 +57,26 @@ async function handleSubmit(e) {
         
         if (result.success) {
             console.log('Contact success:', result);
-            showMessage(`Thank you! Your message has been saved successfully. Contact ID: ${result.contactId || 'N/A'}. We'll reply soon.`, 'success');
+            const successMsg = result.message || 'Message saved successfully!';
+            const contactIdMsg = result.contactId ? ` (ID: ${result.contactId})` : '';
+            showMessage(successMsg + contactIdMsg, 'success');
             e.target.reset();
+        } else if (result.errors && Array.isArray(result.errors) && result.errors.length > 0) {
+            // Backend validation errors - show field-specific errors
+            result.errors.forEach(errorMsg => {
+                const field = document.querySelector(`[name="name"], [name="email"], [name="phone"], [name="message"]`);
+                if (field) showFieldError(field, errorMsg);
+            });
+            showMessage('Please fix the errors above.', 'error');
+            return;
         } else {
-            throw new Error(result.message || 'Validation failed');
+            showMessage(result.message || 'Validation failed', 'error');
+            return;
         }
         
-    } catch (error) {
+        } catch (error) {
         console.error('Submission error:', error);
-        let errorMsg = 'Failed to send message.';
-        
-        if (error.message.includes('Validation failed') || error.message.includes('No token')) {
-            errorMsg = 'Server error. Please try again or contact us directly at +234 810 758 6167.';
-        } else {
-            errorMsg += ' Please try again or contact us directly.';
-        }
-        
-        showMessage(errorMsg, 'error');
+        showMessage('Server error. Please try again or contact us directly at +234 810 758 6167.', 'error');
     } finally {
 
         // Reset button
@@ -97,7 +100,7 @@ function validateField(e) {
             if (!nameVal) {
                 errorMsg = 'Name is required';
             } else if (nameVal.length > 100) {
-                errorMsg = 'Name too long (max 100 chars)';
+                errorMsg = 'Name too long';
             }
             break;
         case 'email':
@@ -110,6 +113,12 @@ function validateField(e) {
             const phoneVal = field.value.trim();
             if (!phoneVal) {
                 errorMsg = 'Phone number required';
+            } else {
+                // Basic mobile phone validation matching backend isMobilePhone('any')
+                const phoneRegex = /^[\+]?[1-9][\d]{7,15}$/;
+                if (!phoneRegex.test(phoneVal)) {
+                    errorMsg = 'Valid phone required';
+                }
             }
             break;
 
@@ -118,7 +127,7 @@ function validateField(e) {
             if (!msgVal) {
                 errorMsg = 'Message required';
             } else if (msgVal.length > 1000) {
-                errorMsg = 'Message too long (max 1000 chars)';
+                errorMsg = 'Message too long';
             }
             break;
     }
@@ -222,4 +231,4 @@ window.ContactUs = {
     handleSubmit
 };
 
-console.log('Contact Us JS loaded successfully. Configure EmailJS keys to enable submissions.');
+console.log('Contact Us JS loaded successfully - Backend matched.');
