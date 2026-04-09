@@ -58,8 +58,7 @@ async function handleSubmit(e) {
         if (result.success) {
             console.log('Contact success:', result);
             const successMsg = result.message || 'Message saved successfully!';
-            const contactIdMsg = result.contactId ? ` (ID: ${result.contactId})` : '';
-            showMessage(successMsg + contactIdMsg, 'success');
+            showMessage(successMsg, 'success');
             e.target.reset();
         } else if (result.errors && Array.isArray(result.errors) && result.errors.length > 0) {
             // Backend validation errors - show field-specific errors
