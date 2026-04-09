@@ -204,33 +204,7 @@ function isEmailJSConfigured() {
            EMAILJS_CONFIG.public_key !== 'YOUR_PUBLIC_KEY';
 }
 
-// Google Maps initialization
-function initMap() {
-    const lagos = { lat: 6.5244, lng: 3.3792 }; // Lagos coordinates
-    const map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 14,
-        center: lagos,
-        styles: [
-            {
-                featureType: 'poi',
-                elementType: 'labels',
-                stylers: [{ visibility: 'off' }]
-            }
-        ]
-    });
-    
-    // Belleful marker
-    new google.maps.Marker({
-        position: lagos,
-        map: map,
-        title: 'Belleful Kitchen & HQ',
-        icon: {
-            url: 'asset/logo.jpeg', // Custom marker (fallback to default if missing)
-            scaledSize: new google.maps.Size(50, 50),
-            anchor: new google.maps.Point(25, 25)
-        }
-    });
-}
+
 
 // Load EmailJS SDK (only if configured)
 if (isEmailJSConfigured()) {
@@ -242,8 +216,7 @@ if (isEmailJSConfigured()) {
 // Export functions for global access
 window.ContactUs = {
     validateForm,
-    handleSubmit,
-    initMap
+    handleSubmit
 };
 
 console.log('Contact Us JS loaded successfully. Configure EmailJS keys to enable submissions.');
