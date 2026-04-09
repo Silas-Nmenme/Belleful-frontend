@@ -1,5 +1,5 @@
 // Backend API endpoint - Matches /api/contact/contact route
-const CONTACT_API_URL = `${window.API_BASE}/api/contact/contact`;
+const CONTACT_API_URL = `${window.API_BASE}/contact/contact`;
 
 
 document.addEventListener('DOMContentLoaded', function() {
