@@ -67,15 +67,15 @@ async function handleSubmit(e) {
         console.error('Submission error:', error);
         let errorMsg = 'Failed to send message.';
         
-        if (error.message.includes('Validation failed') || result?.errors) {
-            const errors = result?.errors || [error.message];
-            errorMsg = errors.join(', ');
+        if (error.message.includes('Validation failed') || error.message.includes('No token')) {
+            errorMsg = 'Server error. Please try again or contact us directly at +234 810 758 6167.';
         } else {
             errorMsg += ' Please try again or contact us directly.';
         }
         
         showMessage(errorMsg, 'error');
     } finally {
+
         // Reset button
         submitBtn.disabled = false;
         spinner.classList.add('d-none');
