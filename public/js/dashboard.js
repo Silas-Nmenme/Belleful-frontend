@@ -713,7 +713,15 @@ async function downloadTransactions(format) {
       return;
     }
     
-    showToast(`Preparing ${format.toUpperCase()} download...`, 'info');
+    // Check orders exist before download
+    const ordersRes = await window.OrderManager.getUserOrders().catch(() => ({ data: [] }));
+    const orders = ordersRes.data || [];
+    if (orders.length === 0) {
+      showToast('No orders to download', 'warning');
+      return;
+    }
+    
+    showToast(`Preparing ${format.toUpperCase()} download... (${orders.length} orders)`, 'info');
     
     const response = await fetch(`${window.API_BASE}/orders/my-orders/download?format=${format}`, {
       method: 'GET',
@@ -731,7 +739,7 @@ async function downloadTransactions(format) {
     // Handle blob download (works for PDF, DOCX, CSV)
     const blob = await response.blob();
     const contentDisposition = response.headers.get('Content-Disposition');
-    let filename = `my-transactions-${new Date().toISOString().slice(0,10)}.${format}`;
+    let filename = `belleful-all-orders-${new Date().toISOString().slice(0,10)}.${format.toUpperCase()}`;
     
     // Extract filename from Content-Disposition if available
     if (contentDisposition && contentDisposition.includes('filename=')) {
@@ -749,9 +757,9 @@ async function downloadTransactions(format) {
     window.URL.revokeObjectURL(url);
     setTimeout(() => document.body.removeChild(a), 100);
     
-    showToast(`${format.toUpperCase()} downloaded successfully!`, 'success');
+    showToast(`${format.toUpperCase()} downloaded successfully! (${orders.length} orders)`, 'success');
   } catch (error) {
-    console.error('Download transactions error:', error);
+console.error('Download error:', error);
     showToast(error.message, 'error');
   }
 }
