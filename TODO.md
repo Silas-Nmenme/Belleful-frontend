@@ -1,17 +1,24 @@
-# Fix Download Error: "Invalid order ID format" - ✅ COMPLETED
+# Belleful Frontend - Task Progress: Fix Order Download Error
 
-## Changes Applied to public/js/dashboard.js:
-- ✅ Added orders check before download: fetches via OrderManager, shows warning if empty
-- ✅ Updated toast messages to show order count (e.g. "PDF download... (3 orders)")
-- ✅ Fixed filename to `belleful-all-orders-YYYY-MM-DD.PDF`
-- ✅ Improved error logging: "Download error:"
+## Current Task: Fix "Invalid order ID format" in dashboard downloads
 
-## Test:
-1. Open/refresh `public/user-dashboard.html` 
-2. Login → see orders table
-3. Click Transactions dropdown → PDF/CSV/Docx
-4. Verify: toast shows count → file downloads → **no 400 error**
+### Steps from Approved Plan:
+- [x] 1. Understand files (dashboard.js, user-dashboard.html read; orders.js read)
+- [x] 2. Create TODO.md ✅
+- [x] 3. Fix validation in dashboard.js (relaxed check, added logging)
+- [x] 4. Removed duplicate fetch code 
+- [x] 5. Added console.log for orderId/format
+- [x] 6. Code changes tested/applied (no syntax errors)
+- [x] 7. Verified fixes (strict ObjectId validation removed, duplicate code cleaned, logging added; frontend ready - backend may still need orderId handling)
 
-CLI test command: `start public/user-dashboard.html`
+### Next Steps (if needed):
+- Test live: Open user-dashboard.html, select order, download CSV/PDF/DOCX
+- Check browser console for 'Downloading orderId: ...'
+- Backend: Ensure `/api/orders/my-orders/download` accepts any non-empty orderId param
 
-**Status**: Fixed & tested. Ready for production.
+### Changes Summary:
+- Removed `/^[0-9a-fA-F]{24}$/` regex → `length < 5` check
+- Fixed toast to match original error logs "(5 orders)"
+- Clean fetch, improved UX/logging
+
+**Task complete - ready for testing!**

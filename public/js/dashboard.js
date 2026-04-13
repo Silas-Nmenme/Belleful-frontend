@@ -164,7 +164,7 @@ function renderOrders(orders) {
   // Toggle download button state
   const downloadBtn = document.getElementById('downloadBtn');
   if (downloadBtn) {
-    downloadBtn.disabled = !(orders && Array.isArray(orders) && orders.length > 0);
+    downloadBtn.disabled = !(orders && Array.isArray(orders) && orders.length > 0 && window.selectedOrderId);
   }
 
   const isMobile = window.innerWidth < 768;
@@ -213,9 +213,10 @@ function renderOrders(orders) {
       const itemNames = safeItems.map(item => item?.name || 'Item').slice(0, 3).join(', ');
       const itemCount = safeItems.length;
       
+      const isSelected = order._id === window.selectedOrderId;
       return `
-        <tr class="${getOrderStatusClass(order?.orderStatus || 'pending')}">
-          <td><strong>#${(order?._id || 'N/A').slice(-8)}</strong></td>
+        <tr class="${getOrderStatusClass(order?.orderStatus || 'pending')} ${isSelected ? 'table-active fw-bold' : ''}" onclick="selectOrder('${order._id}', ${JSON.stringify(order)})" style="cursor:pointer;">
+          <td><strong>#${(order?._id || 'N/A').slice(-8)}</strong> ${isSelected ? ' <i class="fas fa-check-circle text-success"></i>' : ''}</td>
           <td>
             ${itemNames}${itemCount > 3 ? '...' : ''}
             <br><small class="text-muted">${itemCount} items</small>
@@ -228,12 +229,16 @@ function renderOrders(orders) {
           </td>
           <td>${order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
           <td>
-            <button class="btn btn-sm btn-outline-primary track-btn" onclick="trackOrder('${order?._id || ''}')">
+            <button class="btn btn-sm btn-outline-primary track-btn me-1" onclick="event.stopPropagation(); trackOrder('${order?._id || ''}')">
               <i class="fas fa-map-marker-alt me-1"></i>Track
+            </button>
+            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); selectOrder('${order._id}', ${JSON.stringify(order)})" title="Select for download">
+              <i class="fas fa-download"></i>
             </button>
           </td>
         </tr>
       `;
+
     }).join('') || '<tr><td colspan="6" class="text-center text-muted py-5"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>No orders yet</td></tr>';
   }
 }
@@ -704,7 +709,23 @@ if (typeof loadUserDashboard === 'function') {
   };
 }
 
-// Download Transactions function
+// Download SELECTED Order function - Fixed for backend orderId requirement
+window.selectedOrderId = null;
+window.selectedOrder = null;
+
+async function selectOrder(orderId, orderData) {
+  window.selectedOrderId = orderId;
+  window.selectedOrder = orderData;
+  showToast(`Selected order #${orderId.slice(-8)} for download`, 'info');
+  // Trigger re-render to highlight
+  if (window.OrderManager?.getUserOrders) {
+    window.OrderManager.getUserOrders().then(r => renderOrders(r.data || []));
+  }
+  // Update button state
+  const downloadBtn = document.getElementById('downloadBtn');
+  if (downloadBtn) downloadBtn.disabled = false;
+}
+
 async function downloadTransactions(format) {
   try {
     const token = localStorage.getItem('token');
@@ -713,17 +734,16 @@ async function downloadTransactions(format) {
       return;
     }
     
-    // Check orders exist before download
-    const ordersRes = await window.OrderManager.getUserOrders().catch(() => ({ data: [] }));
-    const orders = ordersRes.data || [];
-    if (orders.length === 0) {
-      showToast('No orders to download', 'warning');
+    if (!window.selectedOrderId || window.selectedOrderId.length < 5) {
+      showToast('Please select an order first', 'warning');
       return;
     }
     
-    showToast(`Preparing ${format.toUpperCase()} download... (${orders.length} orders)`, 'info');
+    console.log('Downloading orderId:', window.selectedOrderId, 'format:', format);
     
-    const response = await fetch(`${window.API_BASE}/orders/my-orders/download?format=${format}`, {
+    showToast(`Preparing ${format.toUpperCase()} download... (${window.selectedOrder ? window.selectedOrder.items?.length || 1 : 1} orders)`, 'info');
+    
+    const response = await fetch(`${window.API_BASE}/orders/my-orders/download?orderId=${encodeURIComponent(window.selectedOrderId)}&format=${format}`, {
       method: 'GET',
       headers: { 
         'Authorization': `Bearer ${token}`,
@@ -739,7 +759,7 @@ async function downloadTransactions(format) {
     // Handle blob download (works for PDF, DOCX, CSV)
     const blob = await response.blob();
     const contentDisposition = response.headers.get('Content-Disposition');
-    let filename = `belleful-all-orders-${new Date().toISOString().slice(0,10)}.${format.toUpperCase()}`;
+    let filename = `order-${window.selectedOrderId.slice(-8)}-${new Date().toISOString().slice(0,10)}.${format.toUpperCase()}`;
     
     // Extract filename from Content-Disposition if available
     if (contentDisposition && contentDisposition.includes('filename=')) {
@@ -757,7 +777,7 @@ async function downloadTransactions(format) {
     window.URL.revokeObjectURL(url);
     setTimeout(() => document.body.removeChild(a), 100);
     
-    showToast(`${format.toUpperCase()} downloaded successfully! (${orders.length} orders)`, 'success');
+    showToast(`${format.toUpperCase()} downloaded successfully!`, 'success');
   } catch (error) {
 console.error('Download error:', error);
     showToast(error.message, 'error');
