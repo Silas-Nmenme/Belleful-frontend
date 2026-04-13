@@ -164,7 +164,7 @@ function renderOrders(orders) {
   // Toggle download button state
   const downloadBtn = document.getElementById('downloadBtn');
   if (downloadBtn) {
-    downloadBtn.disabled = !(orders && Array.isArray(orders) && orders.length > 0 && window.selectedOrderId);
+    downloadBtn.disabled = !(orders && Array.isArray(orders) && orders.length > 0);
   }
 
   const isMobile = window.innerWidth < 768;
@@ -734,16 +734,11 @@ async function downloadTransactions(format) {
       return;
     }
     
-    if (!window.selectedOrderId || window.selectedOrderId.length < 5) {
-      showToast('Please select an order first', 'warning');
-      return;
-    }
-    
-    console.log('Downloading orderId:', window.selectedOrderId, 'format:', format);
+    console.log('Downloading ALL transactions, format:', format);
     
     showToast(`Preparing ${format.toUpperCase()} download... (${window.selectedOrder ? window.selectedOrder.items?.length || 1 : 1} orders)`, 'info');
     
-    const response = await fetch(`${window.API_BASE}/orders/my-orders/download?orderId=${encodeURIComponent(window.selectedOrderId)}&format=${format}`, {
+    const response = await fetch(`${window.API_BASE}/orders/my-orders/download?format=${format}`, {
       method: 'GET',
       headers: { 
         'Authorization': `Bearer ${token}`,
