@@ -161,6 +161,12 @@ function renderOrders(orders) {
   const container = document.getElementById('ordersTableBody');
   if (!container) return;
 
+  // Toggle download button state
+  const downloadBtn = document.getElementById('downloadBtn');
+  if (downloadBtn) {
+    downloadBtn.disabled = !(orders && Array.isArray(orders) && orders.length > 0);
+  }
+
   const isMobile = window.innerWidth < 768;
   
   if (isMobile) {
@@ -698,12 +704,67 @@ if (typeof loadUserDashboard === 'function') {
   };
 }
 
+// Download Transactions function
+async function downloadTransactions(format) {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showToast('Please log in to download transactions', 'error');
+      return;
+    }
+    
+    showToast(`Preparing ${format.toUpperCase()} download...`, 'info');
+    
+    const response = await fetch(`${window.API_BASE}/orders/my-orders/download?format=${format}`, {
+      method: 'GET',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/octet-stream'
+      }
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Download failed: ${response.status}`);
+    }
+    
+    // Handle blob download (works for PDF, DOCX, CSV)
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = `my-transactions-${new Date().toISOString().slice(0,10)}.${format}`;
+    
+    // Extract filename from Content-Disposition if available
+    if (contentDisposition && contentDisposition.includes('filename=')) {
+      const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+      if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+    }
+    
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    setTimeout(() => document.body.removeChild(a), 100);
+    
+    showToast(`${format.toUpperCase()} downloaded successfully!`, 'success');
+  } catch (error) {
+    console.error('Download transactions error:', error);
+    showToast(error.message, 'error');
+  }
+}
+
+// Expose download function globally
+window.downloadTransactions = downloadTransactions;
+
 // Expose globals
 window.openSettingsModal = openSettingsModal;
 window.previewAvatar = previewAvatar;
 window.updateProfile = updateProfile;
 window.refreshProfileAfterUpdate = refreshProfileAfterUpdate;
 
-console.log('dashboard.js loaded - all functions global & syntax fixed');
+console.log('dashboard.js loaded with transaction download - all functions global & syntax fixed');
 
 
