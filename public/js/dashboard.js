@@ -732,7 +732,7 @@ async function downloadTransactions(format) {
     
     showToast(`Generating ${format.toUpperCase()}...`, 'info');
     
-    const response = await fetch(`${window.API_BASE || '/api'}/orders/download-my-transactions?format=${format}`, {
+    const response = await fetch(`${window.API_BASE || '/api'}/my-orders/download?format=${format}`, {
       method: 'GET',
       headers: { 
         'Authorization': `Bearer ${token}`
