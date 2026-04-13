@@ -111,7 +111,118 @@ await this.updateQuantity(itemId, newQty, qtyBtn, e);
           this.renderSummary();
           return;
         }
+
+        // Fee info button clicks
+        const infoBtn = e.target.closest('.info-btn');
+        if (infoBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const feeType = infoBtn.dataset.fee;
+          this.showFeeModal(feeType);
+          return;
+        }
       });
+    }
+
+    showFeeModal(feeType) {
+      const modalMap = {
+        service: '#serviceModal',
+        delivery: '#deliveryModal',
+        vat: '#vatModal'
+      };
+      
+      const modalId = modalMap[feeType];
+      if (!modalId) return;
+
+      const modal = bootstrap.Modal.getInstance(document.querySelector(modalId)) || 
+                    new bootstrap.Modal(document.querySelector(modalId));
+      
+      // Populate content
+      this.populateFeeContent(feeType);
+      modal.show();
+    }
+
+    populateFeeContent(feeType) {
+      const contentMap = {
+        service: `
+          <div class="fee-modal">
+            <h4>What is Service Fee?</h4>
+            <p><strong>What is the service fee and why do we charge it?</strong></p>
+            <p class="byline mb-3">Written by WebDev Silas</p>
+            
+            <p><strong>What is the Belleful Service Fee?</strong></p>
+            <p>The service fee is a consumer fee that appears on the price breakdown at checkout on the Belleful website. Unlike other consumer fees, the service fee depends on your order's subtotal, that is, a percentage of your bill excluding the delivery fee. We understand the service fee increases as the order amount increases, so we've capped it to prevent it from getting too excessive.</p>
+            
+            <h4>Why do we charge this?</h4>
+            <p>Having food delivered to you anytime, anywhere is so convenient, but it can be extremely costly to operate a delivery service. At Belleful, we pride ourselves in ensuring we deliver bowls of happiness to your doorstep with every delivery we make. We need to cover technology costs, transaction processing fees, and support to do this effectively. The various fees on our checkout ensure we stay ahead of these costs and continue serving you, our deserving customer.</p>
+            
+            <p>We sincerely appreciate your patronage and look forward to surpassing delivery standards as we establish ourselves as a household name for meal delivery across Africa.</p>
+            
+            <p class="contact-cta">
+              <i class="fas fa-envelope me-2"></i>
+              Please do not hesitate to contact us if you have further questions regarding our fees.
+            </p>
+            <p class="text-center fw-bold text-primary mt-3 mb-0">Have a Belleful day! 🌟</p>
+          </div>
+        `,
+        delivery: `
+          <div class="fee-modal">
+            <h4>What is Delivery Fee?</h4>
+            <p><strong>Why do we charge ₦2,000 for delivery?</strong></p>
+            <p class="byline mb-3">Belleful Delivery Team</p>
+            
+            <p>Our delivery fee of <strong>₦2,000</strong> covers the comprehensive logistics required to bring your favorite meals directly to your doorstep, anywhere in your city.</p>
+            
+            <h4>What's included:</h4>
+            <ul class="mb-4">
+              <li><i class="fas fa-motorcycle text-success me-2"></i>Professional rider dispatch & fuel</li>
+              <li><i class="fas fa-map-marker-alt text-primary me-2"></i>Real-time GPS tracking</li>
+              <li><i class="fas fa-clock text-warning me-2"></i>Guaranteed 45-min delivery window</li>
+              <li><i class="fas fa-thermometer-half text-info me-2"></i>Hot food delivery (insulated bags)</li>
+              <li><i class="fas fa-user-shield text-danger me-2"></i>Rider verification & insurance</li>
+              <li><i class="fas fa-shipping-fast text-success me-2"></i>Priority order preparation</li>
+            </ul>
+            
+            <p><em>Pickup option is always free at partner restaurants!</em></p>
+            
+            <div class="contact-cta">
+              <i class="fas fa-truck me-2"></i>
+              Need faster delivery or have special requirements? Contact support!
+            </div>
+            <p class="text-center fw-bold text-primary mt-3 mb-0">Safe & Fast Deliveries Guaranteed 🚚</p>
+          </div>
+        `,
+        vat: `
+          <div class="fee-modal">
+            <h4>What is VAT (1.5%)?</h4>
+            <p><strong>Value Added Tax - Government Requirement</strong></p>
+            <p class="byline mb-3">Belleful Compliance Team</p>
+            
+            <p>The <strong>1.5% VAT</strong> (Value Added Tax) is a mandatory government tax applied to the total order value (subtotal + delivery + service fee) as required by Nigerian tax laws.</p>
+            
+            <h4>Key Details:</h4>
+            <ul class="mb-4">
+              <li><i class="fas fa-file-invoice-dollar text-success me-2"></i>Calculated on: Subtotal + Delivery + Service</li>
+              <li><i class="fas fa-calculator text-primary me-2"></i>Rate: 1.5% (reduced rate for food delivery)</li>
+              <li><i class="fas fa-university text-info me-2"></i>Remitted to: Federal Inland Revenue Service (FIRS)</li>
+              <li><i class="fas fa-receipt text-warning me-2"></i>Shown separately: Transparent pricing</li>
+            </ul>
+            
+            <p>This tax helps fund essential public services and infrastructure that benefit us all.</p>
+            
+            <div class="contact-cta">
+              <i class="fas fa-question-circle me-2"></i>
+              Questions about taxes? Our support team is here to help!
+            </div>
+            <p class="text-center fw-bold text-primary mt-3 mb-0">Transparent & Compliant 💯</p>
+          </div>
+        `
+      };
+
+      const bodyEl = document.querySelector(`#${feeType}ModalBody`);
+      if (bodyEl && contentMap[feeType]) {
+        bodyEl.innerHTML = contentMap[feeType];
+      }
     }
 
     ensureValidCart() {
@@ -407,9 +518,9 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
         </div>
         
         <div class="summary-row"><span>Subtotal (${this.cart.itemCount} items)</span><strong>₦${subtotal.toLocaleString()}</strong></div>
-        <div class="summary-row"><span>Delivery</span><span>₦${delivery.toLocaleString()}</span></div>
-        <div class="summary-row"><span>Service Fee</span><span>₦${service.toLocaleString()}</span></div>
-        <div class="summary-row"><span>VAT (1.5%)</span><span>₦${vat.toLocaleString()}</span></div>
+        ${this.isDelivery ? `<div class="summary-row"><span>Delivery <i class="fas fa-info-circle info-btn" data-fee="delivery" title="Learn more about delivery fee"></i></span><span>₦${delivery.toLocaleString()}</span></div>` : ''}
+        <div class="summary-row"><span>Service Fee <i class="fas fa-info-circle info-btn" data-fee="service" title="Learn more about service fee"></i></span><span>₦${service.toLocaleString()}</span></div>
+        <div class="summary-row"><span>VAT (1.5%) <i class="fas fa-info-circle info-btn" data-fee="vat" title="Learn more about VAT"></i></span><span>₦${vat.toLocaleString()}</span></div>
         <div class="summary-row summary-total">
           <span><strong>Grand Total</strong></span>
           <strong>₦${grandTotal.toLocaleString()}</strong>

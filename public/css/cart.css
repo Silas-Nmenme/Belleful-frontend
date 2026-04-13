@@ -359,6 +359,90 @@
   flex-shrink: 0;
 }
 
+.info-btn {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(255,107,53,0.3);
+  margin-left: 0.25rem;
+}
+
+.info-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255,107,53,0.4);
+  text-decoration: none;
+}
+
+.info-btn:active {
+  transform: scale(0.95);
+}
+
+/* Modal Enhancements */
+.fee-modal .modal-content {
+  border-radius: 20px;
+  border: none;
+  box-shadow: var(--card-shadow-hover);
+}
+
+.fee-modal .modal-header {
+  background: linear-gradient(135deg, #fff8e7 0%, #ffecd2 100%);
+  border-radius: 20px 20px 0 0 !important;
+}
+
+.fee-modal .modal-title {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.25rem;
+}
+
+.fee-modal .modal-body {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #495057;
+}
+
+.fee-modal .modal-body h4 {
+  color: #ff6b35;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.fee-modal .modal-body p {
+  margin-bottom: 1rem;
+}
+
+.fee-modal .byline {
+  font-style: italic;
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.fee-modal .contact-cta {
+  background: var(--success-gradient);
+  color: white;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  font-weight: 500;
+}
+
 .avatar-32 {
   width: 32px !important;
   height: 32px !important;
@@ -383,9 +467,19 @@
   .item-image { width: 100%; height: 200px; }
   .cart-summary { position: static; margin: 0; max-width: none; }
   .cart-items-grid { grid-template-columns: 1fr; }
+  
+  .fee-modal .modal-dialog {
+    margin: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
   .cart-header { flex-direction: column; align-items: stretch; text-align: center; }
   .btn-back { justify-content: center; }
+  
+  .info-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
 }
