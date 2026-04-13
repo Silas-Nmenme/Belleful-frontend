@@ -213,10 +213,9 @@ function renderOrders(orders) {
       const itemNames = safeItems.map(item => item?.name || 'Item').slice(0, 3).join(', ');
       const itemCount = safeItems.length;
       
-      const isSelected = order._id === window.selectedOrderId;
       return `
-        <tr class="${getOrderStatusClass(order?.orderStatus || 'pending')} ${isSelected ? 'table-active fw-bold' : ''}" onclick="selectOrder('${order._id}', ${JSON.stringify(order)})" style="cursor:pointer;">
-          <td><strong>#${(order?._id || 'N/A').slice(-8)}</strong> ${isSelected ? ' <i class="fas fa-check-circle text-success"></i>' : ''}</td>
+        <tr class="${getOrderStatusClass(order?.orderStatus || 'pending')}" onclick="event.stopPropagation(); trackOrder('${order?._id || ''}')" style="cursor:pointer;">
+          <td><strong>#${(order?._id || 'N/A').slice(-8)}</strong></td>
           <td>
             ${itemNames}${itemCount > 3 ? '...' : ''}
             <br><small class="text-muted">${itemCount} items</small>
@@ -229,11 +228,8 @@ function renderOrders(orders) {
           </td>
           <td>${order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
           <td>
-            <button class="btn btn-sm btn-outline-primary track-btn me-1" onclick="event.stopPropagation(); trackOrder('${order?._id || ''}')">
+            <button class="btn btn-sm btn-outline-primary track-btn" onclick="event.stopPropagation(); trackOrder('${order?._id || ''}')">
               <i class="fas fa-map-marker-alt me-1"></i>Track
-            </button>
-            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); selectOrder('${order._id}', ${JSON.stringify(order)})" title="Select for download">
-              <i class="fas fa-download"></i>
             </button>
           </td>
         </tr>
@@ -710,15 +706,8 @@ if (typeof loadUserDashboard === 'function') {
 }
 
 // Download SELECTED Order function - Fixed for backend orderId requirement
-window.selectedOrderId = null;
-window.selectedOrder = null;
-
-async function selectOrder(orderId, orderData) {
-  window.selectedOrderId = orderId;
-  window.selectedOrder = orderData;
-  console.log(`Selected #${orderId.slice(-8)}`);
-  // Download button state handled by renderOrders
-}
+// Download SELECTED Order function removed - backend downloads ALL orders
+// Button state handled by orders.length
 
 async function downloadTransactions(format) {
   try {
@@ -772,8 +761,10 @@ console.error('Download error:', error);
   }
 }
 
-// Expose download function globally
+// Expose download function globally (downloads ALL transactions)
 window.downloadTransactions = downloadTransactions;
+
+console.log('dashboard.js: Download transactions refactored - ALL orders, multi-format support ready');
 
 // Expose globals
 window.openSettingsModal = openSettingsModal;
