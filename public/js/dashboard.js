@@ -716,14 +716,8 @@ window.selectedOrder = null;
 async function selectOrder(orderId, orderData) {
   window.selectedOrderId = orderId;
   window.selectedOrder = orderData;
-  showToast(`Selected order #${orderId.slice(-8)} for download`, 'info');
-  // Trigger re-render to highlight
-  if (window.OrderManager?.getUserOrders) {
-    window.OrderManager.getUserOrders().then(r => renderOrders(r.data || []));
-  }
-  // Update button state
-  const downloadBtn = document.getElementById('downloadBtn');
-  if (downloadBtn) downloadBtn.disabled = false;
+  console.log(`Selected #${orderId.slice(-8)}`);
+  // Download button state handled by renderOrders
 }
 
 async function downloadTransactions(format) {
@@ -734,15 +728,14 @@ async function downloadTransactions(format) {
       return;
     }
     
-    console.log('Downloading ALL transactions, format:', format);
+    console.log(`Download requested: ${format} - fetching ALL orders`);
     
-    showToast(`Preparing ${format.toUpperCase()} download... (${window.selectedOrder ? window.selectedOrder.items?.length || 1 : 1} orders)`, 'info');
+    showToast(`Generating ${format.toUpperCase()}...`, 'info');
     
-    const response = await fetch(`${window.API_BASE}/orders/my-orders/download?format=${format}`, {
+    const response = await fetch(`${window.API_BASE || '/api'}/orders/download-my-transactions?format=${format}`, {
       method: 'GET',
       headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/octet-stream'
+        'Authorization': `Bearer ${token}`
       }
     });
     
@@ -754,7 +747,7 @@ async function downloadTransactions(format) {
     // Handle blob download (works for PDF, DOCX, CSV)
     const blob = await response.blob();
     const contentDisposition = response.headers.get('Content-Disposition');
-    let filename = `order-${window.selectedOrderId.slice(-8)}-${new Date().toISOString().slice(0,10)}.${format.toUpperCase()}`;
+    let filename = `my-transactions-${new Date().toISOString().slice(0,10)}.${format}`;
     
     // Extract filename from Content-Disposition if available
     if (contentDisposition && contentDisposition.includes('filename=')) {
