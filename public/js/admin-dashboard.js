@@ -12,10 +12,10 @@
   window.showAdminToast = function(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `admin-toast alert alert-${type} position-fixed`;
-    toast.style.cssText = 'top:80px;right:20px;z-index:9999;max-width:400px;';
+    toast.style.cssText = 'top:80px;right:20px;z-index:9999;max-width:400px; transition: opacity 0.3s ease-out; opacity: 1; animation: slideInRight 0.3s ease-out;';
     toast.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message} <button type="button" class="btn-close ms-2" onclick="this.parentElement.remove()"></button>`;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 1000);
   };
 
   // ===== SIDEBAR INITIALIZATION & TOGGLE =====
@@ -178,7 +178,7 @@
     } catch (error) {
       console.error('loadAdminMenu error:', error);
       tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-5 text-danger">Failed to load menu items</td></tr>';
-      showAdminToast('Menu load failed: ' + error.message, 'danger');
+      console.error('Menu load failed:', error); // Toast removed - non-critical data load
     } finally {
       loader.style.display = 'none';
     }
@@ -219,7 +219,7 @@
       // Load menu after stats
       setTimeout(() => loadAdminMenu(1), 300);
       
-      showAdminToast('Dashboard loaded successfully', 'success');
+      // Toast removed - unnecessary for dashboard load
     } catch (error) {
       console.error('Dashboard load error:', error);
       showAdminToast('Dashboard failed to load completely', 'warning');
@@ -341,7 +341,7 @@ tbody.innerHTML = sortedOrders.map(order => {
     } catch (error) {
       console.error('Users load error:', error);
       tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-danger">Failed to load users</td></tr>';
-      showAdminToast('Users load failed', 'danger');
+      console.error('Users load failed:', error); // Toast removed - non-critical
     }
   }
 
@@ -386,7 +386,7 @@ tbody.innerHTML = sortedOrders.map(order => {
     } catch (error) {
       console.error('Contacts load error:', error);
       tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-danger">Failed to load contacts</td></tr>';
-      showAdminToast('Contacts load failed', 'danger');
+      console.error('Contacts load failed:', error); // Toast removed - non-critical
     }
   }
 
@@ -783,7 +783,7 @@ window.viewOrder = async function(orderId) {
 
       const modal = new bootstrap.Modal(modalEl);
       modal.show();
-      showAdminToast(`Order #${order._id?.slice(-8)} loaded`, 'success');
+      // Toast removed - unnecessary for order view
 
     } catch (error) {
       console.error('Order load error:', error);
@@ -926,7 +926,7 @@ window.updateOrderStatus = async function(orderId, status) {
         modal.show();
       }
       
-      showAdminToast('Contact loaded successfully', 'info');
+      // Toast removed - unnecessary for contact view
       
     } catch (error) {
       console.error('View contact error:', error);
