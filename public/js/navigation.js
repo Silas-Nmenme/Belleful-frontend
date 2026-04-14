@@ -17,7 +17,8 @@ function handleDashboardNav(e) {
 const isNavLink = (link.classList.contains('nav-link') || 
                     link.classList.contains('navbar-brand') ||
                     link.id === 'menuLink') && 
-                    !link.classList.contains('dropdown-toggle');
+                    !link.classList.contains('dropdown-toggle') &&
+                    !link.matches('.contact-link');
   
   if (isNavLink) {
     e.preventDefault();
