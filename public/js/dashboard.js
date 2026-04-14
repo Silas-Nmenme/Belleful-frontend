@@ -705,9 +705,7 @@ if (typeof loadUserDashboard === 'function') {
   };
 }
 
-// Download SELECTED Order function - Fixed for backend orderId requirement
-// Download SELECTED Order function removed - backend downloads ALL orders
-// Button state handled by orders.length
+// Download transaction function
 
 async function downloadTransactions(format) {
   try {

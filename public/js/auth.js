@@ -100,25 +100,7 @@ async function checkAuthStatus() {
   );
   console.log('Auth check:', {currentPath, pathname, isPublicPage}); // Debug - remove after testing
   
-  if (isPublicPage) {
-    return; // Public pages - no auth required
-  }
-  
-  const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = currentPath.includes('admin') ? 'admin-login.html' : 'login.html';
-    return;
-  }
-
-  const role = localStorage.getItem('userRole');
-  const currentPathCheck = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
-  const targetDash = role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
-
-  // Skip if already on correct dashboard
-  if (role && currentPathCheck === targetDash) {
-    showToast(`Welcome ${role === 'admin' ? 'Admin' : ''}!`, 'success');
-    return;
-  }
+  if (isPublicPage) {return; // Public pages - no auth required\n  }\n  \n  const token = localStorage.getItem('token');\n  if (!token) {\n    window.location.href = currentPath.includes('admin') ? 'admin-login.html' : 'login.html';\n    return;\n  }\n\n  const role = localStorage.getItem('userRole');\n  const currentPathCheck = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();\n  const targetDash = role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';\n\n  // Skip if already on correct dashboard\n  if (role && currentPathCheck === targetDash) {\n    console.log(`Welcome ${role === 'admin' ? 'Admin' : ''}!`);\n    return;\n  }
 
 
 

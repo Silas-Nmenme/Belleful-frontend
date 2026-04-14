@@ -42,8 +42,7 @@ async function loadCheckoutData() {
     }
     
     if (!cart?.items?.length) {
-        showToast('Cart is empty. Add items from menu first.', 'warning');
-        setTimeout(() => window.location.href = 'cart.html', 1500);
+        console.warn('Cart is empty - redirecting to cart');        setTimeout(() => window.location.href = 'cart.html', 1500);
         return;
     }
     
@@ -78,8 +77,7 @@ async function loadCheckoutData() {
     });
     toggleDeliveryAddress();
     
-    showToast(`${cart.items.length} items • ₦${grandTotal.toLocaleString()}`, 'success');
-}
+    console.log(`${cart.items.length} items loaded: ₦${grandTotal.toLocaleString()}`);}
 
 function toggleDeliveryAddress() {
     const deliverySelected = document.getElementById('delivery').checked;
@@ -405,17 +403,4 @@ function updateStatusDisplay(order) {
   statusText.textContent = status.text;
 }
 
-function showToast(msg, type='info') {
-    const toast = document.createElement('div');
-    toast.className = `page-toast page-toast--${type} animate__animated animate__fadeInRight`;
-    toast.innerHTML = `
-        <div class="d-flex align-items-start">
-            <strong class="me-3">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
-            <span>${msg}</span>
-            <button type="button" class="btn-close ms-auto btn-close-invert" aria-label="Close"></button>
-        </div>
-    `;
-    toast.querySelector('.btn-close')?.addEventListener('click', () => toast.remove());
-    document.body.appendChild(toast);
-    setTimeout(() => { toast.classList.remove('animate__fadeInRight'); toast.classList.add('animate__fadeOutRight'); setTimeout(() => toast.remove(), 300); }, 1000); // Changed to 1 second
-}
+function showToast(msg, type='error') { // Default to error only\n    if (type !== 'error' && type !== 'success') {\n        console.log(`[INFO] ${msg}`);\n        return;\n    }\n    const toast = document.createElement('div');\n    toast.className = `page-toast page-toast--${type} animate__animated animate__fadeInRight`;\n    toast.innerHTML = `\n        <div class="d-flex align-items-start">\n            <strong class="me-3">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>\n            <span>${msg}</span>\n            <button type="button" class="btn-close ms-auto btn-close-invert" aria-label="Close"></button>\n        </div>\n    `;\n    toast.querySelector('.btn-close')?.addEventListener('click', () => toast.remove());\n    document.body.appendChild(toast);\n    setTimeout(() => { toast.classList.remove('animate__fadeInRight'); toast.classList.add('animate__fadeOutRight'); setTimeout(() => toast.remove(), 300); }, 1000);\n}

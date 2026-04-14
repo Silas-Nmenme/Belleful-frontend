@@ -9,24 +9,14 @@
  */
 window.requireAuth = async function(redirectUrl = 'login.html', toastMsg = 'Please login to continue') {
   const token = localStorage.getItem('token');
-  if (!token) {
-    if (typeof showToast === 'function') showToast(toastMsg, 'warning');
-    window.location.href = redirectUrl;
-    return null;
-  }
+  if (!token) {\n    console.warn(toastMsg);\n    window.location.href = redirectUrl;\n    return null;\n  }
 
   try {
     const res = await fetch(`${window.API_BASE}/auth/profile`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    if (!res.ok) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userRole');
-      if (typeof showToast === 'function') showToast('Session expired', 'error');
-      window.location.href = redirectUrl;
-      return null;
-    }
+    if (!res.ok) {\n      localStorage.removeItem('token');\n      localStorage.removeItem('userRole');\n      console.error('Session expired');\n      window.location.href = redirectUrl;\n      return null;\n    }
 
     const userData = await res.json();
     window.currentUser = userData.user;
