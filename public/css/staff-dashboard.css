@@ -1,0 +1,198 @@
+/* Staff Dashboard CSS - Blue theme matching staff-login.css */
+@import url('admin-dashboard.css');
+
+:root {
+    --staff-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --staff-primary-rgb: 79, 70, 229;
+    --staff-bg: #eff6ff;
+}
+
+.bg-gradient-staff {
+    background: var(--staff-primary) !important;
+}
+
+.bg-staff-primary {
+    background: var(--staff-primary) !important;
+}
+
+.btn-outline-staff-primary {
+    color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.btn-outline-staff-primary:hover {
+    background: var(--staff-primary);
+    color: white;
+    border-color: var(--staff-primary);
+}
+
+.text-staff-primary {
+    color: #4f46e5 !important;
+}
+
+.badge.bg-light.text-staff-primary {
+    color: #4f46e5 !important;
+}
+
+.sidebar-header {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+    border-bottom: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.sidebar .nav-link.active {
+    background: var(--staff-primary);
+    color: white;
+    border-left: 4px solid #3730a3;
+}
+
+.sidebar .nav-link:hover {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+}
+
+.card-header.bg-staff-primary {
+    background: var(--staff-primary) !important;
+}
+
+.staff-stats-card {
+    border-left: 5px solid #4f46e5;
+}
+
+.staff-badge-pending {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.staff-badge-preparing {
+    background-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+/* Status badges for staff - limited view */
+.staff-status-preparing {
+    background-color: #10b981;
+    color: white;
+}
+
+.staff-status-ready {
+    background-color: #3b82f6;
+    color: white;
+}
+
+/* Loading spinner */
+.staff-loader {
+    color: #4f46e5;
+}
+
+/* Enhanced Mobile Responsiveness */
+
+/* Tablet & Mobile */
+@media (max-width: 991px) {
+    .sidebar-wrapper.active {
+        left: 0 !important;
+    }
+    
+    .sidebar-wrapper {
+        width: 85vw;
+        max-width: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar-wrapper {
+        width: 90vw;
+        max-width: 280px;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: 80px;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem !important;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    /* Stack filter row */
+    .row.g-3 > div {
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-select-sm {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-header h4 {
+        font-size: 1.25rem;
+    }
+    
+    .sidebar-header h6 {
+        font-size: 0.95rem;
+        padding: 1rem;
+    }
+    
+    .nav-link span {
+        font-size: 0.9rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Action column compact */
+    .form-select {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .sidebar-wrapper {
+        width: 75vw;
+    }
+    
+    .main-content {
+        padding-top: 70px;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .sidebar {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+}
+
+
+/* Smooth transitions */
+.sidebar-wrapper,
+.sidebar-overlay,
+.main-content {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes staffPulse {
+    0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(79, 70, 229, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+}
+
+.btn-refresh-staff:hover {
+    animation: staffPulse 1.5s infinite;
+}
+

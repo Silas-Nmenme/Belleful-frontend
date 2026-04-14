@@ -1,0 +1,344 @@
+/* Staff Login - Glassmorphism styles adapted from admin-login.css */
+@import url('index.css');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px 40px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+}
+
+.contact-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: stretch;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.left {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 0 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.left::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+}
+
+.left i {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+}
+
+.left span {
+    background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1.8rem;
+}
+
+.right {
+    padding: 3rem 4rem;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    border-left: 1px solid rgba(255,255,255,0.3);
+}
+
+h2 {
+    position: relative;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 2.2rem;
+    font-weight: 800;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    height: 5px;
+    width: 80px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.field {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    outline: none;
+    border: 2px solid rgba(0,0,0,0.08);
+    background-color: rgba(255,255,255,0.8);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.field:focus {
+    border-color: #4f46e5;
+    background: rgba(255,255,255,1);
+    box-shadow: 0 10px 30px rgba(79,70,229,0.15);
+    transform: translateY(-2px);
+}
+
+.password-field {
+    padding-right: 4rem;
+}
+
+.password-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: #4f46e5;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.btn {
+    width: 100%;
+    padding: 1.25rem 2rem;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(79,70,229,0.4);
+}
+
+.forgot-password, .signup-link {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.forgot-password a {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+    color: #3730a3;
+}
+
+/* Full Mobile Responsiveness */
+@media (max-width: 991px) {
+    body {
+        padding: 60px 10px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contact-box {
+        grid-template-columns: 1fr;
+        margin-top: 1rem;
+        border-radius: 20px;
+    }
+    
+    .left {
+        height: 160px;
+        flex-direction: row;
+        gap: 0.75rem;
+        font-size: 1.4rem;
+        padding: 1.5rem;
+    }
+    
+    .left i {
+        font-size: 2.5rem;
+    }
+    
+    .left span {
+        font-size: 1.4rem;
+    }
+    
+    .right {
+        padding: 2rem 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .field {
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .btn {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 50px 5px 15px;
+    }
+    
+    .left {
+        height: 140px;
+        font-size: 1.25rem;
+        padding: 1rem;
+    }
+    
+    .left i {
+        font-size: 2.25rem;
+    }
+    
+    .right {
+        padding: 1.5rem 1rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .field {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.95rem;
+    }
+    
+    .password-toggle {
+        right: 0.75rem;
+    }
+    
+    .btn {
+        padding: 0.875rem 1.25rem;
+    }
+    
+    .forgot-password {
+        font-size: 0.9rem;
+    }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .contact-box {
+        max-height: 90vh;
+        overflow: hidden;
+    }
+    
+    .left {
+        height: 120px;
+    }
+    
+    .right {
+        padding: 1rem;
+    }
+    
+    h2 {
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+    }
+}
+
+/* Prevent zoom on iOS */
+@supports (-webkit-touch-callout: none) {
+    input[type="email"], input[type="password"], input[type="text"], input[type="number"] {
+        font-size: 16px;
+    }
+}
+
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(20px, -20px) rotate(120deg); }
+    66% { transform: translate(-15px, 10px) rotate(240deg); }
+}
+
