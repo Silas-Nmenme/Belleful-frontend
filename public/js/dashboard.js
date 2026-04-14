@@ -452,34 +452,11 @@ window.loadUserDashboard = loadUserDashboard;
 window.initDashboard = loadUserDashboard;  // Alias for inline script compatibility
 
 // Sidebar/UI globals (defensive)
-window.setActiveNav = window.setActiveNav || function(section) {
-  document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => link.classList.remove('active'));
-  const activeLink = document.querySelector(`.sidebar-nav a[href="#${section}"]`) || event?.target?.closest('.nav-link');
-  if (activeLink) activeLink.classList.add('active');
-  
-  const target = document.getElementById(section);
-  if (target) {
-    const navbarHeight = 80;
-    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 20; // extra padding
-    window.scrollTo({ top: targetPosition, behavior: 'smooth' });
-  }
-  
-  window.closeSidebar?.();
-};
+// REMOVED: window.setActiveNav - Moved to HTML inline script (fixes race condition)
 
-window.toggleSidebar = window.toggleSidebar || function() {
-  const sidebar = document.getElementById('userSidebar');
-  const backdrop = document.getElementById('sidebarBackdrop');
-  if (sidebar) sidebar.classList.toggle('show');
-  if (backdrop) backdrop.style.display = sidebar?.classList?.contains('show') ? 'block' : 'none';
-};
+// REMOVED: window.toggleSidebar - Moved to HTML inline script (fixes race condition)
 
-window.closeSidebar = window.closeSidebar || function() {
-  const sidebar = document.getElementById('userSidebar');
-  const backdrop = document.getElementById('sidebarBackdrop');
-  if (sidebar) sidebar.classList.remove('show');
-  if (backdrop) backdrop.style.display = 'none';
-};
+// REMOVED: window.closeSidebar - Moved to HTML inline script (fixes race condition)
 
 // Responsive handler
 if (window.addEventListener) {
