@@ -1,4 +1,4 @@
-deb// ===== GLOBAL UTILITIES (stubs for safety) =====
+// ===== GLOBAL UTILITIES (stubs for safety) =====
 window.showToast = window.showToast || function(message, type = 'info') {
   console[type === 'error' ? 'error' : 'log'](`Toast [${type}]: ${message}`);
   // Create toast element if DOM ready

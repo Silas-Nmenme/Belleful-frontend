@@ -10,24 +10,62 @@
     <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/user-dashboard.css">
     <link rel="stylesheet" href="css/logo.css">
-
 </head>
-\n<body>\n\n    <!-- Sidebar UI Functions - Fixes toggleSidebar undefined error -->\n    <script>\n      // Inline definitions - execute immediately to fix race condition\n      window.setActiveNav = function(section) {\n        document.querySelectorAll(\'.sidebar-nav .nav-link\').forEach(link => link.classList.remove(\'active\'));\n        const activeLink = document.querySelector(`.sidebar-nav a[href="#${section}"]`) || event?.target?.closest(\'.nav-link\');\n        if (activeLink) activeLink.classList.add(\'active\');\n        \n        const target = document.getElementById(section);\n        if (target) {\n          const navbarHeight = 80;\n          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 20;\n          window.scrollTo({ top: targetPosition, behavior: \'smooth\' });\n        }\n        \n        window.closeSidebar?.();\n      };\n\n      window.toggleSidebar = function() {\n        const sidebar = document.getElementById(\'userSidebar\');\n        const backdrop = document.getElementById(\'sidebarBackdrop\');\n        if (sidebar) sidebar.classList.toggle(\'show\');\n        if (backdrop) backdrop.style.display = sidebar?.classList?.contains(\'show\') ? \'block\' : \'none\';\n      };\n\n      window.closeSidebar = function() {\n        const sidebar = document.getElementById(\'userSidebar\');\n        const backdrop = document.getElementById(\'sidebarBackdrop\');\n        if (sidebar) sidebar.classList.remove(\'show\');\n        if (backdrop) backdrop.style.display = \'none\';\n      };\n\n      // Responsive auto-close (duplicate safe)\n      if (window.addEventListener) {\n        window.addEventListener(\'resize\', () => {\n          if (window.innerWidth >= 992) window.closeSidebar();\n        });\n      }\n    </script>
+<body>
+    <!-- Sidebar UI Functions - Fixes toggleSidebar undefined error -->
+    <script>
+      // Inline definitions - execute immediately to fix race condition
+      window.setActiveNav = function(section) {
+        document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => link.classList.remove('active'));
+        const activeLink = document.querySelector(`.sidebar-nav a[href="#${section}"]`) || event?.target?.closest('.nav-link');
+        if (activeLink) activeLink.classList.add('active');
+        
+        const target = document.getElementById(section);
+        if (target) {
+          const navbarHeight = 80;
+          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 20;
+          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+        
+        window.closeSidebar?.();
+      };
+
+      window.toggleSidebar = function() {
+        const sidebar = document.getElementById('userSidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (sidebar) sidebar.classList.toggle('show');
+        if (backdrop) backdrop.style.display = sidebar?.classList?.contains('show') ? 'block' : 'none';
+      };
+
+      window.closeSidebar = function() {
+        const sidebar = document.getElementById('userSidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (sidebar) sidebar.classList.remove('show');
+        if (backdrop) backdrop.style.display = 'none';
+      };
+
+      // Responsive auto-close (duplicate safe)
+      if (window.addEventListener) {
+        window.addEventListener('resize', () => {
+          if (window.innerWidth >= 992) window.closeSidebar();
+        });
+      }
+    </script>
+
     <!-- Top Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-warm shadow-lg">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-warm shadow-lg">
         <div class="container-fluid">
             <div class="d-flex align-items-center">
-<button class="navbar-toggler me-3 mobile-menu-toggle" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
+                <button class="navbar-toggler me-3 mobile-menu-toggle" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
                     <i class="fas fa-bars text-white fs-4"></i>
                 </button>
                 <a class="navbar-brand fw-bold" href="user-dashboard.html">
                   <img src="asset/logo.jpeg" alt="Belleful" class="navbar-brand-logo" loading="lazy">
                   <span>Belleful</span>
                 </a>
-
             </div>
             
-<div class="navbar-nav ms-auto align-items-center">
+            <div class="navbar-nav ms-auto align-items-center">
                 <a class="nav-link position-relative" href="cart.html">
                     <i class="fas fa-shopping-cart fs-4"></i>
                     <span class="badge bg-danger cart-badge cart-count hidden" data-count="0">0</span>
@@ -38,9 +76,9 @@
 
     <!-- Persistent Sidebar -->
     <div class="sidebar-backdrop d-none" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
-<div class="sidebar" id="userSidebar">
+    <div class="sidebar" id="userSidebar">
         <div class="sidebar-content">
-<div id="sidebarProfile" class="profile-card">
+            <div id="sidebarProfile" class="profile-card">
                 <div class="p-4 text-center text-muted">
                     <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
                         <i class="fas fa-user fa-lg text-muted"></i>
@@ -50,7 +88,7 @@
                 </div>
             </div>
             
-<nav class="sidebar-nav p-0">
+            <nav class="sidebar-nav p-0">
                 <a href="#orders" class="nav-link" onclick="setActiveNav('orders'); closeSidebar()">
                     <i class="fas fa-shopping-bag"></i> Orders
                 </a>
@@ -70,9 +108,8 @@
         </div>
     </div>
 
-    <!-- Main Wrapper -->
-<!-- App Wrapper for Sidebar Push -->
-<div class="app-wrapper">
+    <!-- App Wrapper for Sidebar Push -->
+    <div class="app-wrapper">
         <div class="main-content">
             <!-- Stats Overview -->
             <section class="stats-section" data-aos="fade-up" data-aos-delay="100">
@@ -93,7 +130,7 @@
                 </div>
             </section>
 
-<!-- Full Menu Section -->
+            <!-- Full Menu Section -->
             <section id="menu" class="py-5 bg-white">
                 <div class="container">
                     <div class="row mb-5">
@@ -111,13 +148,13 @@
             <!-- Orders & Actions Row -->
             <div class="row g-4">
                 <!-- Recent Orders -->
-<div class="col-xl-8 col-lg-8 col-md-12">
+                <div class="col-xl-8 col-lg-8 col-md-12">
                     <section class="orders-section card h-100" data-aos="fade-up" data-aos-delay="300">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h3 class="h4 mb-0 fw-bold">
                                 <i class="fas fa-list me-2 text-primary"></i>Recent Orders
                             </h3>
-<a href="#" class="btn btn-sm btn-outline-primary me-2" id="refreshOrdersBtn" onclick="refreshOrders(); return false;">
+                            <a href="#" class="btn btn-sm btn-outline-primary me-2" id="refreshOrdersBtn" onclick="refreshOrders(); return false;">
                                 <i class="fas fa-sync-alt me-1" id="refreshIcon"></i><span id="refreshText">Refresh</span>
                             </a>
                             <div class="btn-group" role="group">
@@ -171,76 +208,70 @@
                             </a>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </div> <!-- End app-wrapper -->
 
     <!-- Settings Modal -->
-                <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title" id="settingsModalLabel">
-                                    <i class="fas fa-user-cog me-2"></i>Profile Settings
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <form id="profileForm">
-                                <div class="modal-body">
-                                    <input type="hidden" id="currentAvatar" name="currentAvatar">
-                                    
-                                    <div class="mb-4">
-                                        <div class="avatar-preview mb-3 text-center">
-                                            <img id="avatarPreview" src="" alt="Profile avatar preview" class="rounded-circle shadow-lg" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #667eea;">
-                                            <div id="avatarPlaceholder" class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; display: none;">
-                                                <i class="fas fa-user fa-2x text-muted"></i>
-                                            </div>
-                                        </div>
-                                        <label for="avatarInput" class="form-label">
-                                            <i class="fas fa-camera me-1"></i>Change Profile Picture
-                                        </label>
-                                        <input type="file" class="form-control" id="avatarInput" name="avatar" accept="image/*" style="display: none;">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="document.getElementById('avatarInput').click()">
-                                            <i class="fas fa-upload me-1"></i>Choose Image
-                                        </button>
-                                        <div class="form-text">Square images (1:1) work best. Max 5MB.</div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="nameInput" class="form-label fw-bold">
-                                            <i class="fas fa-user me-1"></i>Display Name
-                                        </label>
-                                        <input type="text" class="form-control" id="nameInput" name="name" maxlength="50" required>
-                                        <div class="form-text">2-50 characters. Used everywhere in app.</div>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <div class="form-text text-muted mb-3">
-                                            Email: <span id="profileEmail" class="fw-medium"></span> (not editable)
-                                        </div>
-                                    </div>
-
-                                    <div id="uploadProgress" class="progress mb-3 d-none" style="height: 6px;">
-                                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
-                                    </div>
-                                    <div id="formError" class="alert alert-danger d-none" role="alert"></div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" id="profileSubmit">
-                                        <i class="fas fa-save me-1"></i>Save Changes
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="settingsModalLabel">
+                        <i class="fas fa-user-cog me-2"></i>Profile Settings
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <form id="profileForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="currentAvatar" name="currentAvatar">
+                        
+                        <div class="mb-4">
+                            <div class="avatar-preview mb-3 text-center">
+                                <img id="avatarPreview" src="" alt="Profile avatar preview" class="rounded-circle shadow-lg" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #667eea;">
+                                <div id="avatarPlaceholder" class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; display: none;">
+                                    <i class="fas fa-user fa-2x text-muted"></i>
+                                </div>
+                            </div>
+                            <label for="avatarInput" class="form-label">
+                                <i class="fas fa-camera me-1"></i>Change Profile Picture
+                            </label>
+                            <input type="file" class="form-control" id="avatarInput" name="avatar" accept="image/*" style="display: none;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="document.getElementById('avatarInput').click()">
+                                <i class="fas fa-upload me-1"></i>Choose Image
+                            </button>
+                            <div class="form-text">Square images (1:1) work best. Max 5MB.</div>
+                        </div>
 
-                </div> <!-- End main-content -->
-            </div> <!-- End app-wrapper -->
+                        <div class="mb-3">
+                            <label for="nameInput" class="form-label fw-bold">
+                                <i class="fas fa-user me-1"></i>Display Name
+                            </label>
+                            <input type="text" class="form-control" id="nameInput" name="name" maxlength="50" required>
+                            <div class="form-text">2-50 characters. Used everywhere in app.</div>
+                        </div>
 
+                        <div class="text-center">
+                            <div class="form-text text-muted mb-3">
+                                Email: <span id="profileEmail" class="fw-medium"></span> (not editable)
+                            </div>
+                        </div>
+
+                        <div id="uploadProgress" class="progress mb-3 d-none" style="height: 6px;">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div id="formError" class="alert alert-danger d-none" role="alert"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="profileSubmit">
+                            <i class="fas fa-save me-1"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- Footer - Full width below everything -->
@@ -261,8 +292,8 @@
                     <div class="row text-muted">
                         <div class="col-6">
                             <ul class="list-unstyled">
-                <li><a href="user-dashboard.html" class="text-decoration-none">Home</a></li>
-        <li><a href="user-dashboard.html#menu" class="text-decoration-none">Menu</a></li>
+                                <li><a href="user-dashboard.html" class="text-decoration-none">Home</a></li>
+                                <li><a href="user-dashboard.html#menu" class="text-decoration-none">Menu</a></li>
                                 <li><a href="cart.html" class="text-decoration-none">Cart</a></li>
                             </ul>
                         </div>
