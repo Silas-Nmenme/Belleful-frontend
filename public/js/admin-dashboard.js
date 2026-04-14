@@ -13,7 +13,7 @@
     const toast = document.createElement('div');
     toast.className = `admin-toast alert alert-${type} position-fixed`;
     toast.style.cssText = 'top:80px;right:20px;z-index:9999;max-width:400px; transition: opacity 0.3s ease-out; opacity: 1; animation: slideInRight 0.3s ease-out;';
-toast.innerHTML = `<strong>${type === 'info' ? '' : type.toUpperCase() + ':'} </strong>${message} <button type="button" class="btn-close ms-2" onclick="this.parentElement.remove()"></button>`;
+    toast.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message} <button type="button" class="btn-close ms-2" onclick="this.parentElement.remove()"></button>`;
     document.body.appendChild(toast);
     setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 1000);
   };
@@ -93,7 +93,7 @@ toast.innerHTML = `<strong>${type === 'info' ? '' : type.toUpperCase() + ':'} </
       renderAdminStats(stats.data || stats);
     } catch (error) {
       console.error('Admin stats error:', error);
-console.error('Admin stats error:', error.message);
+      showAdminToast('Failed to load stats: ' + error.message, 'danger');
       document.getElementById('adminStats').innerHTML = '<div class="col-12 text-center py-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-3"></i><h5>Stats unavailable</h5></div>';
     }
   }
@@ -447,7 +447,7 @@ tbody.innerHTML = sortedOrders.map(order => {
       
     } catch (error) {
       console.error('Edit menu error:', error);
-console.error('Edit menu error:', error.message);
+      showAdminToast('Failed to load item: ' + error.message, 'danger');
     }
   };
 
@@ -617,7 +617,7 @@ const method = menuId ? 'PUT' : 'POST';
         }
         
         console.log('Save success');
-console.log(`Menu ${menuId ? 'updated' : 'created'} successfully!`);
+        showAdminToast(`Menu ${menuId ? 'updated' : 'created'} successfully!`, 'success');
         
         const modalEl = document.getElementById('menuModal');
         if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
