@@ -310,6 +310,9 @@ tbody.innerHTML = sortedOrders.map(order => {
 
     
     if (countEl) countEl.textContent = sortedOrders.filter(o => o.orderStatus === 'pending_approval').length;
+    
+    // Enable download button if orders exist
+    updateAdminDownloadBtn(sortedOrders);
   }
 
   // Users Table
@@ -1009,6 +1012,71 @@ window.showReceiptPreview = function(url) {
   }
 };
 
-  console.log('admin-dashboard.js ENHANCED - Receipt viewing enabled');
+console.log('admin-dashboard.js ENHANCED - Receipt viewing enabled');
+
+// ===== ADMIN TRANSACTIONS DOWNLOAD (MATCHES USER DASHBOARD + BACKEND) =====
+async function downloadTransactionsAdmin(format, filters = {}) {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showAdminToast('Please log in to download transactions', 'danger');
+      return;
+    }
+    
+    // Optional filters: status, dateFrom, limit (backend supports)
+    const params = new URLSearchParams({ format, ...filters });
+    
+    showAdminToast(`Generating ${format.toUpperCase()}...`, 'info');
+    
+    const response = await fetch(`${window.API_BASE || '/api'}/orders/admin/download?${params}`, {
+      method: 'GET',
+      headers: { 
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Download failed: ${response.status}`);
+    }
+    
+    // Blob download (PDF/DOCX/CSV - identical to user dashboard)
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = `admin-transactions-${new Date().toISOString().slice(0,10).replace(/:/g, '-')}.${format}`;
+    
+    if (contentDisposition && contentDisposition.includes('filename=')) {
+      const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+      if (matches?.[1]) filename = matches[1].replace(/['"]/g, '');
+    }
+    
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    setTimeout(() => document.body.removeChild(a), 100);
+    
+    showAdminToast(`${format.toUpperCase()} downloaded successfully!`, 'success');
+  } catch (error) {
+    console.error('Admin download error:', error);
+    showAdminToast(error.message, 'danger');
+  }
+}
+
+// Expose globally for HTML onclick
+window.downloadTransactionsAdmin = downloadTransactionsAdmin;
+
+// Enable/disable download button based on orders
+function updateAdminDownloadBtn(orders) {
+  const btn = document.getElementById('adminDownloadBtn');
+  if (btn) {
+    btn.disabled = !(Array.isArray(orders) && orders.length > 0);
+    btn.title = orders?.length ? 'Download transactions' : 'No transactions to download';
+  }
+}
 })();
 
