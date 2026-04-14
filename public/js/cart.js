@@ -608,21 +608,35 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
     }
 
     showToast(message, type = 'info') {
-      // Bootstrap toast compatible
-      const toast = document.createElement('div');
-      toast.innerHTML = `
-        <div class="toast align-items-center text-bg-${type} border-0" role="alert">
-          <div class="d-flex">${message}</div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
+      // Bootstrap toast compatible - 1 second duration
+      const toastContainer = document.createElement('div');
+      toastContainer.className = 'toast-container position-fixed top-1 end-1 p-3 z-5';
+      const toastEl = document.createElement('div');
+      toastEl.className = `toast align-items-center text-bg-${type} border-0`;
+      toastEl.setAttribute('role', 'alert');
+      toastEl.innerHTML = `
+        <div class="d-flex">${message}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
       `;
-      toast.className = 'toast-container position-fixed top-1 end-1 p-3 z-5';
-      document.body.append(toast);
+      toastContainer.appendChild(toastEl);
+      document.body.appendChild(toastContainer);
       
-      const bsToast = new bootstrap.Toast(toast.firstElementChild);
+      const bsToast = new bootstrap.Toast(toastEl, {
+        autohide: true,
+        delay: 1000
+      });
       bsToast.show();
       
-      toast.firstElementChild.addEventListener('hidden.bs.toast', () => toast.remove());
+      toastEl.addEventListener('hidden.bs.toast', () => {
+        if (toastContainer.parentNode) {
+          toastContainer.remove();
+        }
+      });
+      
+      // Global alias for other files
+      if (typeof window.showToast !== 'function') {
+        window.showToast = this.showToast.bind(this);
+      }
     }
 
     redirectToLogin() {

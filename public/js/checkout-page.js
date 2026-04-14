@@ -405,18 +405,4 @@ function updateStatusDisplay(order) {
   statusText.textContent = status.text;
 }
 
-function showToast(msg, type='info') {
-    const toast = document.createElement('div');
-    toast.className = `page-toast page-toast--${type} animate__animated animate__fadeInRight`;
-    toast.innerHTML = `
-        <div class="d-flex align-items-start">
-            <strong class="me-3">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
-            <span>${msg}</span>
-            <button type="button" class="btn-close ms-auto btn-close-invert" aria-label="Close"></button>
-        </div>
-    `;
-    toast.querySelector('.btn-close')?.addEventListener('click', () => toast.remove());
-    document.body.appendChild(toast);
-    setTimeout(() => { toast.classList.remove('animate__fadeInRight'); toast.classList.add('animate__fadeOutRight'); setTimeout(() => toast.remove(), 300); }, 1000); // Changed to 1 second
-}
-}
+// showToast now uses global window.showToast from cart.js (1 second duration, Bootstrap toast)
