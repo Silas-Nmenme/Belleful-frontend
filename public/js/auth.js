@@ -112,7 +112,7 @@ async function checkAuthStatus() {
 
   const role = localStorage.getItem('userRole');
   const currentPathCheck = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
-  const targetDash = role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
+const targetDash = role === 'admin' ? 'admin-dashboard.html' : role === 'staff' ? 'staff-dashboard.html' : 'user-dashboard.html';
 
   // Skip if already on correct dashboard
   if (role && currentPathCheck === targetDash) {
@@ -134,7 +134,7 @@ async function checkAuthStatus() {
       
       // Skip redirect if already on correct dashboard
       const currentPath2 = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
-      const targetDash2 = currentUser.role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
+const targetDash2 = currentUser.role === 'admin' ? 'admin-dashboard.html' : currentUser.role === 'staff' ? 'staff-dashboard.html' : 'user-dashboard.html';
       if (currentPath2 === targetDash2) {
         showToast(`Welcome ${currentUser.role === 'admin' ? 'Admin' : 'back'}, ${currentUser.name}!`, 'success');
         updateNavbarForAdmin();
@@ -222,7 +222,7 @@ async function handleLogin(e, submitBtn = null) {
     showToast(`Welcome ${result.user.name || 'back'}!`, 'success');
     hideLoading(submitBtn || 'loginFormSubmit');
     
-    const dash = result.user.role === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
+const dash = result.user.role === 'admin' ? 'admin-dashboard.html' : result.user.role === 'staff' ? 'staff-dashboard.html' : 'user-dashboard.html';
     setTimeout(() => window.location.href = dash, 800);
   } catch (error) {
     hideLoading(submitBtn || 'loginFormSubmit');
@@ -307,7 +307,7 @@ async function handleVerifyOTP(e, emailOverride = null) {
     showToast('Account verified! Redirecting to dashboard...', 'success');
     hideLoading(submitBtn);
     setTimeout(() => {
-      window.location.href = localStorage.getItem('userRole') === 'admin' ? 'admin-dashboard.html' : 'user-dashboard.html';
+const storedRole = localStorage.getItem('userRole'); window.location.href = storedRole === 'admin' ? 'admin-dashboard.html' : storedRole === 'staff' ? 'staff-dashboard.html' : 'user-dashboard.html';
     }, 1500);
   } catch (error) {
     hideLoading(submitBtn);

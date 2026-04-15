@@ -138,12 +138,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Optional: store staff info
-            localStorage.setItem('staff', JSON.stringify(data.user));
+// Store standard role
+            localStorage.setItem('userRole', 'staff');
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
 
-            alert('Login successful');
+            alert('Staff login successful!');
 
-            // Redirect to staff dashboard
+            // Consistent redirect (auth.js will handle if needed)
             window.location.href = 'staff-dashboard.html';
 
         } catch (err) {
