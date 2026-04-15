@@ -17,7 +17,7 @@
                 <i class="fas fa-user-tie me-2"></i>Belleful Staff
             </a>
             <!-- Sidebar Toggle Button -->
-            <button class="sidebar-toggle btn btn-link text-white p-2 ms-3 me-lg-0 me-xl-3 d-block" type="button" onclick="if(window.StaffDashboardManager?.toggleSidebar){window.StaffDashboardManager.toggleSidebar();}" title="Toggle Menu" aria-label="Toggle sidebar menu">
+            <button class="sidebar-toggle btn btn-link text-white p-2 ms-3 me-lg-0 me-xl-3 d-lg-none d-block order-lg-1" type="button" onclick="if(window.StaffDashboardManager?.toggleSidebar){window.StaffDashboardManager.toggleSidebar();}" title="Toggle Menu" aria-label="Toggle sidebar menu">
                 <i class="fas fa-bars fa-lg sidebar-hamburger"></i>
             </button>
             <ul class="navbar-nav ms-auto">
@@ -37,10 +37,10 @@
     </nav>
 
     <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay position-fixed bg-dark bg-opacity-40" style="z-index: 1050; top: 0; left: 260px; right: 0; bottom: 0; transition: all 0.3s ease; opacity: 0; backdrop-filter: blur(4px);" id="sidebarOverlay"></div>
+    <div class="sidebar-overlay position-fixed bg-dark bg-opacity-50" style="z-index: 1050; top: 0; left: 0; right: 0; bottom: 0; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); opacity: 0; visibility: hidden; backdrop-filter: blur(8px); pointer-events: none;" id="sidebarOverlay"></div>
     
     <!-- Sidebar Wrapper -->
-    <div class="sidebar-wrapper position-fixed h-100" style="left: -260px; width: 260px; z-index: 1049; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); display: none;" id="sidebarWrapper">
+    <div class="sidebar-wrapper position-fixed h-100 top-0" style="z-index: 1051; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);" id="sidebarWrapper">
         <!-- Sidebar -->
         <nav class="sidebar card h-100 border-0 shadow-lg flex-shrink-0" id="staffSidebar" style="width: 100%;">
             <div class="card-body p-0">
