@@ -634,7 +634,6 @@
             localStorage.removeItem('token');
             localStorage.removeItem('userRole');
             localStorage.removeItem('authMode');
-            this.showToast('Logged out successfully');
             setTimeout(() => window.location.href = 'staff-login.html', 1000);
         },
         
