@@ -260,7 +260,7 @@
             const tbody = document.getElementById('staffOrdersTable');
             if (!tbody) return;
             
-            const staffStatuses = ['pending_approval', 'preparing', 'ready_for_pickup'];
+            const staffStatuses = ['pending_approval', 'preparing', 'ready_for_pickup', 'delivered'];
             const formatStatus = (status) => status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             
             tbody.innerHTML = orders.map(order => {
@@ -272,7 +272,7 @@
                         <td>${(order.items || []).map(i => i.menuItem?.name || i.name).slice(0,2).join(', ') || 'Items'}</td>
                         <td>₦${(order.totalAmount || 0).toLocaleString()}</td>
                         <td>
-                            <span class="badge staff-badge-${order.orderStatus === 'pending_approval' ? 'pending' : 'preparing'} fs-6">
+                            <span class="badge staff-badge-${order.orderStatus === 'pending_approval' ? 'pending' : order.orderStatus === 'preparing' ? 'preparing' : order.orderStatus === 'ready_for_pickup' ? 'ready' : 'delivered'} fs-6">
                                 ${formatStatus(order.orderStatus || 'pending')}
                             </span>
                         </td>

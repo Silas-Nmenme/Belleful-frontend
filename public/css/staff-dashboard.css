@@ -70,6 +70,18 @@
     color: #1d4ed8;
 }
 
+.staff-status-delivered,
+.staff-badge-delivered {
+    background-color: #10b981 !important;
+    color: white !important;
+}
+
+.staff-status-ready,
+.staff-badge-ready {
+    background-color: #3b82f6 !important;
+    color: white !important;
+}
+
 /* Status badges for staff - limited view */
 .staff-status-preparing {
     background-color: #10b981;
