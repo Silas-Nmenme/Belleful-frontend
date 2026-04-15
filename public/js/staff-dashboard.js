@@ -29,78 +29,44 @@
         },
         
         // ===== SIDEBAR =====
-initSidebar() {
-            // Ensure DOM is ready
-            const docBody = document.body || document.documentElement;
-            const toggleCheckbox = document.getElementById('sidebar-toggle');
-            const overlay = document.getElementById('sidebarOverlay');
-            const toggleLabel = document.querySelector('.sidebar-toggle');
+/* OLD sidebar toggle functions REMOVED - using inline HTML functions like user-dashboard */
+
+        initSidebar() {
+            // Enhanced responsive handling for new sidebar
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 992) {
+                    window.closeSidebar?.();
+                }
+            });
             
-            if (!toggleCheckbox) {
-                console.warn('Sidebar toggle not found');
-                return;
-            }
-            
-            // Overlay close (pure CSS visual, JS state sync)
-            if (overlay) {
-                overlay.addEventListener('click', () => {
-                    toggleCheckbox.checked = false;
-                });
-            }
-            
-            // Icon swap + desktop state sync only
-            if (toggleLabel) {
-                toggleLabel.addEventListener('click', () => {
-                    // CSS handles sidebar slide, JS syncs body class for desktop margin
-                    setTimeout(() => {
-                        if (toggleCheckbox.checked) {
-                            docBody.classList.add('sidebar-open');
-                            toggleLabel.classList.add('active');
-                        } else {
-                            docBody.classList.remove('sidebar-open');
-                            toggleLabel.classList.remove('active');
-                        }
-                    }, 10);
-                });
-            }
-            
-            // ESC key closes sidebar
-            const escHandler = (e) => {
-                if (e.key === 'Escape' && toggleCheckbox.checked) {
-                    toggleCheckbox.checked = false;
-                    docBody.classList.remove('sidebar-open');
-                    toggleLabel?.classList.remove('active');
+            // ESC key support
+            document.onkeydown = (e) => {
+                if (e.key === 'Escape') {
+                    window.closeSidebar?.();
                 }
             };
-            document.addEventListener('keydown', escHandler);
             
-            // Safe resize handler (replaces broken ResizeObserver)
-            let resizeTimeout;
-            const resizeHandler = () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    if (window.innerWidth >= 992) {
-                        const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-                        if (!collapsed && toggleCheckbox.checked) {
-                            toggleCheckbox.checked = false;
-                            docBody.classList.remove('sidebar-open');
-                            toggleLabel?.classList.remove('active');
-                        }
-                    }
-                }, 150);
+            console.log('✅ Staff sidebar (new system) initialized');
+            
+            if (toggleBtn) toggleBtn.onclick = () => this.toggleSidebar();
+            if (overlay) overlay.onclick = () => this.toggleSidebar();
+            
+            // ESC close
+            document.onkeydown = (e) => {
+                if (e.key === 'Escape' && sidebarWrapper?.classList.contains('active')) {
+                    this.toggleSidebar();
+                }
             };
-            window.addEventListener('resize', resizeHandler);
             
-            // Persisted state
-            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (window.innerWidth >= 992 && isCollapsed) {
-                toggleCheckbox.checked = true;
-                docBody.classList.add('sidebar-open');
-            }
+            // Responsive
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 992) {
+                    sidebarWrapper?.classList.remove('active');
+                }
+            });
             
-            console.log('✅ Fixed responsive sidebar initialized (ResizeObserver → window.resize)');
+            console.log('✅ Staff sidebar initialized');
         },
-
 
         // ===== PROFILE FUNCTIONS =====
         async loadProfile() {
@@ -131,7 +97,7 @@ initSidebar() {
                 document.getElementById('profileName').value = user.name || '';
                 document.getElementById('profileEmail').textContent = user.email || '';
                 document.getElementById('profileRole').value = user.role || 'staff';
-                document.getElementById('profileAvatar').src = user.avatar || '/asset/default-avatar.svg';
+                document.getElementById('profileAvatar').src = user.avatar || '/asset/default-avatar.png';
 
                 // Update header user display
                 const userNameSpan = document.querySelector('.navbar-nav .dropdown-toggle span.d-none.d-md-inline');
@@ -164,59 +130,29 @@ initSidebar() {
             }
         },
 
-showSection(section, event) {
-            // Close sidebar first
-            const toggleCheckbox = document.getElementById('sidebar-toggle');
-            const docBody = document.body || document.documentElement;
-            const toggleLabel = document.querySelector('.sidebar-toggle');
-            
-            toggleCheckbox.checked = false;
-            docBody.classList.remove('sidebar-open');
-            toggleLabel?.classList.remove('active');
-            
-            // Hide all sections
-            document.querySelectorAll('section[id]').forEach(sec => {
-                sec.classList.remove('active');
-                sec.style.display = 'none';
-            });
-            
-            // Update nav active states
-            document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            event?.target?.classList.add('active');
-            
-            // Show target section
-            const targetSection = document.getElementById(section === 'dashboard' ? 'dashboard' : 
-                                    section === 'orders' ? 'orders' : 
-                                    section === 'all-orders' ? 'all-orders' : 
-                                    section === 'profile' ? 'profile' : section);
-            
-            if (targetSection) {
-                targetSection.style.display = 'block';
-                targetSection.classList.add('active');
-                
-                // Load data if needed
-                switch(section) {
-                    case 'dashboard':
-                    case 'orders':
-                    case 'all-orders':
-                        this.loadStaffStats();
-                        if (section === 'orders' || section === 'all-orders') {
-                            this.loadStaffOrders();
-                        }
-                        break;
-                    case 'profile':
-                        this.loadProfile();
-                        break;
-                }
-            }
+        showProfileForm() {
+            this.toggleSidebar(); // Close sidebar
+            document.getElementById('staff-orders').style.display = 'none';
+            document.getElementById('staff-stats').style.display = 'none';
+            document.getElementById('staff-profile').style.display = 'block';
+            if (!this.currentUser) this.loadProfile();
         },
 
-        
-        // Legacy compatibility
-        showProfileForm() { this.showSection('profile'); },
-        hideProfileForm() { this.showSection('dashboard'); },
+        hideProfileForm() {
+            document.getElementById('staff-profile').style.display = 'none';
+            document.getElementById('staff-orders').style.display = 'block';
+            document.getElementById('staff-stats').style.display = 'block';
+        },
+
+        showSection(section) {
+            this.toggleSidebar(); // Close sidebar
+            if (section === 'orders') {
+                document.getElementById('staff-profile').style.display = 'none';
+                document.getElementById('staff-orders').style.display = 'block';
+                document.getElementById('staff-stats').style.display = 'block';
+                this.loadStaffOrders();
+            }
+        },
 
         
         // ===== MAIN DASHBOARD LOAD =====
