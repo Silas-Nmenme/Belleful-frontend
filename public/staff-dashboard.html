@@ -156,57 +156,10 @@
     <script src="js/constants.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/staff-dashboard.js"></script>
-<script>
+    <script>
         AOS.init();
-        
-        // Safe async initialization with polling for managers
-        async function initStaffDashboard() {
-            let attempts = 0;
-            const maxAttempts = 50; // ~5s timeout
-            
-            while (attempts < maxAttempts) {
-                if (window.StaffAuthManager?.checkStaffAuth && window.StaffDashboardManager?.initSidebar) {
-                    try {
-                        // Init sidebar first
-                        window.StaffDashboardManager.initSidebar();
-                        
-                        // Check auth
-                        const isAuthenticated = await window.StaffAuthManager.checkStaffAuth();
-                        if (!isAuthenticated) {
-                            console.log('Staff not authenticated, redirecting...');
-                            return;
-                        }
-                        
-                        // Load full dashboard
-                        await window.StaffDashboardManager.loadStaffDashboard();
-                        console.log('✅ Staff dashboard fully loaded');
-                        return;
-                    } catch (error) {
-                        console.error('Staff init error:', error);
-                        // Continue polling on non-critical errors
-                    }
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
-            }
-            
-            // Fallback: Load dashboard without strict auth (dev/prod safety)
-            console.warn('Staff managers timeout - loading dashboard in fallback mode');
-            if (window.StaffDashboardManager?.initSidebar) {
-                window.StaffDashboardManager.initSidebar();
-            }
-            if (window.StaffDashboardManager?.loadStaffDashboard) {
-                window.StaffDashboardManager.loadStaffDashboard();
-            }
-        }
-        
-        // Init on DOM ready OR immediately if already loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initStaffDashboard);
-        } else {
-            initStaffDashboard();
-        }
+        // StaffDashboardManager auto-initializes on DOMContentLoaded
+        // No manual polling needed - handles auth/stats safely
     </script>
 </body>
 </html>

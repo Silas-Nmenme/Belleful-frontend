@@ -8,6 +8,26 @@
         isStaffMode: true,
         currentPage: 1,
         
+        // ===== CORE INIT =====
+        init() {
+            // Safe DOM ready wrapper
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => this._safeInit());
+            } else {
+                this._safeInit();
+            }
+        },
+        
+        _safeInit() {
+            try {
+                this.initSidebar();
+                this.loadStaffDashboard();
+                console.log('✅ StaffDashboardManager fully initialized');
+            } catch (error) {
+                console.error('Staff dashboard init error:', error);
+            }
+        },
+        
         // ===== SIDEBAR =====
         initSidebar() {
             const sidebarWrapper = document.querySelector('.sidebar-wrapper');
@@ -18,11 +38,10 @@
             if (!sidebarWrapper || !toggleBtn) return console.warn('Staff sidebar not found');
             
             const toggleSidebar = () => {
-                const isActive = sidebarWrapper.classList.contains('active');
                 sidebarWrapper.classList.toggle('active');
                 overlay?.classList.toggle('active');
                 toggleBtn.classList.toggle('active');
-                console.log('Staff sidebar toggled:', !isActive ? 'OPEN' : 'CLOSED');
+                console.log('Staff sidebar toggled');
             };
             
             toggleBtn.onclick = toggleSidebar;
@@ -36,6 +55,14 @@
         
         // ===== MAIN DASHBOARD LOAD =====
         async loadStaffDashboard() {
+            // Simple token check - no StaffAuthManager needed
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.warn('No auth token - stats fallback');
+                this.loadStaffStatsFallback();
+                return;
+            }
+            
             await Promise.all([
                 this.loadStaffStats(),
                 this.loadStaffOrders()
@@ -77,7 +104,6 @@
                     </div>
                 `;
                 
-                // Fetch real stats from backend
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${window.API_BASE || '/api'}/staff/stats`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -90,8 +116,14 @@
                 
             } catch (error) {
                 console.error('Staff stats error:', error);
-                container.innerHTML = '<div class="col-12 text-center py-5 text-staff-primary"><i class="fas fa-info-circle fa-2x mb-3"></i><h5>Stats loading...</h5></div>';
+                this.loadStaffStatsFallback();
             }
+        },
+        
+        loadStaffStatsFallback() {
+            const container = document.getElementById('staffStats');
+            if (!container) return;
+            container.innerHTML = '<div class="col-12 text-center py-5 text-staff-primary"><i class="fas fa-info-circle fa-2x mb-3"></i><h5>Stats unavailable (check login/backend)</h5></div>';
         },
         
         // ===== STAFF ORDERS TABLE =====
@@ -105,22 +137,22 @@
             
             try {
                 const token = localStorage.getItem('token');
-            const searchTerm = document.getElementById('staffOrdersSearch')?.value || '';
-            const statusFilter = document.getElementById('staffOrderStatusFilter')?.value || '';
-            const params = new URLSearchParams({ 
-              page, 
-              limit: 20, 
-              ...(searchTerm && { search: searchTerm }), 
-              ...(statusFilter && { status: statusFilter }) 
-            });
-            
-            const response = await fetch(`${window.API_BASE || '/api'}/staff/orders?${params}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const searchTerm = document.getElementById('staffOrdersSearch')?.value || '';
+                const statusFilter = document.getElementById('staffOrderStatusFilter')?.value || '';
+                const params = new URLSearchParams({ 
+                  page, 
+                  limit: 20, 
+                  ...(searchTerm && { search: searchTerm }), 
+                  ...(statusFilter && { status: statusFilter }) 
                 });
                 
+                const response = await fetch(`${window.API_BASE || '/api'}/staff/orders?${params}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
                 if (!response.ok) {
                     if (response.status === 403) {
-                        showStaffToast('Staff access denied. Redirecting...', 'danger');
+                        this.showToast('Staff access denied. Redirecting...', 'danger');
                         setTimeout(() => window.location.href = 'staff-login.html', 1500);
                         return;
                     }
@@ -135,7 +167,7 @@
             } catch (error) {
                 console.error('Staff orders error:', error);
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-3"></i>Failed to load orders</td></tr>';
-                showStaffToast('Failed to load orders: ' + error.message, 'danger');
+                this.showToast('Failed to load orders: ' + error.message, 'danger');
             }
         },
         
@@ -143,7 +175,6 @@
             const tbody = document.getElementById('staffOrdersTable');
             if (!tbody) return;
             
-            // STAFF-ONLY statuses
             const staffStatuses = ['pending_approval', 'preparing', 'ready_for_pickup'];
             const formatStatus = (status) => status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             
@@ -197,14 +228,14 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    showStaffToast(`Order #${orderId.slice(-8)} → ${status.replace('_', ' ').toUpperCase()}`, 'success');
+                    this.showToast(`Order #${orderId.slice(-8)} → ${status.replace('_', ' ').toUpperCase()}`, 'success');
                     this.loadStaffOrders(1);
                 } else {
                     throw new Error(result.message || 'Update failed');
                 }
             } catch (error) {
                 console.error('Staff status update error:', error);
-                showStaffToast(`Update failed: ${error.message}`, 'danger');
+                this.showToast(`Update failed: ${error.message}`, 'danger');
                 if (dropdown) dropdown.disabled = false;
             }
         },
@@ -273,34 +304,39 @@
             localStorage.removeItem('token');
             localStorage.removeItem('userRole');
             localStorage.removeItem('authMode');
-            showStaffToast('Logged out successfully');
+            this.showToast('Logged out successfully');
             setTimeout(() => window.location.href = 'staff-login.html', 1000);
+        },
+        
+        // ===== TOAST UTILITY =====
+        showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `position-fixed top-4 end-4 p-3 z-1055`;
+            toast.style.cssText = `top: 100px; right: 20px; z-index: 9999; max-width: 400px;`;
+            toast.innerHTML = `
+                <div class="alert alert-${type === 'success' ? 'success' : type === 'danger' ? 'danger' : 'info'} border-0 alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                const alert = toast.querySelector('.alert');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                    toast.remove();
+                }
+            }, 5000);
         }
     };
     
-    // Staff toast utility
-    window.showStaffToast = function(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `position-fixed top-4 end-4 p-3 z-1055`;
-        toast.style.cssText = `top: 100px; right: 20px; z-index: 9999; max-width: 400px;`;
-        toast.innerHTML = `
-            <div class="alert alert-${type === 'success' ? 'success' : type === 'danger' ? 'danger' : 'info'} border-0 alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            const alert = toast.querySelector('.alert');
-            if (alert) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-                toast.remove();
-            }
-        }, 5000);
-    };
+    // AUTO-INIT on script load
+    if (window.StaffDashboardManager) {
+        window.StaffDashboardManager.init();
+    }
     
-    console.log('✅ Staff Dashboard Manager loaded - Backend staff features ready');
+    console.log('✅ Staff Dashboard Manager loaded - Auto-init enabled');
 })();
 
