@@ -304,32 +304,32 @@
             
             try {
                 container.innerHTML = `
-<div class="col-6 col-sm-6 col-md-6 col-lg-6 mb-3 mb-sm-4">
-                            <div class="card staff-stats-card shadow h-100">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col">
-                                            <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Total Orders</div>
-                                            <div class="h4 mb-0" id="staffPendingCount">0</div>
-                                        </div>
-                                        <div class="col-auto"><i class="fas fa-clock fa-2x opacity-75"></i></div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card staff-stats-card shadow h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Total Orders</div>
+                                        <div class="h4 mb-0" id="staffPendingCount">0</div>
                                     </div>
+                                    <div class="col-auto"><i class="fas fa-clock fa-2x opacity-75"></i></div>
                                 </div>
                             </div>
                         </div>
-<div class="col-6 col-sm-6 col-md-6 col-lg-6 mb-3 mb-sm-4">
-                            <div class="card staff-stats-card shadow h-100">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col">
-                                            <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Preparing</div>
-                                            <div class="h4 mb-0" id="staffPreparingCount">0</div>
-                                        </div>
-                                        <div class="col-auto"><i class="fas fa-utensils fa-2x opacity-75"></i></div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card staff-stats-card shadow h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Preparing</div>
+                                        <div class="h4 mb-0" id="staffPreparingCount">0</div>
                                     </div>
+                                    <div class="col-auto"><i class="fas fa-utensils fa-2x opacity-75"></i></div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                 `;
                 
                 const token = localStorage.getItem('token');
@@ -341,15 +341,6 @@
 
                 document.getElementById('staffPendingCount').textContent = stats.pendingApproval || 0;
                 document.getElementById('staffPreparingCount').textContent = stats.preparing || 0;
-                
-                // Ensure cards visible after stats load
-                setTimeout(() => {
-                    const statsSection = document.getElementById('staff-stats');
-                    if (statsSection) {
-                        const navbarHeight = document.querySelector('.navbar')?.getBoundingClientRect().height || 80;
-                        window.scrollTo({ top: statsSection.offsetTop - navbarHeight - 20, behavior: 'smooth' });
-                    }
-                }, 100);
                 
             } catch (error) {
                 console.error('Staff stats error:', error);
@@ -408,16 +399,33 @@
             }
         },
         
+        getAllowedStatuses(currentStatus) {
+            const transitions = {
+                'pending_approval': ['preparing'],
+                'preparing': ['ready_for_pickup'],
+                'ready_for_pickup': ['delivered'],
+                'delivered': ['preparing', 'cancelled']
+            };
+            return transitions[currentStatus] || [];
+        },
+
         renderStaffOrdersTable(orders) {
             const tbody = document.getElementById('staffOrdersTable');
             if (!tbody) return;
             
-            const staffStatuses = ['pending_approval', 'preparing', 'ready_for_pickup', 'delivered'];
+            const allStatuses = ['pending_approval', 'preparing', 'ready_for_pickup', 'delivered', 'cancelled'];
             const formatStatus = (status) => status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             
             tbody.innerHTML = orders.map(order => {
                 const safeId = order._id?.slice(-8) || '';
                 const hasReceipt = order.receiptImage;
+                const currentStatus = order.orderStatus || 'pending_approval';
+                const allowedNext = this.getAllowedStatuses(currentStatus);
+                const dropdownOptions = [currentStatus, ...allowedNext].map(s => 
+                    `<option value="${s}" ${currentStatus === s ? 'selected' : ''}>${formatStatus(s)}</option>`
+                ).join('');
+                const isDisabled = allowedNext.length === 0;
+                
                 return `
                     <tr>
                         <td>#${safeId}</td>
@@ -431,18 +439,18 @@
                             '<span class="text-muted small"><i class="fas fa-receipt-slash"></i> None</span>'
                         }</td>
                         <td>
-                            <span class="badge staff-badge-${order.orderStatus === 'pending_approval' ? 'pending' : order.orderStatus === 'preparing' ? 'preparing' : order.orderStatus === 'ready_for_pickup' ? 'ready' : 'delivered'} fs-6">
-                                ${formatStatus(order.orderStatus || 'pending')}
+                            <span class="badge staff-badge-${currentStatus === 'pending_approval' ? 'pending' : currentStatus === 'preparing' ? 'preparing' : currentStatus === 'ready_for_pickup' ? 'ready' : 'delivered'} fs-6">
+                                ${formatStatus(currentStatus)}
                             </span>
                         </td>
                         <td>
                             <button class="btn btn-outline-staff-primary btn-sm me-1" onclick="StaffDashboardManager.viewStaffOrder('${order._id}')" title="View order details">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <select class="form-select form-select-sm d-inline-block w-auto" style="width: 140px;" onchange="StaffDashboardManager.updateStaffOrderStatus('${order._id}', this.value)" title="Update status (staff permissions only)">
-                                ${staffStatuses.map(s => 
-                                    `<option value="${s}" ${order.orderStatus === s ? 'selected' : ''}>${formatStatus(s)}</option>`
-                                ).join('')}
+                            <select class="form-select form-select-sm d-inline-block w-auto" style="width: 140px;" 
+                                    ${isDisabled ? 'disabled' : `onchange="StaffDashboardManager.updateStaffOrderStatus('${order._id}', this.value)"`} 
+                                    title="${isDisabled ? 'No status changes available' : 'Update status (staff permissions)'}">
+                                ${isDisabled ? '<option>Complete</option>' : dropdownOptions}
                             </select>
                         </td>
                     </tr>
