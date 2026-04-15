@@ -74,7 +74,7 @@ toggleSidebar() {
             }
 
             try {
-                const response = await fetch(`${window.API_BASE || '/api'}/profile`, {
+                const response = await fetch(`${window.API_BASE || '/api'}/auth/profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -416,7 +416,7 @@ toggleSidebar() {
                 const formData = new FormData(form);
                 const token = localStorage.getItem('token');
 
-                const response = await fetch(`${window.API_BASE || '/api'}/profile`, {
+                const response = await fetch(`${window.API_BASE || '/api'}/auth/profile`, {
                     method: 'PUT',
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: formData
