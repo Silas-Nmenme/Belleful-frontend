@@ -241,7 +241,7 @@
             const countEl = document.getElementById('staffPendingCount');
             if (!tbody) return;
             
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3"><div class="spinner-border text-staff-primary staff-loader" role="status"></div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3"><div class="spinner-border text-staff-primary staff-loader" role="status"></div></td></tr>';
             
             try {
                 const token = localStorage.getItem('token');
@@ -274,7 +274,7 @@
                 
             } catch (error) {
                 console.error('Staff orders error:', error);
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-3"></i>Failed to load orders</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-3"></i>Failed to load orders</td></tr>';
                 this.showToast('Failed to load orders: ' + error.message, 'danger');
             }
         },
