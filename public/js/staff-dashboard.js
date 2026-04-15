@@ -304,32 +304,32 @@
             
             try {
                 container.innerHTML = `
-                    <div class="col-md-6 mb-4">
-                        <div class="card staff-stats-card shadow h-100">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col">
-                                        <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Total Orders</div>
-                                        <div class="h4 mb-0" id="staffPendingCount">0</div>
+<div class="col-6 col-sm-6 col-md-6 col-lg-6 mb-3 mb-sm-4">
+                            <div class="card staff-stats-card shadow h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Total Orders</div>
+                                            <div class="h4 mb-0" id="staffPendingCount">0</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-clock fa-2x opacity-75"></i></div>
                                     </div>
-                                    <div class="col-auto"><i class="fas fa-clock fa-2x opacity-75"></i></div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card staff-stats-card shadow h-100">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col">
-                                        <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Preparing</div>
-                                        <div class="h4 mb-0" id="staffPreparingCount">0</div>
+<div class="col-6 col-sm-6 col-md-6 col-lg-6 mb-3 mb-sm-4">
+                            <div class="card staff-stats-card shadow h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Preparing</div>
+                                            <div class="h4 mb-0" id="staffPreparingCount">0</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-utensils fa-2x opacity-75"></i></div>
                                     </div>
-                                    <div class="col-auto"><i class="fas fa-utensils fa-2x opacity-75"></i></div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                 `;
                 
                 const token = localStorage.getItem('token');
