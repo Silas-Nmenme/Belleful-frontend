@@ -108,7 +108,10 @@
                 <a href="#staff-orders" class="nav-link" onclick="setActiveNav('staff-orders')">
                     <i class="fas fa-clock"></i><span>Pending Orders</span>
                 </a>
-<a href="#staff-profile" class="nav-link" onclick="setActiveNav('staff-profile'); StaffDashboardManager?.showProfileModal?.();">
+                <a href="#staff-receipts" class="nav-link" onclick="setActiveNav('staff-receipts')">
+                    <i class="fas fa-receipt"></i><span>Receipts</span>
+                </a>
+                <a href="#staff-profile" class="nav-link" onclick="setActiveNav('staff-profile'); StaffDashboardManager?.showProfileModal?.();">
                     <i class="fas fa-user-cog"></i><span>Profile & Settings</span>
                 </a>
                 <a href="#" class="nav-link text-danger" onclick="closeSidebar(); StaffDashboardManager?.logout?.() || logout()">
@@ -137,6 +140,65 @@
                             <span class="badge bg-light text-staff-primary ms-2" id="staffPendingCount">0</span>
                         </h4>
                     </div>
+                    <!-- Receipts Section -->
+                    <section id="staff-receipts" style="display: none;">
+                        <div class="card shadow-xl border-0 rounded-4 mb-5 mt-4">
+                            <div class="card-header bg-warning text-dark">
+                                <h4 class="mb-0 fw-bold">
+                                    <i class="fas fa-receipt me-2"></i>Uploaded Payment Receipts
+                                    <span class="badge bg-light text-warning ms-2" id="staffReceiptCount">0</span>
+                                </h4>
+                            </div>
+                            <div class="card-body p-0">
+                                <!-- Receipts Filter -->
+                                <div class="p-4 border-bottom">
+                                    <div class="row g-3">
+                                        <div class="col-md-5">
+                                            <input type="text" class="form-control" id="staffReceiptSearch" placeholder="Search receipts by customer/order ID...">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <select class="form-select" id="staffReceiptStatusFilter" onchange="StaffDashboardManager?.loadStaffReceipts()">
+                                                <option value="">All Statuses</option>
+                                                <option value="pending_approval">Pending Approval</option>
+                                                <option value="preparing">Preparing</option>
+                                                <option value="ready_for_pickup">Ready/Pickup</option>
+                                                <option value="delivered">Delivered</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-outline-warning" onclick="StaffDashboardManager?.loadStaffReceipts()">
+                                                <i class="fas fa-refresh"></i> Refresh
+                                            </button>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-warning btn-sm" onclick="StaffDashboardManager?.loadStaffReceipts(1, true)" title="View Unread/New">
+                                                <i class="fas fa-inbox"></i> New
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Receipts Table -->
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-warning">
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Customer</th>
+                                                <th>Total Amount</th>
+                                                <th>Status</th>
+                                                <th>Receipt</th>
+                                                <th>Date</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="staffReceiptsTable">
+                                            <tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-receipt-slash fa-3x mb-3"></i><p>No receipts found</p></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                     <div class="card-body p-0">
                         <!-- Orders Filter -->
                         <div class="p-4 border-bottom">

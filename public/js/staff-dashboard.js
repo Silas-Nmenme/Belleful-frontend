@@ -150,12 +150,132 @@
 
         showSection(section) {            
             window.toggleSidebar?.(); // Close sidebar
+            // Hide all sections first
+            document.querySelectorAll('section[id^=staff-]').forEach(s => s.style.display = 'none');
+            document.getElementById('staff-stats') && (document.getElementById('staff-stats').style.display = 'block');
+            
             if (section === 'orders') {
-                document.getElementById('staff-profile').style.display = 'none';
                 document.getElementById('staff-orders').style.display = 'block';
-                document.getElementById('staff-stats').style.display = 'block';
                 this.loadStaffOrders();
+            } else if (section === 'staff-receipts') {
+                document.getElementById('staff-receipts').style.display = 'block';
+                this.loadStaffReceipts();
             }
+        },
+
+        // ===== STAFF RECEIPTS =====
+        async loadStaffReceipts(page = 1, hasReceipt = false) {
+            const tbody = document.getElementById('staffReceiptsTable');
+            const countEl = document.getElementById('staffReceiptCount');
+            if (!tbody) return;
+
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3"><div class="spinner-border text-warning" role="status"></div></td></tr>';
+
+            try {
+                const token = localStorage.getItem('token');
+                const searchTerm = document.getElementById('staffReceiptSearch')?.value || '';
+                const statusFilter = document.getElementById('staffReceiptStatusFilter')?.value || '';
+                const params = new URLSearchParams({ 
+                    page, 
+                    limit: 20, 
+                    ...(searchTerm && { search: searchTerm }),
+                    ...(statusFilter && { status: statusFilter }),
+                    ...(hasReceipt !== false && { hasReceipt: 'true' })
+                });
+
+                const response = await fetch(`${window.API_BASE || '/api'}/staff/orders?${params}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+                const orders = (result.data || []).filter(order => order.receiptImage); // Only with receipts
+                this.renderStaffReceiptsTable(orders);
+                if (countEl) countEl.textContent = orders.length;
+
+            } catch (error) {
+                console.error('Staff receipts error:', error);
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-3"></i>Failed to load receipts</td></tr>';
+                this.showToast('Failed to load receipts: ' + error.message, 'danger');
+            }
+        },
+
+        renderStaffReceiptsTable(orders) {
+            const tbody = document.getElementById('staffReceiptsTable');
+            if (!tbody) return;
+
+            const formatStatus = (status) => status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const formatDate = (date) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+            tbody.innerHTML = orders.map(order => {
+                const safeId = order._id?.slice(-8) || '';
+                return `
+                    <tr>
+                        <td>#${safeId}</td>
+                        <td>${order.user?.name || 'Customer'}</td>
+                        <td>₦${(order.totalAmount || 0).toLocaleString()}</td>
+                        <td><span class="badge bg-${order.orderStatus === 'pending_approval' ? 'warning' : 'info'}">${formatStatus(order.orderStatus)}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-success" onclick="StaffDashboardManager.showReceiptPreview('${order.receiptImage}')" title="View Receipt" aria-label="View payment receipt">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </td>
+                        <td>${formatDate(order.createdAt)}</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm" onclick="StaffDashboardManager.viewStaffOrder('${order._id}')" title="Order Details">
+                                <i class="fas fa-file-invoice"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-receipt-slash fa-3x mb-3 opacity-50"></i><div class="h6">No receipts match your filter</div></td></tr>';
+        },
+
+        showReceiptPreview(url) {
+            if (!url) {
+                this.showToast('No receipt available', 'warning');
+                return;
+            }
+
+            // Create modal if not exists
+            let modalEl = document.getElementById('staffReceiptModal');
+            if (!modalEl) {
+                modalEl = document.createElement('div');
+                modalEl.id = 'staffReceiptModal';
+                modalEl.className = 'modal fade';
+                modalEl.innerHTML = `
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-receipt me-2"></i>Payment Receipt Preview
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4 text-center">
+                                <img src="${url}" alt="Payment Receipt" class="img-fluid rounded shadow staff-receipt-preview" style="max-height: 70vh; max-width: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentNode.innerHTML='<p class=\\'text-muted\\'>Receipt image failed to load</p>';">
+                            </div>
+                            <div class="modal-footer">
+                                <a href="${url}" target="_blank" class="btn btn-outline-success">
+                                    <i class="fas fa-external-link-alt me-1"></i>Open Full Size
+                                </a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modalEl);
+            } else {
+                // Update image src
+                const img = modalEl.querySelector('img');
+                if (img) img.src = url;
+            }
+
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
         },
 
         
@@ -288,12 +408,19 @@
             
             tbody.innerHTML = orders.map(order => {
                 const safeId = order._id?.slice(-8) || '';
+                const hasReceipt = order.receiptImage;
                 return `
                     <tr>
                         <td>#${safeId}</td>
                         <td>${order.user?.name || 'Customer'}</td>
                         <td>${(order.items || []).map(i => i.menuItem?.name || i.name).slice(0,2).join(', ') || 'Items'}</td>
                         <td>₦${(order.totalAmount || 0).toLocaleString()}</td>
+                        <td>${hasReceipt ? 
+                            `<button class="btn btn-sm btn-success" onclick="StaffDashboardManager.showReceiptPreview('${order.receiptImage}')" title="View Receipt" aria-label="View payment receipt">
+                                <i class="fas fa-eye"></i>
+                            </button>` : 
+                            '<span class="text-muted small"><i class="fas fa-receipt-slash"></i> None</span>'
+                        }</td>
                         <td>
                             <span class="badge staff-badge-${order.orderStatus === 'pending_approval' ? 'pending' : order.orderStatus === 'preparing' ? 'preparing' : order.orderStatus === 'ready_for_pickup' ? 'ready' : 'delivered'} fs-6">
                                 ${formatStatus(order.orderStatus || 'pending')}
@@ -311,7 +438,8 @@
                         </td>
                     </tr>
                 `;
-            }).join('') || '<tr><td colspan="6" class="text-center py-5 text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-50"></i><div class="h6">No pending orders</div></td></tr>';
+            }).join('') || '<tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-50"></i><div class="h6">No pending orders</div></td></tr>';
+        },
         },
         
         // ===== STAFF ORDER STATUS UPDATE =====
@@ -366,6 +494,26 @@
                 const result = await response.json();
                 const order = result.data || result;
                 
+                let receiptSection = '';
+                if (order.receiptImage) {
+                    receiptSection = `
+                        <div class="mb-4" id="orderReceiptSection">
+                            <h6 class="mb-3"><i class="fas fa-receipt text-success me-2"></i>Payment Receipt</h6>
+                            <div class="text-center p-4 border rounded shadow-sm bg-light">
+                                <img src="${order.receiptImage}" alt="Payment Receipt" class="img-fluid rounded shadow" style="max-height: 400px; max-width: 100%; object-fit: contain;" onerror="this.style.display='none'; document.getElementById('orderReceiptSection').innerHTML='<p class=\\"text-muted\\">Receipt image not available</p>';">
+                            </div>
+                            <div class="text-center mt-2">
+                                <button class="btn btn-outline-success btn-sm" onclick="StaffDashboardManager.showReceiptPreview('${order.receiptImage}')">
+                                    <i class="fas fa-expand me-1"></i>Full Preview
+                                </button>
+                                <a href="${order.receiptImage}" target="_blank" class="btn btn-success btn-sm ms-1">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+                
                 modalBody.innerHTML = `
                     <div class="row mb-4">
                         <div class="col-md-6">
@@ -378,6 +526,7 @@
                             <p><strong>Phone:</strong> ${order.phoneNumber || 'N/A'}</p>
                         </div>
                     </div>
+                    ${receiptSection}
                     <h6 class="mb-3"><i class="fas fa-utensils me-2"></i>Items:</h6>
                     <div class="row g-3 mb-4">
                         ${order.items?.map(item => `

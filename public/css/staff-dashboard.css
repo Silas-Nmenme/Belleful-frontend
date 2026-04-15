@@ -93,6 +93,32 @@
     color: white;
 }
 
+/* Receipts styles */
+.staff-receipt-preview {
+    border: 2px solid #10b981;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.staff-receipt-preview:hover {
+    transform: scale(1.02);
+}
+
+.staff-has-receipt {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+}
+
+/* Receipts table */
+.table-warning thead {
+    --bs-table-bg: #fff3cd;
+}
+
+.staff-badge-receipt {
+    background-color: #10b981;
+    color: white;
+}
+
 /* Loading spinner */
 .staff-loader {
     color: #4f46e5;
