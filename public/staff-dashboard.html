@@ -33,19 +33,18 @@
             }
         };
 
-window.toggleSidebar = function() {
+        window.toggleSidebar = function() {
             const sidebar = document.getElementById('staffSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
-            const isOpen = sidebar?.classList.contains('show') ?? false;
-            
-            if (isOpen) {
-                sidebar?.classList.remove('show');
-                backdrop?.classList.remove('show');
+            const isOpen = sidebar && sidebar.classList.contains('show');
+            if (sidebar) sidebar.classList.toggle('show');
+            if (backdrop) {
+                backdrop.classList.toggle('show', !isOpen);
+            }
+            if (!sidebar?.classList?.contains('show')) {
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';
             } else {
-                sidebar?.classList.add('show');
-                backdrop?.classList.add('show');
                 document.body.style.overflow = 'hidden';
                 const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
                 document.body.style.paddingRight = scrollBarWidth + 'px';
@@ -341,16 +340,6 @@ window.toggleSidebar = function() {
     <script src="js/auth.js"></script>
     <script src="js/staff-dashboard.js"></script>
     <script>
-        // Global outside-click handler for sidebar (robust fallback)
-        document.addEventListener('click', function(e) {
-            const sidebar = document.getElementById('staffSidebar');
-            const toggleBtn = document.querySelector('.sidebar-toggle');
-            const isClickInside = sidebar?.contains(e.target) || toggleBtn?.contains(e.target);
-            if (sidebar?.classList.contains('show') && !isClickInside) {
-                window.closeSidebar();
-            }
-        }, { passive: true });
-        
         AOS.init();
         // StaffDashboardManager auto-initializes
     </script>
