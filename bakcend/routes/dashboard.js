@@ -17,6 +17,11 @@ router.get('/admin/stats', dashboardController.getAdminStats);
 router.get('/admin/top-items', dashboardController.getTopItems);
 router.get('/admin/users', dashboardController.getAdminUsers);
 
+// Staff dashboard routes
+router.use(isStaff);
+router.get('/staff/stats', require('../controllers/staffController').getStaffStats);
+router.get('/staff/orders', require('../controllers/staffController').getPendingOrders);
+
 module.exports = router;
 
 
