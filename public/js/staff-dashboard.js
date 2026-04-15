@@ -166,7 +166,7 @@
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Pending Orders</div>
+                                        <div class="text-xs font-weight-bold text-staff-primary text-uppercase mb-1">Total Orders</div>
                                         <div class="h4 mb-0" id="staffPendingCount">0</div>
                                     </div>
                                     <div class="col-auto"><i class="fas fa-clock fa-2x opacity-75"></i></div>
