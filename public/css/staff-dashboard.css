@@ -187,15 +187,40 @@
 }
 
 /* Fixed sidebar toggle */
+/* Sidebar Base States */
+.sidebar-wrapper {
+    display: none;
+}
+
 .sidebar-wrapper.active {
+    display: flex !important;
     left: 0 !important;
-    display: block !important;
 }
 
 .sidebar-overlay.active {
-    display: block !important;
-    opacity: 1 !important;
-    pointer-events: auto;
+    opacity: 0.7 !important;
+    pointer-events: auto !important;
+}
+
+body.sidebar-open .main-content {
+    margin-left: 260px;
+}
+
+@media (max-width: 991px) {
+    body.sidebar-open .main-content {
+        margin-left: 0 !important;
+    }
+    
+    .sidebar-wrapper.active {
+        left: 0 !important;
+        width: 80vw !important;
+        max-width: 320px;
+    }
+    
+    .sidebar-overlay.active {
+        left: 0 !important;
+        width: 100vw !important;
+    }
 }
 
 @media (min-width: 992px) {

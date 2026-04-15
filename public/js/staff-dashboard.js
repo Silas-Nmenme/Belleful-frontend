@@ -30,33 +30,23 @@
         
         // ===== SIDEBAR =====
 toggleSidebar() {
-            const sidebarWrapper = document.querySelector('.sidebar-wrapper');
-            const overlay = document.querySelector('.sidebar-overlay');
+            const sidebarWrapper = document.getElementById('sidebarWrapper');
+            const overlay = document.getElementById('sidebarOverlay');
             const toggleBtn = document.querySelector('.sidebar-toggle');
+            const body = document.body;
             
             const isOpen = sidebarWrapper.classList.contains('active');
             
-            if (isOpen) {
-                sidebarWrapper.classList.remove('active');
-                sidebarWrapper.style.display = 'none';
-                overlay?.classList.remove('active');
-                if (overlay) overlay.style.display = 'none';
-                toggleBtn?.classList.remove('active');
-                document.body.classList.remove('sidebar-open');
-            } else {
-                sidebarWrapper.classList.add('active');
-                sidebarWrapper.style.display = 'block';
-                overlay?.classList.add('active');
-                if (overlay) overlay.style.display = 'block';
-                toggleBtn?.classList.add('active');
-                document.body.classList.add('sidebar-open');
-            }
+            sidebarWrapper.classList.toggle('active');
+            overlay?.classList.toggle('active');
+            toggleBtn?.classList.toggle('active');
+            body.classList.toggle('sidebar-open');
         },
 
-        initSidebar() {
+initSidebar() {
             const toggleBtn = document.querySelector('.sidebar-toggle');
-            const overlay = document.querySelector('.sidebar-overlay');
-            const sidebarWrapper = document.querySelector('.sidebar-wrapper');
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebarWrapper = document.getElementById('sidebarWrapper');
             
             if (toggleBtn) toggleBtn.onclick = () => this.toggleSidebar();
             if (overlay) overlay.onclick = () => this.toggleSidebar();
@@ -68,10 +58,12 @@ toggleSidebar() {
                 }
             };
             
-            // Responsive
+            // Responsive - close on desktop
             window.addEventListener('resize', () => {
                 if (window.innerWidth >= 992) {
                     sidebarWrapper?.classList.remove('active');
+                    overlay?.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
                 }
             });
             
