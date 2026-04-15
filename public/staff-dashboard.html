@@ -36,15 +36,28 @@
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('staffSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
+            const isOpen = sidebar && sidebar.classList.contains('show');
             if (sidebar) sidebar.classList.toggle('show');
-            if (backdrop) backdrop.style.display = sidebar?.classList?.contains('show') ? 'block' : 'none';
+            if (backdrop) {
+                backdrop.classList.toggle('show', !isOpen);
+            }
+            if (!sidebar?.classList?.contains('show')) {
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            } else {
+                document.body.style.overflow = 'hidden';
+                const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+                document.body.style.paddingRight = scrollBarWidth + 'px';
+            }
         };
 
         window.closeSidebar = function() {
             const sidebar = document.getElementById('staffSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
             if (sidebar) sidebar.classList.remove('show');
-            if (backdrop) backdrop.style.display = 'none';
+            if (backdrop) backdrop.classList.remove('show');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         };
 
         // Responsive auto-close
