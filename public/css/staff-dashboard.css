@@ -254,10 +254,12 @@ body {
   }
   
   #sidebarBackdrop.sidebar-backdrop.show,
-  #staffSidebar.show ~ #sidebarBackdrop {
+  #staffSidebar.show ~ #sidebarBackdrop,
+  #sidebarBackdrop.show {
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: all !important;
+    cursor: pointer !important;
   }
 
   /* Prevent body scroll */
