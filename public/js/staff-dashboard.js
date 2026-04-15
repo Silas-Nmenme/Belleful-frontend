@@ -29,29 +29,42 @@
         },
         
         // ===== SIDEBAR =====
-        initSidebar() {
+toggleSidebar() {
             const sidebarWrapper = document.querySelector('.sidebar-wrapper');
-            const sidebar = document.getElementById('staffSidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+            
+            sidebarWrapper.classList.toggle('active');
+            overlay?.classList.toggle('active');
+            toggleBtn?.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+        },
+
+        initSidebar() {
             const toggleBtn = document.querySelector('.sidebar-toggle');
             const overlay = document.querySelector('.sidebar-overlay');
+            const sidebarWrapper = document.querySelector('.sidebar-wrapper');
             
-            if (!sidebarWrapper || !toggleBtn) return console.warn('Staff sidebar not found');
+            if (toggleBtn) toggleBtn.onclick = () => this.toggleSidebar();
+            if (overlay) overlay.onclick = () => this.toggleSidebar();
             
-            const toggleSidebar = () => {
-                sidebarWrapper.classList.toggle('active');
-                overlay?.classList.toggle('active');
-                toggleBtn.classList.toggle('active');
-                console.log('Staff sidebar toggled');
-            };
-            
-            toggleBtn.onclick = toggleSidebar;
-            overlay?.onclick = () => sidebarWrapper.classList.remove('active');
+            // ESC close
             document.onkeydown = (e) => {
-                if (e.key === 'Escape') sidebarWrapper.classList.remove('active');
+                if (e.key === 'Escape' && sidebarWrapper?.classList.contains('active')) {
+                    this.toggleSidebar();
+                }
             };
+            
+            // Responsive
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 992) {
+                    sidebarWrapper?.classList.remove('active');
+                }
+            });
             
             console.log('✅ Staff sidebar initialized');
         },
+
         
         // ===== MAIN DASHBOARD LOAD =====
         async loadStaffDashboard() {
@@ -63,10 +76,11 @@
                 return;
             }
             
-            await Promise.all([
+await Promise.all([
                 this.loadStaffStats(),
                 this.loadStaffOrders()
             ]);
+
         },
         
         // ===== STAFF STATS (pending/preparing only) =====
