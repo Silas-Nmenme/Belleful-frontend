@@ -32,40 +32,21 @@
 /* OLD sidebar toggle functions REMOVED - using inline HTML functions like user-dashboard */
 
         initSidebar() {
-            // Enhanced responsive handling for new sidebar
+            // Enhanced responsive handling for new sidebar system (inline functions handle toggle)
             window.addEventListener('resize', () => {
                 if (window.innerWidth >= 992) {
                     window.closeSidebar?.();
                 }
             });
             
-            // ESC key support
-            document.onkeydown = (e) => {
+            // ESC key support (uses global closeSidebar)
+            document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     window.closeSidebar?.();
                 }
-            };
-            
-            console.log('✅ Staff sidebar (new system) initialized');
-            
-            if (toggleBtn) toggleBtn.onclick = () => this.toggleSidebar();
-            if (overlay) overlay.onclick = () => this.toggleSidebar();
-            
-            // ESC close
-            document.onkeydown = (e) => {
-                if (e.key === 'Escape' && sidebarWrapper?.classList.contains('active')) {
-                    this.toggleSidebar();
-                }
-            };
-            
-            // Responsive
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 992) {
-                    sidebarWrapper?.classList.remove('active');
-                }
             });
             
-            console.log('✅ Staff sidebar initialized');
+            console.log('✅ Staff sidebar (new inline system) initialized');
         },
 
         // ===== PROFILE FUNCTIONS =====
