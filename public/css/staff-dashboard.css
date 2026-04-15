@@ -98,6 +98,23 @@
     color: #4f46e5;
 }
 
+/* Black background for Staff Account Dashboard Menu */
+#sidebarProfile.profile-card,
+.profile-card {
+    background: #000000 !important;
+    color: white !important;
+}
+
+#sidebarProfile .text-staff-primary,
+.profile-card .text-staff-primary {
+    color: #ffffff !important;
+}
+
+#sidebarProfile .text-muted,
+.profile-card .text-muted {
+    color: #cccccc !important;
+}
+
 /* Enhanced Mobile Responsiveness - Full Staff Sidebar (matches user-dashboard.css) - FIXED */
 
 :root {

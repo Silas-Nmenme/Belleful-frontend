@@ -98,7 +98,7 @@
             
             <!-- Sidebar Navigation -->
             <nav class="sidebar-nav p-0">
-<a href="frontend/staff-dashboard.html" class="nav-link active" onclick="setActiveNav('staff-dashboard')">
+href="#" class="nav-link active" onclick="setActiveNav('staff-dashboard')">
                     <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
                 </a>
                 <a href="#staff-orders" class="nav-link" onclick="setActiveNav('staff-orders')">
@@ -226,7 +226,7 @@
                             <label for="staffAvatarInput" class="form-label">
                                 <i class="fas fa-camera me-1"></i>Change Profile Picture
                             </label>
-                            <input type="file" class="form-control d-none" id="staffAvatarInput" name="avatar" accept="image/*">
+                            <input type="file" class="form-control d-none" id="staffAvatarInput" name="avatar" accept="image/*" onchange="StaffDashboardManager.previewAvatar(event)">
                             <button type="button" class="btn btn-outline-staff-primary btn-sm mt-2" onclick="document.getElementById('staffAvatarInput').click()">
                                 <i class="fas fa-upload me-1"></i>Choose Image
                             </button>
