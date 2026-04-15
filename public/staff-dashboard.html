@@ -36,19 +36,8 @@
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('staffSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
-            const isOpen = sidebar && sidebar.classList.contains('show');
             if (sidebar) sidebar.classList.toggle('show');
-            if (backdrop) {
-                backdrop.classList.toggle('show', !isOpen);
-            }
-            if (!sidebar?.classList?.contains('show')) {
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-            } else {
-                document.body.style.overflow = 'hidden';
-                const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-                document.body.style.paddingRight = scrollBarWidth + 'px';
-            }
+            if (backdrop) backdrop.classList.toggle('show', sidebar.classList.contains('show'));
         };
 
         window.closeSidebar = function() {
@@ -56,8 +45,6 @@
             const backdrop = document.getElementById('sidebarBackdrop');
             if (sidebar) sidebar.classList.remove('show');
             if (backdrop) backdrop.classList.remove('show');
-            document.body.style.overflow = '';
-            document.body.style.paddingRight = '';
         };
 
         // Responsive auto-close
@@ -68,21 +55,23 @@
         }
     </script>
 
-    <!-- Top Navbar - Simplified (no dropdown) -->
+<!-- Top Navbar - Matches user-dashboard structure -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-staff shadow-lg">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold fs-4" href="#">
-                <i class="fas fa-user-tie me-2"></i>Belleful Staff
-            </a>
-            <!-- Sidebar Toggle Button -->
-            <button class="sidebar-toggle btn btn-link text-white p-2 ms-3 me-lg-0 me-xl-3 d-block" type="button" onclick="toggleSidebar()" title="Toggle Menu" aria-label="Toggle sidebar menu">
-                <i class="fas fa-bars fa-lg sidebar-hamburger"></i>
-            </button>
+            <div class="d-flex align-items-center">
+                <!-- Sidebar Toggle Button LEFT of brand like user-dashboard -->
+                <button class="navbar-toggler me-3 mobile-menu-toggle d-block" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
+                    <i class="fas fa-bars text-white fs-4 sidebar-hamburger"></i>
+                </button>
+                <a class="navbar-brand fw-bold" href="#">
+                    <i class="fas fa-user-tie me-2"></i>Belleful Staff
+                </a>
+            </div>
         </div>
     </nav>
 
     <!-- Sidebar Backdrop & Sidebar (MATCHES user-dashboard exactly) -->
-    <div class="sidebar-backdrop d-none" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+<div class="sidebar-backdrop d-none" id="sidebarBackdrop" onclick="closeSidebar()"></div>
     <div class="sidebar" id="staffSidebar">
         <div class="sidebar-content">
             <!-- Profile Header -->
