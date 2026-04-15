@@ -195,6 +195,17 @@
 .sidebar-overlay.active {
     display: block !important;
     opacity: 1 !important;
+    pointer-events: auto;
+}
+
+@media (min-width: 992px) {
+    .sidebar-overlay {
+        display: none !important;
+    }
+}
+
+body.sidebar-open .navbar {
+    z-index: 1055;
 }
 
 body.sidebar-open .main-content {
