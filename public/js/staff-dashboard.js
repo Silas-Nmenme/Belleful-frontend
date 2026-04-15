@@ -107,7 +107,7 @@ toggleSidebar() {
                 document.getElementById('profileName').value = user.name || '';
                 document.getElementById('profileEmail').textContent = user.email || '';
                 document.getElementById('profileRole').value = user.role || 'staff';
-                document.getElementById('profileAvatar').src = user.avatar || '/asset/default-avatar.png';
+                document.getElementById('profileAvatar').src = user.avatar || '/asset/default-avatar.svg';
 
                 // Update header user display
                 const userNameSpan = document.querySelector('.navbar-nav .dropdown-toggle span.d-none.d-md-inline');
