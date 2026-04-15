@@ -65,6 +65,92 @@ toggleSidebar() {
             console.log('✅ Staff sidebar initialized');
         },
 
+        // ===== PROFILE FUNCTIONS =====
+        async loadProfile() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                this.showToast('Please login to view profile', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${window.API_BASE || '/api'}/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'staff-login.html';
+                        return;
+                    }
+                    throw new Error('Failed to fetch profile');
+                }
+
+                const { user } = await response.json();
+                this.currentUser = user;
+
+                // Populate form
+                document.getElementById('profileName').value = user.name || '';
+                document.getElementById('profileEmail').textContent = user.email || '';
+                document.getElementById('profileRole').value = user.role || 'staff';
+                document.getElementById('profileAvatar').src = user.avatar || '/asset/default-avatar.png';
+
+                // Update header user display
+                const userNameSpan = document.querySelector('.navbar-nav .dropdown-toggle span.d-none.d-md-inline');
+                if (userNameSpan) userNameSpan.textContent = user.name || 'Staff';
+                const userIcon = document.querySelector('.navbar-nav .dropdown-toggle i');
+                if (userIcon && user.avatar) userIcon.classList.replace('fa-user-circle', 'rounded-circle');
+                if (user.avatar) {
+                    const img = document.createElement('img');
+                    img.src = user.avatar;
+                    img.className = 'rounded-circle';
+                    img.style.cssText = 'width: 32px; height: 32px; object-fit: cover;';
+                    userIcon.replaceWith(img);
+                }
+
+                console.log('✅ Profile loaded');
+            } catch (error) {
+                console.error('Profile load error:', error);
+                this.showToast('Failed to load profile: ' + error.message, 'danger');
+            }
+        },
+
+        previewAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('profileAvatar').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+
+        showProfileForm() {
+            this.toggleSidebar(); // Close sidebar
+            document.getElementById('staff-orders').style.display = 'none';
+            document.getElementById('staff-stats').style.display = 'none';
+            document.getElementById('staff-profile').style.display = 'block';
+            if (!this.currentUser) this.loadProfile();
+        },
+
+        hideProfileForm() {
+            document.getElementById('staff-profile').style.display = 'none';
+            document.getElementById('staff-orders').style.display = 'block';
+            document.getElementById('staff-stats').style.display = 'block';
+        },
+
+        showSection(section) {
+            this.toggleSidebar(); // Close sidebar
+            if (section === 'orders') {
+                document.getElementById('staff-profile').style.display = 'none';
+                document.getElementById('staff-orders').style.display = 'block';
+                document.getElementById('staff-stats').style.display = 'block';
+                this.loadStaffOrders();
+            }
+        },
+
         
         // ===== MAIN DASHBOARD LOAD =====
         async loadStaffDashboard() {
@@ -76,7 +162,8 @@ toggleSidebar() {
                 return;
             }
             
-await Promise.all([
+            await Promise.all([
+                this.loadProfile(),
                 this.loadStaffStats(),
                 this.loadStaffOrders()
             ]);
@@ -314,6 +401,47 @@ await Promise.all([
         },
         
         // ===== LOGOUT =====
+        async updateProfile(event) {
+            event.preventDefault();
+            const form = event.target;
+            const btn = document.getElementById('updateProfileBtn');
+            const spinner = btn.querySelector('.spinner-border');
+            const btnText = btn.querySelector('.btn-text');
+            
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+            btnText.style.opacity = '0.5';
+
+            try {
+                const formData = new FormData(form);
+                const token = localStorage.getItem('token');
+
+                const response = await fetch(`${window.API_BASE || '/api'}/profile`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    this.currentUser = result.user;
+                    this.showToast('Profile updated successfully!', 'success');
+                    // Refresh display
+                    await this.loadProfile();
+                } else {
+                    throw new Error(result.message || 'Update failed');
+                }
+            } catch (error) {
+                console.error('Profile update error:', error);
+                this.showToast('Update failed: ' + error.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+                btnText.style.opacity = '1';
+            }
+        },
+
         logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('userRole');
@@ -346,6 +474,9 @@ await Promise.all([
         }
     };
     
+        // Form submit handler
+        document.getElementById('profileUpdateForm')?.addEventListener('submit', (e) => this.updateProfile(e));
+
     // AUTO-INIT on script load
     if (window.StaffDashboardManager) {
         window.StaffDashboardManager.init();

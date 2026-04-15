@@ -54,10 +54,15 @@
                         </div>
                         
                         <!-- Sidebar Nav -->
-                        <ul class="nav flex-column sidebar-nav px-0">
+<ul class="nav flex-column sidebar-nav px-0">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#staff-orders">
+                                <a class="nav-link active" href="#staff-orders" onclick="StaffDashboardManager.showSection('orders')">
                                     <i class="fas fa-clock me-2"></i><span>Pending Orders</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#staff-profile" onclick="StaffDashboardManager.showProfileForm()">
+                                    <i class="fas fa-user-cog me-2"></i><span>Profile &amp; Settings</span>
                                 </a>
                             </li>
                         </ul>
@@ -102,9 +107,56 @@
                                         <button class="btn btn-outline-staff-primary" onclick="StaffDashboardManager?.loadStaffOrders()">
                                             <i class="fas fa-refresh"></i> Refresh
                                         </button>
+                <!-- Profile Section -->
+                <section id="staff-profile" class="profile-section mb-5" style="display: none;">
+                    <div class="card shadow-xl border-0 rounded-4">
+                        <div class="card-header bg-gradient-profile text-white">
+                            <h4 class="mb-0 fw-bold">
+                                <i class="fas fa-user me-2"></i>My Profile
+                            </h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <form id="profileUpdateForm" enctype="multipart/form-data">
+                                <div class="row">
+                                    <div class="col-md-4 text-center mb-4">
+                                        <div class="profile-avatar-container position-relative">
+                                            <img id="profileAvatar" src="" alt="Avatar" class="rounded-circle shadow-lg mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                                            <label for="avatarInput" class="avatar-upload-btn position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 shadow" title="Change photo">
+                                                <i class="fas fa-camera"></i>
+                                            </label>
+                                            <input type="file" id="avatarInput" name="avatar" accept="image/*" class="d-none" onchange="StaffDashboardManager.previewAvatar(event)">
+                                        </div>
+                                        <p id="profileEmail" class="text-muted mb-0"></p>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row g-3">
+                                            <div class="col-md-8">
+                                                <label class="form-label fw-bold">Full Name</label>
+                                                <input type="text" class="form-control" id="profileName" name="name" required>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-bold">Role</label>
+                                                <input type="text" class="form-control bg-light" id="profileRole" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4">
+                                            <button type="submit" class="btn btn-primary btn-lg me-2" id="updateProfileBtn">
+                                                <span class="btn-text"><i class="fas fa-save me-2"></i>Update Profile</span>
+                                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="StaffDashboardManager.hideProfileForm()">
+                                                <i class="fas fa-times me-2"></i>Cancel
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
                             <!-- Table -->
                             <div class="table-responsive">
                                 <table class="table table-hover mb-0">
