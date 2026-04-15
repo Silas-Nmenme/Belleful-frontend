@@ -66,6 +66,7 @@ checkStaffAuth: async function() {
             }
         };
         
+        window.StaffAuthManager.isReady = true;
         console.log('✅ Staff auth initialized');
     }
     

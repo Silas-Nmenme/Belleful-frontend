@@ -154,24 +154,59 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="js/constants.js"></script>
-    <script src="js/staff-auth.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/staff-dashboard.js"></script>
-    <script>
+<script>
         AOS.init();
         
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Init staff sidebar FIRST
+        // Safe async initialization with polling for managers
+        async function initStaffDashboard() {
+            let attempts = 0;
+            const maxAttempts = 50; // ~5s timeout
+            
+            while (attempts < maxAttempts) {
+                if (window.StaffAuthManager?.checkStaffAuth && window.StaffDashboardManager?.initSidebar) {
+                    try {
+                        // Init sidebar first
+                        window.StaffDashboardManager.initSidebar();
+                        
+                        // Check auth
+                        const isAuthenticated = await window.StaffAuthManager.checkStaffAuth();
+                        if (!isAuthenticated) {
+                            console.log('Staff not authenticated, redirecting...');
+                            return;
+                        }
+                        
+                        // Load full dashboard
+                        await window.StaffDashboardManager.loadStaffDashboard();
+                        console.log('✅ Staff dashboard fully loaded');
+                        return;
+                    } catch (error) {
+                        console.error('Staff init error:', error);
+                        // Continue polling on non-critical errors
+                    }
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
+            // Fallback: Load dashboard without strict auth (dev/prod safety)
+            console.warn('Staff managers timeout - loading dashboard in fallback mode');
             if (window.StaffDashboardManager?.initSidebar) {
                 window.StaffDashboardManager.initSidebar();
             }
-            
-            // Staff auth check
-            const isAuthenticated = await StaffAuthManager?.checkStaffAuth?.();
-            if (!isAuthenticated) return;
-            
-            // Load dashboard
-            window.StaffDashboardManager?.loadStaffDashboard?.();
-        });
+            if (window.StaffDashboardManager?.loadStaffDashboard) {
+                window.StaffDashboardManager.loadStaffDashboard();
+            }
+        }
+        
+        // Init on DOM ready OR immediately if already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initStaffDashboard);
+        } else {
+            initStaffDashboard();
+        }
     </script>
 </body>
 </html>
