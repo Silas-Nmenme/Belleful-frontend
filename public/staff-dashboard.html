@@ -36,55 +36,51 @@
         </div>
     </nav>
 
-    <!-- Sidebar Toggle Checkbox (Pure CSS Magic) -->
+    <!-- Sidebar Toggle Checkbox (Pure CSS Magic - FIXED responsive) -->
     <input type="checkbox" id="sidebar-toggle" class="d-none">
     
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <!-- Sidebar Overlay - Closes on click -->
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
     
-    <!-- Sidebar Wrapper -->
-    <div class="sidebar-wrapper card h-100 border-0 shadow-lg flex-shrink-0" id="sidebarWrapper" role="navigation" aria-label="Staff navigation">    
-        <!-- Sidebar -->
-        <nav class="sidebar card h-100 border-0 shadow-lg flex-shrink-0" id="staffSidebar" style="width: 100%;">
-            <div class="card-body p-0">
+    <!-- Sidebar Wrapper - Fully responsive -->
+    <div class="sidebar-wrapper" id="sidebarWrapper" role="navigation" aria-label="Staff navigation menu">    
+        <!-- Sidebar Content -->
+        <nav class="sidebar h-100" id="staffSidebar">
+            <div class="card-body p-0 h-100 d-flex flex-column">
                 <!-- Sidebar Header -->
-                <div class="sidebar-header p-3 border-bottom">
-                    <h6 class="mb-0">
+                <div class="sidebar-header p-3 border-bottom bg-light">
+                    <h6 class="mb-0 fw-semibold text-staff-primary">
                         <i class="fas fa-list-ul me-2"></i>Staff Menu
                     </h6>
                 </div>
                 
-                <!-- Sidebar Nav - Enhanced -->
-                <ul class="nav flex-column sidebar-nav px-0" role="list">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#" data-section="dashboard" onclick="StaffDashboardManager.showSection('dashboard')">
-                            <i class="fas fa-tachometer-alt me-2"></i><span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-section="orders" onclick="StaffDashboardManager.showSection('orders')">
-                            <i class="fas fa-clock me-2"></i><span>Pending Orders</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-section="all-orders" onclick="StaffDashboardManager.showSection('all-orders')">
-                            <i class="fas fa-list me-2"></i><span>All Orders</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-section="profile" onclick="StaffDashboardManager.showSection('profile')">
-                            <i class="fas fa-user-cog me-2"></i><span>Profile</span>
-                        </a>
-                    </li>
-                </ul>
+                <!-- Sidebar Nav - Accessible & Compliant -->
+                <div class="sidebar-nav px-2 flex-grow-1" role="listbox" aria-label="Navigation options">
+                    <a class="nav-link active d-block" href="#dashboard" data-section="dashboard" onclick="StaffDashboardManager.showSection('dashboard', event)" role="option" aria-selected="true" tabindex="0">
+                        <i class="fas fa-tachometer-alt me-2"></i><span>Dashboard</span>
+                    </a>
+                    <a class="nav-link d-block" href="#orders" data-section="orders" onclick="StaffDashboardManager.showSection('orders', event)" role="option" aria-selected="false" tabindex="-1">
+                        <i class="fas fa-clock me-2"></i><span>Pending Orders</span>
+                    </a>
+                    <a class="nav-link d-block" href="#all-orders" data-section="all-orders" onclick="StaffDashboardManager.showSection('all-orders', event)" role="option" aria-selected="false" tabindex="-1">
+                        <i class="fas fa-list me-2"></i><span>All Orders</span>
+                    </a>
+                    <a class="nav-link d-block" href="#profile" data-section="profile" onclick="StaffDashboardManager.showSection('profile', event)" role="option" aria-selected="false" tabindex="-1">
+                        <i class="fas fa-user-cog me-2"></i><span>Profile</span>
+                    </a>
+                </div>
+
             </div>
         </nav>
     </div>
 
-    <div class="container-fluid py-5 mt-5 min-vh-100 bg-light">
-        <div class="row">
-            <!-- Main Content -->
-            <div class="col-12 main-content" id="mainContent" style="transition: margin-left 0.3s ease;">
+    <!-- Main Layout Container -->
+    <div class="d-flex flex-column flex-grow-1 min-vh-100">
+        <div class="container-fluid flex-grow-1 py-4 mt-5 bg-light">
+            <div class="row flex-grow-1">
+                <!-- Main Content Area -->
+                <main class="col main-content" id="mainContent" role="main">
+
                 <!-- Dashboard Content - Default Active -->
                 <section id="dashboard" class="active mb-5">
                     <div class="row g-4 mb-5" id="staffStats">
@@ -106,20 +102,23 @@
                             <div class="p-4 border-bottom">
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" id="staffOrdersSearch" placeholder="Search orders..." oninput="StaffDashboardManager?.loadStaffOrders()">
+                                        <label for="staffOrdersSearch" class="form-label visually-hidden">Search orders</label>
+                                        <input type="text" class="form-control" id="staffOrdersSearch" placeholder="🔍 Search orders..." aria-label="Search orders" oninput="StaffDashboardManager?.loadStaffOrders?.()">
                                     </div>
                                     <div class="col-md-3">
-                                        <select class="form-select" id="staffOrderStatusFilter" title="Filter orders" onchange="StaffDashboardManager?.loadStaffOrders(1, '', this.value)">
+                                        <label for="staffOrderStatusFilter" class="form-label visually-hidden">Filter orders by status</label>
+                                        <select class="form-select" id="staffOrderStatusFilter" aria-label="Filter orders by status" onchange="StaffDashboardManager?.loadStaffOrders?.(1, '', this.value)">
                                             <option value="">All Pending</option>
                                             <option value="pending_approval">Pending Approval</option>
                                             <option value="preparing">Preparing</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <button class="btn btn-outline-staff-primary" onclick="StaffDashboardManager?.loadStaffOrders()" title="Refresh orders">
+                                        <button class="btn btn-outline-staff-primary w-100" onclick="StaffDashboardManager?.loadStaffOrders?.()" aria-label="Refresh orders list">
                                             <i class="fas fa-refresh"></i> Refresh
                                         </button>
                                     </div>
+
                                 </div>
                             </div>
                             <!-- Table -->
@@ -168,13 +167,14 @@
                                     <div class="col-md-8">
                                         <div class="row g-3">
                                             <div class="col-md-8">
-                                                <label class="form-label fw-bold">Full Name</label>
-                                                <input type="text" class="form-control" id="profileName" name="name" required>
+                                                <label for="profileName" class="form-label fw-bold">Full Name</label>
+                                                <input type="text" class="form-control" id="profileName" name="name" placeholder="Enter full name" required>
                                             </div>
                                             <div class="col-md-4">
-                                                <label class="form-label fw-bold">Role</label>
-                                                <input type="text" class="form-control bg-light" id="profileRole" readonly>
+                                                <label for="profileRole" class="form-label fw-bold">Role</label>
+                                                <input type="text" class="form-control bg-light" id="profileRole" name="role" readonly placeholder="Staff">
                                             </div>
+
                                         </div>
                                         <div class="mt-4">
                                             <button type="submit" class="btn btn-primary btn-lg me-2" id="updateProfileBtn">

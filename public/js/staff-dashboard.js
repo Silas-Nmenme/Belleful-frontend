@@ -29,65 +29,78 @@
         },
         
         // ===== SIDEBAR =====
-toggleSidebar() {
-            const toggleCheckbox = document.getElementById('sidebar-toggle');
-            const body = document.body;
-            const toggleBtn = document.querySelector('.sidebar-toggle');
-            
-            const isOpen = toggleCheckbox.checked;
-            
-            // Pure CSS handles visual toggle, JS manages body class for desktop
-            if (!isOpen) {
-                body.classList.remove('sidebar-open');
-                toggleBtn?.classList.remove('active');
-            } else {
-                body.classList.add('sidebar-open');
-                toggleBtn?.classList.add('active');
-            }
-        },
-
 initSidebar() {
+            // Ensure DOM is ready
+            const docBody = document.body || document.documentElement;
             const toggleCheckbox = document.getElementById('sidebar-toggle');
             const overlay = document.getElementById('sidebarOverlay');
             const toggleLabel = document.querySelector('.sidebar-toggle');
             
-            // Label already handles toggle via for="sidebar-toggle"
+            if (!toggleCheckbox) {
+                console.warn('Sidebar toggle not found');
+                return;
+            }
+            
+            // Overlay close (pure CSS visual, JS state sync)
             if (overlay) {
                 overlay.addEventListener('click', () => {
                     toggleCheckbox.checked = false;
-                    this.toggleSidebar();
                 });
             }
             
-            // Icon swap on toggle
-            toggleLabel.addEventListener('click', () => {
-                setTimeout(() => this.toggleSidebar(), 10);
-            });
-            
-            // ESC key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && toggleCheckbox.checked) {
-                    toggleCheckbox.checked = false;
-                    this.toggleSidebar();
-                }
-            });
-            
-            // Resize handler with ResizeObserver for perf
-            const resizeObserver = new ResizeObserver(() => {
-                if (window.innerWidth >= 992 && localStorage.getItem('sidebarCollapsed') !== 'true') {
-                    toggleCheckbox.checked = false;
-                    body.classList.remove('sidebar-open');
-                }
-            });
-            resizeObserver.observe(document.body);
-            
-            // Load persisted state
-            if (localStorage.getItem('sidebarCollapsed') === 'true') {
-                toggleCheckbox.checked = true; // collapsed on desktop
+            // Icon swap + desktop state sync only
+            if (toggleLabel) {
+                toggleLabel.addEventListener('click', () => {
+                    // CSS handles sidebar slide, JS syncs body class for desktop margin
+                    setTimeout(() => {
+                        if (toggleCheckbox.checked) {
+                            docBody.classList.add('sidebar-open');
+                            toggleLabel.classList.add('active');
+                        } else {
+                            docBody.classList.remove('sidebar-open');
+                            toggleLabel.classList.remove('active');
+                        }
+                    }, 10);
+                });
             }
             
-            console.log('✅ Modern responsive sidebar initialized');
+            // ESC key closes sidebar
+            const escHandler = (e) => {
+                if (e.key === 'Escape' && toggleCheckbox.checked) {
+                    toggleCheckbox.checked = false;
+                    docBody.classList.remove('sidebar-open');
+                    toggleLabel?.classList.remove('active');
+                }
+            };
+            document.addEventListener('keydown', escHandler);
+            
+            // Safe resize handler (replaces broken ResizeObserver)
+            let resizeTimeout;
+            const resizeHandler = () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (window.innerWidth >= 992) {
+                        const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                        if (!collapsed && toggleCheckbox.checked) {
+                            toggleCheckbox.checked = false;
+                            docBody.classList.remove('sidebar-open');
+                            toggleLabel?.classList.remove('active');
+                        }
+                    }
+                }, 150);
+            };
+            window.addEventListener('resize', resizeHandler);
+            
+            // Persisted state
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (window.innerWidth >= 992 && isCollapsed) {
+                toggleCheckbox.checked = true;
+                docBody.classList.add('sidebar-open');
+            }
+            
+            console.log('✅ Fixed responsive sidebar initialized (ResizeObserver → window.resize)');
         },
+
 
         // ===== PROFILE FUNCTIONS =====
         async loadProfile() {
@@ -151,11 +164,15 @@ initSidebar() {
             }
         },
 
-showSection(section) {
+showSection(section, event) {
             // Close sidebar first
             const toggleCheckbox = document.getElementById('sidebar-toggle');
+            const docBody = document.body || document.documentElement;
+            const toggleLabel = document.querySelector('.sidebar-toggle');
+            
             toggleCheckbox.checked = false;
-            this.toggleSidebar();
+            docBody.classList.remove('sidebar-open');
+            toggleLabel?.classList.remove('active');
             
             // Hide all sections
             document.querySelectorAll('section[id]').forEach(sec => {
@@ -172,6 +189,7 @@ showSection(section) {
             // Show target section
             const targetSection = document.getElementById(section === 'dashboard' ? 'dashboard' : 
                                     section === 'orders' ? 'orders' : 
+                                    section === 'all-orders' ? 'all-orders' : 
                                     section === 'profile' ? 'profile' : section);
             
             if (targetSection) {
@@ -179,14 +197,22 @@ showSection(section) {
                 targetSection.classList.add('active');
                 
                 // Load data if needed
-                if (section === 'dashboard' || section === 'orders') {
-                    this.loadStaffStats();
-                    if (section === 'orders') this.loadStaffOrders();
-                } else if (section === 'profile') {
-                    this.loadProfile();
+                switch(section) {
+                    case 'dashboard':
+                    case 'orders':
+                    case 'all-orders':
+                        this.loadStaffStats();
+                        if (section === 'orders' || section === 'all-orders') {
+                            this.loadStaffOrders();
+                        }
+                        break;
+                    case 'profile':
+                        this.loadProfile();
+                        break;
                 }
             }
         },
+
         
         // Legacy compatibility
         showProfileForm() { this.showSection('profile'); },
