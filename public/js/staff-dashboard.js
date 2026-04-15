@@ -342,6 +342,15 @@
                 document.getElementById('staffPendingCount').textContent = stats.pendingApproval || 0;
                 document.getElementById('staffPreparingCount').textContent = stats.preparing || 0;
                 
+                // Ensure cards visible after stats load
+                setTimeout(() => {
+                    const statsSection = document.getElementById('staff-stats');
+                    if (statsSection) {
+                        const navbarHeight = document.querySelector('.navbar')?.getBoundingClientRect().height || 80;
+                        window.scrollTo({ top: statsSection.offsetTop - navbarHeight - 20, behavior: 'smooth' });
+                    }
+                }, 100);
+                
             } catch (error) {
                 console.error('Staff stats error:', error);
                 this.loadStaffStatsFallback();

@@ -21,7 +21,8 @@
             
             const target = document.getElementById(section);
             if (target) {
-                const navbarHeight = 80;
+            const navbarEl = document.querySelector('.navbar');
+            const navbarHeight = navbarEl ? navbarEl.getBoundingClientRect().height : 80;
                 const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 20;
                 window.scrollTo({ top: targetPosition, behavior: 'smooth' });
             }
