@@ -476,8 +476,8 @@
     };
     
         // Form submit handlers for both old inline (if exists) and new modal
-        document.getElementById('profileUpdateForm')?.addEventListener('submit', (e) => this.updateProfile(e));
-        document.getElementById('staffProfileForm')?.addEventListener('submit', (e) => this.updateProfile(e));
+        document.getElementById('profileUpdateForm')?.addEventListener('submit', (e) => StaffDashboardManager.updateProfile(e));
+        document.getElementById('staffProfileForm')?.addEventListener('submit', (e) => StaffDashboardManager.updateProfile(e));
 
     // AUTO-INIT on script load
     if (window.StaffDashboardManager) {
