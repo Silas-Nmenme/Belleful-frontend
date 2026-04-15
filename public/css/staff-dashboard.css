@@ -231,7 +231,7 @@ body {
   
   .main-content {
     margin-left: 0 !important;
-    padding-top: calc(var(--header-height) + 1rem + var(--safe-padding));
+    padding-top: 95px !important;
   }
   
   #sidebarBackdrop.sidebar-backdrop {
@@ -279,9 +279,9 @@ body {
 @media (max-width: 768px) {
 
     
-.main-content {
+    .main-content {
         margin-left: 0 !important;
-        padding-top: calc(var(--header-height, 80px) + 1rem);
+        padding-top: 100px !important;
     }
     
     .navbar-brand {
@@ -323,8 +323,8 @@ body {
     
     .main-content {
       margin-left: 0 !important;
-      margin-top: var(--header-height);
-      padding: calc(1rem + var(--safe-padding)) 0.5rem !important;
+      margin-top: 0 !important;
+      padding: 110px 0.5rem 1.5rem !important;
       width: 100vw !important;
       position: relative;
       left: 0 !important;
