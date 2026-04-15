@@ -186,6 +186,27 @@
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* Fixed sidebar toggle */
+.sidebar-wrapper.active {
+    left: 0 !important;
+    display: block !important;
+}
+
+.sidebar-overlay.active {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+body.sidebar-open .main-content {
+    margin-left: 260px;
+}
+
+@media (max-width: 991px) {
+    body.sidebar-open .main-content {
+        margin-left: 0;
+    }
+}
+
 @keyframes staffPulse {
     0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
     70% { box-shadow: 0 0 0 20px rgba(79, 70, 229, 0); }

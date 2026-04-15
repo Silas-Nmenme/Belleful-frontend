@@ -34,10 +34,23 @@ toggleSidebar() {
             const overlay = document.querySelector('.sidebar-overlay');
             const toggleBtn = document.querySelector('.sidebar-toggle');
             
-            sidebarWrapper.classList.toggle('active');
-            overlay?.classList.toggle('active');
-            toggleBtn?.classList.toggle('active');
-            document.body.classList.toggle('sidebar-open');
+            const isOpen = sidebarWrapper.classList.contains('active');
+            
+            if (isOpen) {
+                sidebarWrapper.classList.remove('active');
+                sidebarWrapper.style.display = 'none';
+                overlay?.classList.remove('active');
+                if (overlay) overlay.style.display = 'none';
+                toggleBtn?.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            } else {
+                sidebarWrapper.classList.add('active');
+                sidebarWrapper.style.display = 'block';
+                overlay?.classList.add('active');
+                if (overlay) overlay.style.display = 'block';
+                toggleBtn?.classList.add('active');
+                document.body.classList.add('sidebar-open');
+            }
         },
 
         initSidebar() {
