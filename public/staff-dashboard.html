@@ -98,10 +98,13 @@
             
             <!-- Sidebar Navigation -->
             <nav class="sidebar-nav p-0">
-                <a href="#staff-orders" class="nav-link active" onclick="setActiveNav('staff-orders')">
+<a href="frontend/staff-dashboard.html" class="nav-link active" onclick="setActiveNav('staff-dashboard')">
+                    <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                </a>
+                <a href="#staff-orders" class="nav-link" onclick="setActiveNav('staff-orders')">
                     <i class="fas fa-clock"></i><span>Pending Orders</span>
                 </a>
-                <a href="#staff-profile" class="nav-link" onclick="setActiveNav('staff-profile'); StaffDashboardManager?.showProfileForm?.();">
+<a href="#staff-profile" class="nav-link" onclick="setActiveNav('staff-profile'); StaffDashboardManager?.showProfileModal?.();">
                     <i class="fas fa-user-cog"></i><span>Profile & Settings</span>
                 </a>
                 <a href="#" class="nav-link text-danger" onclick="closeSidebar(); StaffDashboardManager?.logout?.() || logout()">
@@ -151,53 +154,7 @@
                                         <i class="fas fa-refresh"></i> Refresh
                                     </button>
                                 </div>
-                                <!-- Profile Section (unchanged) -->
-                                <section id="staff-profile" class="profile-section mb-5" style="display: none;">
-                                    <div class="card shadow-xl border-0 rounded-4">
-                                        <div class="card-header bg-gradient-profile text-white">
-                                            <h4 class="mb-0 fw-bold">
-                                                <i class="fas fa-user me-2"></i>My Profile
-                                            </h4>
-                                        </div>
-                                        <div class="card-body p-4">
-                                            <form id="profileUpdateForm" enctype="multipart/form-data">
-                                                <div class="row">
-                                                    <div class="col-md-4 text-center mb-4">
-                                                        <div class="profile-avatar-container position-relative">
-                                                            <img id="profileAvatar" src="" alt="Avatar" class="rounded-circle shadow-lg mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                                                            <label for="avatarInput" class="avatar-upload-btn position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 shadow" title="Change photo">
-                                                                <i class="fas fa-camera"></i>
-                                                            </label>
-                                                            <input type="file" id="avatarInput" name="avatar" accept="image/*" class="d-none" onchange="StaffDashboardManager.previewAvatar(event)">
-                                                        </div>
-                                                        <p id="profileEmail" class="text-muted mb-0"></p>
-                                                    </div>
-                                                    <div class="col-md-8">
-                                                        <div class="row g-3">
-                                                            <div class="col-md-8">
-                                                                <label class="form-label fw-bold">Full Name</label>
-                                                                <input type="text" class="form-control" id="profileName" name="name" required>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <label class="form-label fw-bold">Role</label>
-                                                                <input type="text" class="form-control bg-light" id="profileRole" readonly>
-                                                            </div>
-                                                        </div>
-                                                        <div class="mt-4">
-                                                            <button type="submit" class="btn btn-primary btn-lg me-2" id="updateProfileBtn">
-                                                                <span class="btn-text"><i class="fas fa-save me-2"></i>Update Profile</span>
-                                                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-                                                            </button>
-                                                            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="StaffDashboardManager.hideProfileForm()">
-                                                                <i class="fas fa-times me-2"></i>Cancel
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </section>
+
                             </div>
                         </div>
                         <!-- Table -->
@@ -241,6 +198,67 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff Profile Modal (like user-dashboard.html) -->
+    <div class="modal fade" id="staffProfileModal" tabindex="-1" aria-labelledby="staffProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-staff-primary text-white">
+                    <h5 class="modal-title" id="staffProfileModalLabel">
+                        <i class="fas fa-user-cog me-2"></i>Profile Settings
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="staffProfileForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <input type="hidden" id="staffCurrentAvatar" name="currentAvatar">
+                        
+                        <div class="mb-4">
+                            <div class="avatar-preview mb-3 text-center">
+                                <img id="staffAvatarPreview" src="" alt="Profile avatar preview" class="rounded-circle shadow-lg" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #4f46e5;">
+                                <div id="staffAvatarPlaceholder" class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; display: none;">
+                                    <i class="fas fa-user fa-2x text-muted"></i>
+                                </div>
+                            </div>
+                            <label for="staffAvatarInput" class="form-label">
+                                <i class="fas fa-camera me-1"></i>Change Profile Picture
+                            </label>
+                            <input type="file" class="form-control d-none" id="staffAvatarInput" name="avatar" accept="image/*">
+                            <button type="button" class="btn btn-outline-staff-primary btn-sm mt-2" onclick="document.getElementById('staffAvatarInput').click()">
+                                <i class="fas fa-upload me-1"></i>Choose Image
+                            </button>
+                            <div class="form-text">Square images (1:1) work best. Max 5MB.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="staffNameInput" class="form-label fw-bold">
+                                <i class="fas fa-user me-1"></i>Display Name
+                            </label>
+                            <input type="text" class="form-control" id="staffNameInput" name="name" maxlength="50" required>
+                            <div class="form-text">2-50 characters. Used everywhere in app.</div>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="form-text text-muted mb-3">
+                                Email: <span id="staffProfileEmail" class="fw-medium"></span> (not editable)
+                            </div>
+                        </div>
+
+                        <div id="staffUploadProgress" class="progress mb-3 d-none" style="height: 6px;">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div id="staffFormError" class="alert alert-danger d-none" role="alert"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="staffProfileSubmit">
+                            <i class="fas fa-save me-1"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

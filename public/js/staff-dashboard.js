@@ -74,26 +74,22 @@
                 const { user } = await response.json();
                 this.currentUser = user;
 
-                // Populate form
-                document.getElementById('profileName').value = user.name || '';
-                document.getElementById('profileEmail').textContent = user.email || '';
-                document.getElementById('profileRole').value = user.role || 'staff';
-                document.getElementById('profileAvatar').src = user.avatar || '/asset/default-avatar.png';
-
-                // Update header user display
-                const userNameSpan = document.querySelector('.navbar-nav .dropdown-toggle span.d-none.d-md-inline');
-                if (userNameSpan) userNameSpan.textContent = user.name || 'Staff';
-                const userIcon = document.querySelector('.navbar-nav .dropdown-toggle i');
-                if (userIcon && user.avatar) userIcon.classList.replace('fa-user-circle', 'rounded-circle');
+                // Populate modal form
+                document.getElementById('staffNameInput').value = user.name || '';
+                document.getElementById('staffProfileEmail').textContent = user.email || '';
+                document.getElementById('staffCurrentAvatar').value = user.avatar || '';
+                const previewImg = document.getElementById('staffAvatarPreview');
+                const placeholder = document.getElementById('staffAvatarPlaceholder');
                 if (user.avatar) {
-                    const img = document.createElement('img');
-                    img.src = user.avatar;
-                    img.className = 'rounded-circle';
-                    img.style.cssText = 'width: 32px; height: 32px; object-fit: cover;';
-                    userIcon.replaceWith(img);
+                    previewImg.src = user.avatar;
+                    previewImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                } else {
+                    previewImg.style.display = 'none';
+                    placeholder.style.display = 'flex';
                 }
 
-                console.log('✅ Profile loaded');
+                console.log('✅ Profile loaded in modal');
             } catch (error) {
                 console.error('Profile load error:', error);
                 this.showToast('Failed to load profile: ' + error.message, 'danger');
@@ -105,25 +101,30 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    document.getElementById('profileAvatar').src = e.target.result;
+                    const preview = document.getElementById('staffAvatarPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    document.getElementById('staffAvatarPlaceholder').style.display = 'none';
                 };
                 reader.readAsDataURL(file);
             }
         },
 
-        showProfileForm() {            
+        showProfileModal() {            
             window.toggleSidebar?.(); // Close sidebar
-            document.getElementById('staff-orders').style.display = 'none';
-            document.getElementById('staff-stats').style.display = 'none';
-            document.getElementById('staff-profile').style.display = 'block';
+            const modalEl = document.getElementById('staffProfileModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
             if (!this.currentUser) this.loadProfile();
         },
 
-        hideProfileForm() {
-            document.getElementById('staff-profile').style.display = 'none';
-            document.getElementById('staff-orders').style.display = 'block';
-            document.getElementById('staff-stats').style.display = 'block';
+        hideProfileModal() {
+            const modalEl = document.getElementById('staffProfileModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
         },
+
+
 
         showSection(section) {            
             window.toggleSidebar?.(); // Close sidebar
@@ -388,13 +389,19 @@
         async updateProfile(event) {
             event.preventDefault();
             const form = event.target;
-            const btn = document.getElementById('updateProfileBtn');
-            const spinner = btn.querySelector('.spinner-border');
-            const btnText = btn.querySelector('.btn-text');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const spinner = submitBtn?.querySelector('.spinner-border') || submitBtn;
+            const btnText = submitBtn?.querySelector('.btn-text');
             
-            btn.disabled = true;
-            spinner.classList.remove('d-none');
-            btnText.style.opacity = '0.5';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                if (spinner.classList && !spinner.classList.contains('spinner-border')) {
+                    spinner.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+                } else {
+                    spinner.classList?.remove('d-none');
+                }
+                if (btnText) btnText.style.opacity = '0.5';
+            }
 
             try {
                 const formData = new FormData(form);
@@ -413,6 +420,9 @@
                     this.showToast('Profile updated successfully!', 'success');
                     // Refresh display
                     await this.loadProfile();
+                    // Close modal if open
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('staffProfileModal'));
+                    if (modal) modal.hide();
                 } else {
                     throw new Error(result.message || 'Update failed');
                 }
@@ -420,11 +430,18 @@
                 console.error('Profile update error:', error);
                 this.showToast('Update failed: ' + error.message, 'danger');
             } finally {
-                btn.disabled = false;
-                spinner.classList.add('d-none');
-                btnText.style.opacity = '1';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    if (btnText) btnText.style.opacity = '1';
+                    const spinners = submitBtn.querySelectorAll('.spinner-border');
+                    spinners.forEach(s => s.classList.add('d-none'));
+                    if (submitBtn.textContent.includes('Saving...')) {
+                        submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save Changes';
+                    }
+                }
             }
         },
+
 
         logout() {
             localStorage.removeItem('token');
@@ -458,8 +475,9 @@
         }
     };
     
-        // Form submit handler
+        // Form submit handlers for both old inline (if exists) and new modal
         document.getElementById('profileUpdateForm')?.addEventListener('submit', (e) => this.updateProfile(e));
+        document.getElementById('staffProfileForm')?.addEventListener('submit', (e) => this.updateProfile(e));
 
     // AUTO-INIT on script load
     if (window.StaffDashboardManager) {
