@@ -111,8 +111,8 @@
             }
         },
 
-        showProfileForm() {
-            this.toggleSidebar(); // Close sidebar
+        showProfileForm() {            
+            window.toggleSidebar?.(); // Close sidebar
             document.getElementById('staff-orders').style.display = 'none';
             document.getElementById('staff-stats').style.display = 'none';
             document.getElementById('staff-profile').style.display = 'block';
@@ -125,8 +125,8 @@
             document.getElementById('staff-stats').style.display = 'block';
         },
 
-        showSection(section) {
-            this.toggleSidebar(); // Close sidebar
+        showSection(section) {            
+            window.toggleSidebar?.(); // Close sidebar
             if (section === 'orders') {
                 document.getElementById('staff-profile').style.display = 'none';
                 document.getElementById('staff-orders').style.display = 'block';
