@@ -102,63 +102,28 @@
     <script src="js/staff-auth.js"></script>
 
     <script>
-        
 AOS.init({ duration: 1200, once: true });
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('staffLoginForm');
     const toggleBtn = document.getElementById('toggleStaffPassword');
     const passwordField = document.getElementById('staffPassword');
+    const submitBtn = document.getElementById('staffLoginSubmit');
 
-    // ✅ Staff Login (strictly role = staff)
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    // Use StaffAuthManager (loaded via staff-auth.js)
+    form.onsubmit = function(e) {
+        return window.StaffAuthManager?.login(e, submitBtn) || false;
+    };
 
-        const email = document.getElementById('staffEmail').value;
-        const password = document.getElementById('staffPassword').value;
-
-        try {
-            const res = await fetch(`${API_BASE}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include', // for session-based auth
-                body: JSON.stringify({
-                    email,
-                    password,
-                    role: 'staff' // 🔥 enforce staff role
-                })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                alert(data.message || 'Login failed');
-                return;
-            }
-
-// Store standard role
-            localStorage.setItem('userRole', 'staff');
-            localStorage.setItem('currentUser', JSON.stringify(data.user));
-
-            alert('Staff login successful!');
-
-            // Consistent redirect (auth.js will handle if needed)
-            window.location.href = 'staff-dashboard.html';
-
-        } catch (err) {
-            console.error(err);
-            alert('Something went wrong. Please try again.');
-        }
-    });
-
-    // Password toggle
+    // Password toggle (keep existing)
     toggleBtn.addEventListener('click', function() {
         const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordField.setAttribute('type', type);
-        this.querySelector('i').classList.toggle('fa-eye');
-        this.querySelector('i').classList.toggle('fa-eye-slash');
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
     });
+
+    console.log('✅ Staff login integrated with auth.js + StaffAuthManager');
 });
 </script>

@@ -79,14 +79,14 @@
                 
                 // Fetch real stats from backend
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${window.API_BASE || '/api'}/staff/orders?page=1&limit=1`, {
+                const response = await fetch(`${window.API_BASE || '/api'}/staff/stats`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const statsData = await response.json();
-                const orders = statsData.data || [];
-                
-                document.getElementById('staffPendingCount').textContent = orders.filter(o => o.orderStatus === 'pending_approval').length;
-                document.getElementById('staffPreparingCount').textContent = orders.filter(o => o.orderStatus === 'preparing').length;
+                const stats = statsData.data || {};
+
+                document.getElementById('staffPendingCount').textContent = stats.pendingApproval || 0;
+                document.getElementById('staffPreparingCount').textContent = stats.preparing || 0;
                 
             } catch (error) {
                 console.error('Staff stats error:', error);
@@ -105,9 +105,16 @@
             
             try {
                 const token = localStorage.getItem('token');
-                const params = new URLSearchParams({ page, limit: 20, ...(search && { search }), ...(status && { status }) });
-                
-                const response = await fetch(`${window.API_BASE || '/api'}/staff/orders?${params}`, {
+            const searchTerm = document.getElementById('staffOrdersSearch')?.value || '';
+            const statusFilter = document.getElementById('staffOrderStatusFilter')?.value || '';
+            const params = new URLSearchParams({ 
+              page, 
+              limit: 20, 
+              ...(searchTerm && { search: searchTerm }), 
+              ...(statusFilter && { status: statusFilter }) 
+            });
+            
+            const response = await fetch(`${window.API_BASE || '/api'}/staff/orders?${params}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -211,7 +218,7 @@
             
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${window.API_BASE || '/api'}/orders/${orderId}`, {
+                const response = await fetch(`${window.API_BASE || '/api'}/staff/orders/${orderId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
