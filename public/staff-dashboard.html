@@ -17,9 +17,9 @@
                 <i class="fas fa-user-tie me-2"></i>Belleful Staff
             </a>
             <!-- Sidebar Toggle Button -->
-            <button class="sidebar-toggle btn btn-link text-white p-2 ms-3 me-lg-0 me-xl-3 d-block" type="button" onclick="if(window.StaffDashboardManager?.toggleSidebar){window.StaffDashboardManager.toggleSidebar();}" title="Toggle Menu" aria-label="Toggle sidebar menu">
+<label for="sidebar-toggle" class="sidebar-toggle btn btn-link text-white p-2 ms-3 me-lg-0 me-xl-3 d-block cursor-pointer pe-auto" title="Toggle Menu" aria-label="Toggle sidebar menu">
                 <i class="fas fa-bars fa-lg sidebar-hamburger"></i>
-            </button>
+            </label>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -36,11 +36,14 @@
         </div>
     </nav>
 
+    <!-- Sidebar Toggle Checkbox (Pure CSS Magic) -->
+    <input type="checkbox" id="sidebar-toggle" class="d-none">
+    
     <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay position-fixed bg-dark bg-opacity-40" style="z-index: 1050; top: 0; left: 260px; right: 0; bottom: 0; transition: all 0.3s ease; opacity: 0; backdrop-filter: blur(4px);" id="sidebarOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
     <!-- Sidebar Wrapper -->
-    <div class="sidebar-wrapper position-fixed h-100" style="left: -260px; width: 260px; z-index: 1049; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); display: none;" id="sidebarWrapper">
+    <div class="sidebar-wrapper card h-100 border-0 shadow-lg flex-shrink-0" id="sidebarWrapper" role="navigation" aria-label="Staff navigation">    
         <!-- Sidebar -->
         <nav class="sidebar card h-100 border-0 shadow-lg flex-shrink-0" id="staffSidebar" style="width: 100%;">
             <div class="card-body p-0">
@@ -51,16 +54,26 @@
                     </h6>
                 </div>
                 
-                <!-- Sidebar Nav -->
-                <ul class="nav flex-column sidebar-nav px-0">
+                <!-- Sidebar Nav - Enhanced -->
+                <ul class="nav flex-column sidebar-nav px-0" role="list">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#staff-orders" onclick="StaffDashboardManager.showSection('orders')">
+                        <a class="nav-link active" href="#" data-section="dashboard" onclick="StaffDashboardManager.showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt me-2"></i><span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="orders" onclick="StaffDashboardManager.showSection('orders')">
                             <i class="fas fa-clock me-2"></i><span>Pending Orders</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#staff-profile" onclick="StaffDashboardManager.showProfileForm()">
-                            <i class="fas fa-user-cog me-2"></i><span>Profile &amp; Settings</span>
+                        <a class="nav-link" href="#" data-section="all-orders" onclick="StaffDashboardManager.showSection('all-orders')">
+                            <i class="fas fa-list me-2"></i><span>All Orders</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="profile" onclick="StaffDashboardManager.showSection('profile')">
+                            <i class="fas fa-user-cog me-2"></i><span>Profile</span>
                         </a>
                     </li>
                 </ul>
@@ -72,15 +85,15 @@
         <div class="row">
             <!-- Main Content -->
             <div class="col-12 main-content" id="mainContent" style="transition: margin-left 0.3s ease;">
-                <!-- Staff Stats -->
-                <section id="staff-stats" class="mb-5">
+                <!-- Dashboard Content - Default Active -->
+                <section id="dashboard" class="active mb-5">
                     <div class="row g-4 mb-5" id="staffStats">
                         <!-- Stats loaded here -->
                     </div>
                 </section>
 
-                <!-- Pending Orders (Staff Only) -->
-                <section id="staff-orders">
+                <!-- Orders Section -->
+                <section id="orders" class="mb-5">
                     <div class="card shadow-xl border-0 rounded-4 mb-5">
                         <div class="card-header bg-staff-primary text-white">
                             <h4 class="mb-0 fw-bold">
@@ -132,9 +145,9 @@
                 </section>
 
                 <!-- Profile Section -->
-                <section id="staff-profile" class="mb-5" style="display: none;">
+                <section id="profile" class="mb-5">
                     <div class="card shadow-xl border-0 rounded-4">
-                        <div class="card-header bg-gradient-profile text-white">
+                        <div class="card-header bg-staff-primary text-white">
                             <h4 class="mb-0 fw-bold">
                                 <i class="fas fa-user me-2"></i>My Profile
                             </h4>

@@ -30,44 +30,63 @@
         
         // ===== SIDEBAR =====
 toggleSidebar() {
-            const sidebarWrapper = document.getElementById('sidebarWrapper');
-            const overlay = document.getElementById('sidebarOverlay');
-            const toggleBtn = document.querySelector('.sidebar-toggle');
+            const toggleCheckbox = document.getElementById('sidebar-toggle');
             const body = document.body;
+            const toggleBtn = document.querySelector('.sidebar-toggle');
             
-            const isOpen = sidebarWrapper.classList.contains('active');
+            const isOpen = toggleCheckbox.checked;
             
-            sidebarWrapper.classList.toggle('active');
-            overlay?.classList.toggle('active');
-            toggleBtn?.classList.toggle('active');
-            body.classList.toggle('sidebar-open');
+            // Pure CSS handles visual toggle, JS manages body class for desktop
+            if (!isOpen) {
+                body.classList.remove('sidebar-open');
+                toggleBtn?.classList.remove('active');
+            } else {
+                body.classList.add('sidebar-open');
+                toggleBtn?.classList.add('active');
+            }
         },
 
 initSidebar() {
-            const toggleBtn = document.querySelector('.sidebar-toggle');
+            const toggleCheckbox = document.getElementById('sidebar-toggle');
             const overlay = document.getElementById('sidebarOverlay');
-            const sidebarWrapper = document.getElementById('sidebarWrapper');
+            const toggleLabel = document.querySelector('.sidebar-toggle');
             
-            if (toggleBtn) toggleBtn.onclick = () => this.toggleSidebar();
-            if (overlay) overlay.onclick = () => this.toggleSidebar();
-            
-            // ESC close
-            document.onkeydown = (e) => {
-                if (e.key === 'Escape' && sidebarWrapper?.classList.contains('active')) {
+            // Label already handles toggle via for="sidebar-toggle"
+            if (overlay) {
+                overlay.addEventListener('click', () => {
+                    toggleCheckbox.checked = false;
                     this.toggleSidebar();
-                }
-            };
+                });
+            }
             
-            // Responsive - close on desktop
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 992) {
-                    sidebarWrapper?.classList.remove('active');
-                    overlay?.classList.remove('active');
-                    document.body.classList.remove('sidebar-open');
+            // Icon swap on toggle
+            toggleLabel.addEventListener('click', () => {
+                setTimeout(() => this.toggleSidebar(), 10);
+            });
+            
+            // ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && toggleCheckbox.checked) {
+                    toggleCheckbox.checked = false;
+                    this.toggleSidebar();
                 }
             });
             
-            console.log('✅ Staff sidebar initialized');
+            // Resize handler with ResizeObserver for perf
+            const resizeObserver = new ResizeObserver(() => {
+                if (window.innerWidth >= 992 && localStorage.getItem('sidebarCollapsed') !== 'true') {
+                    toggleCheckbox.checked = false;
+                    body.classList.remove('sidebar-open');
+                }
+            });
+            resizeObserver.observe(document.body);
+            
+            // Load persisted state
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                toggleCheckbox.checked = true; // collapsed on desktop
+            }
+            
+            console.log('✅ Modern responsive sidebar initialized');
         },
 
         // ===== PROFILE FUNCTIONS =====
@@ -132,29 +151,46 @@ initSidebar() {
             }
         },
 
-        showProfileForm() {
-            this.toggleSidebar(); // Close sidebar
-            document.getElementById('staff-orders').style.display = 'none';
-            document.getElementById('staff-stats').style.display = 'none';
-            document.getElementById('staff-profile').style.display = 'block';
-            if (!this.currentUser) this.loadProfile();
-        },
-
-        hideProfileForm() {
-            document.getElementById('staff-profile').style.display = 'none';
-            document.getElementById('staff-orders').style.display = 'block';
-            document.getElementById('staff-stats').style.display = 'block';
-        },
-
-        showSection(section) {
-            this.toggleSidebar(); // Close sidebar
-            if (section === 'orders') {
-                document.getElementById('staff-profile').style.display = 'none';
-                document.getElementById('staff-orders').style.display = 'block';
-                document.getElementById('staff-stats').style.display = 'block';
-                this.loadStaffOrders();
+showSection(section) {
+            // Close sidebar first
+            const toggleCheckbox = document.getElementById('sidebar-toggle');
+            toggleCheckbox.checked = false;
+            this.toggleSidebar();
+            
+            // Hide all sections
+            document.querySelectorAll('section[id]').forEach(sec => {
+                sec.classList.remove('active');
+                sec.style.display = 'none';
+            });
+            
+            // Update nav active states
+            document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event?.target?.classList.add('active');
+            
+            // Show target section
+            const targetSection = document.getElementById(section === 'dashboard' ? 'dashboard' : 
+                                    section === 'orders' ? 'orders' : 
+                                    section === 'profile' ? 'profile' : section);
+            
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
+                
+                // Load data if needed
+                if (section === 'dashboard' || section === 'orders') {
+                    this.loadStaffStats();
+                    if (section === 'orders') this.loadStaffOrders();
+                } else if (section === 'profile') {
+                    this.loadProfile();
+                }
             }
         },
+        
+        // Legacy compatibility
+        showProfileForm() { this.showSection('profile'); },
+        hideProfileForm() { this.showSection('dashboard'); },
 
         
         // ===== MAIN DASHBOARD LOAD =====
