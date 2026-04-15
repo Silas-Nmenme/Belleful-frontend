@@ -115,6 +115,54 @@
     color: #cccccc !important;
 }
 
+/* Sidebar avatar positioning - single visible element */
+.sidebar-avatar-container {
+    position: relative;
+    height: 70px;
+    width: 70px;
+    margin: 0 auto;
+}
+
+.sidebar-avatar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.sidebar-avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Show avatar over overlay when loaded */
+#staffSidebarAvatarPreview[src]:not([src=""]) {
+    opacity: 1 !important;
+    z-index: 3;
+}
+
+#staffSidebarAvatarPreview[src]:not([src=""]) + .sidebar-avatar-overlay {
+    opacity: 0;
+}
+
+/* Default: hide empty avatar, show overlay */
+#staffSidebarAvatarPreview:not([src]),
+#staffSidebarAvatarPreview[src=""],
+#staffSidebarAvatarPreview:empty {
+    opacity: 0;
+}
+
+#staffSidebarAvatarPreview:not([src]) ~ .sidebar-avatar-overlay,
+#staffSidebarAvatarPreview[src=""] ~ .sidebar-avatar-overlay,
+#staffSidebarAvatarPreview:empty ~ .sidebar-avatar-overlay {
+    opacity: 1;
+}
+
+
 /* Enhanced Mobile Responsiveness - Full Staff Sidebar (matches user-dashboard.css) - FIXED */
 
 :root {
