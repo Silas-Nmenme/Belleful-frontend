@@ -49,6 +49,21 @@
             console.log('✅ Staff sidebar (new inline system) initialized');
         },
 
+        updateSidebarAvatar(src) {
+            const previewImg = document.getElementById('staffSidebarAvatarPreview');
+            const placeholder = document.getElementById('staffSidebarAvatarPlaceholder');
+            if (!previewImg || !placeholder) return;
+            
+            if (src && src !== '') {
+                previewImg.src = src;
+                previewImg.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                previewImg.style.display = 'none';
+                placeholder.style.display = 'flex';
+            }
+        },
+
         // ===== PROFILE FUNCTIONS =====
         async loadProfile() {
             const token = localStorage.getItem('token');
@@ -89,7 +104,10 @@
                     placeholder.style.display = 'flex';
                 }
 
-                console.log('✅ Profile loaded in modal');
+                // Update sidebar avatar
+                this.updateSidebarAvatar(user.avatar);
+
+                console.log('✅ Profile loaded in modal + sidebar');
             } catch (error) {
                 console.error('Profile load error:', error);
                 this.showToast('Failed to load profile: ' + error.message, 'danger');
@@ -105,10 +123,14 @@
                     preview.src = e.target.result;
                     preview.style.display = 'block';
                     document.getElementById('staffAvatarPlaceholder').style.display = 'none';
+                    
+                    // Update sidebar preview live
+                    this.updateSidebarAvatar(e.target.result);
                 };
                 reader.readAsDataURL(file);
             }
         },
+
 
         showProfileModal() {            
             window.toggleSidebar?.(); // Close sidebar
