@@ -302,10 +302,11 @@
                                         <input type="text" class="form-control" id="contactsSearch" placeholder="Search by name, email, phone, subject..." oninput="loadAdminContacts(1, this.value)">
                                     </div>
                                     <div class="col-md-3">
-                                        <select class="form-select" id="statusFilterContacts" title="Filter by contact status" onchange="loadAdminContacts(1, '', this.value)">
+<select class="form-select" id="statusFilterContacts" title="Filter by contact status" onchange="loadAdminContacts(1, '', this.value)">
                                             <option value="">All</option>
                                             <option value="unread">Unread</option>
                                             <option value="read">Read</option>
+                                            <option value="ready">Ready</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">

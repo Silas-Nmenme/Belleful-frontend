@@ -400,9 +400,15 @@ tbody.innerHTML = sortedOrders.map(order => {
         <td>${contact.name}</td>
         <td>${contact.email || contact.phone || 'N/A'}</td>
         <td>${contact.subject || 'General inquiry'}</td>
-        <td><span class="badge bg-${(contact.status || "unread") === 'unread' ? 'danger' : 'success'}">${(contact.status || 'unread').toUpperCase()}</span></td>
+        <td><span class="badge bg-${(contact.status || 'unread') === 'unread' ? 'danger' : contact.status === 'read' ? 'info' : 'success'}">${(contact.status || 'unread').toUpperCase()}</span></td>
         <td>${new Date(contact.createdAt).toLocaleDateString()}</td>
-        <td><button class="btn btn-sm btn-info" onclick="viewContact('${contact._id}')">View</button></td>
+        <td>
+          <div class="btn-group btn-group-sm" role="group">
+            <button class="btn btn-info" onclick="viewContact('${contact._id}')" title="View"><i class="fas fa-eye"></i></button>
+            <button class="btn btn-success" onclick="markContactReady('${contact._id}')" ${contact.status === 'ready' ? 'disabled title="Already ready"' : ''}><i class="fas fa-check"></i></button>
+            <button class="btn btn-primary" onclick="openReplyModal('${contact._id}')" title="Reply"${!contact.email ? ' disabled' : ''}><i class="fas fa-reply"></i></button>
+          </div>
+        </td>
       </tr>
     `).join('') || '<tr><td colspan="7" class="text-center py-5 text-muted">No contacts</td></tr>';
   }
@@ -983,36 +989,145 @@ window.updateOrderStatus = async function(orderId, status) {
     }
   };
 
-  window.updateContactStatus = async function(contactId, status) {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}/status`, {
-        method: 'PATCH',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
+// Mark contact as ready
+window.markContactReady = async function(contactId) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}/status`, {
+      method: 'PATCH',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status: 'ready' })
+    });
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    showAdminToast('Marked as READY ✅', 'success');
+    loadAdminContacts(1);
+    
+  } catch (error) {
+    console.error('Mark ready error:', error);
+    showAdminToast('Failed to mark ready', 'danger');
+  }
+};
 
-      showAdminToast(`Marked as ${status.toUpperCase()}`, 'success');
-      
-      // Refresh table
-      loadAdminContacts(1);
-      
-      // Hide mark read button and update status in modal
-      const markReadBtn = document.getElementById('markReadBtn');
-      if (markReadBtn) markReadBtn.style.display = 'none';
-      
-    } catch (error) {
-      console.error('Update contact status error:', error);
-      showAdminToast('Status update failed: ' + error.message, 'danger');
+// Reply modal functions
+let currentReplyContact = null;
+
+window.openReplyModal = async function(contactId) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const result = await response.json();
+    currentReplyContact = result.data || result;
+    
+    // Create/show modal
+    let modal = document.getElementById('replyModal');
+    if (!modal) {
+      modal = createReplyModal();
     }
-  };
+    
+    const modalBody = document.getElementById('replyModalBody');
+    modalBody.innerHTML = `
+      <div class="mb-3">
+        <h6><strong>To:</strong> ${currentReplyContact.name} <${currentReplyContact.email}></h6>
+        <h6><strong>Subject:</strong> Re: ${currentReplyContact.subject || 'Your inquiry'}</h6>
+      </div>
+      <div class="border rounded p-3 mb-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+        <small class="text-muted mb-2 d-block">Original message:</small>
+        <div style="white-space: pre-wrap; font-size: 0.9em;">${currentReplyContact.message}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-bold">Your Reply * (min 10 chars)</label>
+        <textarea class="form-control" id="replyTextarea" rows="4" placeholder="Thank you for contacting us. We have received your message and will get back to you shortly..." required minlength="10"></textarea>
+      </div>
+    `;
+    
+    const replyModal = new bootstrap.Modal(modal);
+    replyModal.show();
+    
+  } catch (error) {
+    console.error('Open reply error:', error);
+    showAdminToast('Failed to load contact for reply', 'danger');
+  }
+};
+
+window.sendReply = async function() {
+  const replyText = document.getElementById('replyTextarea')?.value?.trim();
+  if (!replyText || replyText.length < 10) {
+    showAdminToast('Reply must be at least 10 characters', 'warning');
+    return;
+  }
+  
+  if (!currentReplyContact) {
+    showAdminToast('Contact data missing', 'danger');
+    return;
+  }
+  
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${window.API_BASE || '/api'}/contact/${currentReplyContact._id}/reply`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ replyText })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Reply failed');
+    }
+    
+    showAdminToast('Reply sent successfully! 📧', 'success');
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('replyModal'));
+    modal.hide();
+    
+    // Refresh table
+    loadAdminContacts(1);
+    
+  } catch (error) {
+    console.error('Send reply error:', error);
+    showAdminToast('Failed to send reply: ' + error.message, 'danger');
+  }
+};
+
+function createReplyModal() {
+  const modalHtml = `
+    <div class="modal fade" id="replyModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-reply me-2"></i>Send Reply
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="replyModalBody">
+            Loading contact...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="sendReply()">
+              <i class="fas fa-paper-plane me-1"></i>Send Reply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  return document.getElementById('replyModal');
+};
   
 window.showReceiptPreview = function(url) {
   if (!url) {
