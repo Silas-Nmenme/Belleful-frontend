@@ -503,7 +503,51 @@ tbody.innerHTML = sortedOrders.map(order => {
     }
   }
 
+  // Staff Register Modal Handler
+  window.showStaffRegisterModal = function() {
+    // Reset form
+    document.getElementById('staffRegisterForm').reset();
+    document.getElementById('staffRegisterError').classList.add('d-none');
+  };
+
   document.addEventListener('DOMContentLoaded', function() {
+    // Staff register form handler
+    const staffForm = document.getElementById('staffRegisterForm');
+    if (staffForm) {
+      staffForm.onsubmit = async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('staffRegisterSubmit');
+        const errorDiv = document.getElementById('staffRegisterError');
+        
+        // Loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Registering...';
+        errorDiv.classList.add('d-none');
+        
+        try {
+          const formData = new FormData(staffForm);
+          await window.StaffAuthManager.registerStaff(formData);
+          
+          // Success - close modal, show message
+          const modal = bootstrap.Modal.getInstance(document.getElementById('staffRegisterModal'));
+          modal.hide();
+          
+          // Refresh users table
+          if (typeof loadAdminUsers === 'function') {
+            loadAdminUsers(1);
+          }
+          
+        } catch (error) {
+          errorDiv.textContent = error.message;
+          errorDiv.classList.remove('d-none');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-user-plus me-1"></i>Register Staff';
+        }
+      };
+    }
+
     // Initialize sidebar FIRST
     initSidebar();
     
