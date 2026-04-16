@@ -19,14 +19,16 @@ class OTPVerify {
     }
     
     init() {
-        // Get email from multiple sources: query param (signup), localStorage pending/resetEmail
+        // Get email from multiple sources: query param (signup), localStorage pendingStaffEmail/resetEmail
         const urlParams = new URLSearchParams(window.location.search);
-        this.email = urlParams.get('email');
+        this.email = urlParams.get('email') || localStorage.getItem('pendingStaffEmail');
         if (!this.email) {
-            this.showMessage('No email provided in URL. Please start from signup/reset.', 'error');
-            setTimeout(() => window.location.href = 'login.html', 2000);
+            this.showMessage('No email provided. Please start from registration.', 'error');
+            setTimeout(() => window.location.href = 'admin-dashboard.html', 2000);
             return;
         }
+        // Clear after use
+        localStorage.removeItem('pendingStaffEmail');
         
         const hiddenEmail = document.getElementById('otpEmail');
         if (hiddenEmail) hiddenEmail.value = this.email;

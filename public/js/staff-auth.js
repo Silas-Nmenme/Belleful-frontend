@@ -23,7 +23,11 @@ window.StaffAuthManager = {
       }
 
       const result = await response.json();
-      window.showAdminToast('Staff created successfully! OTP sent to email.', 'success');
+      localStorage.setItem('pendingStaffEmail', formData.get('email'));
+      window.showAdminToast('Staff created successfully! Redirecting to OTP verification...', 'success');
+      setTimeout(() => {
+        window.location.href = 'otp-verify.html';
+      }, 1500);
       return result;
     } catch (error) {
       window.showAdminToast('Registration failed: ' + error.message, 'danger');
