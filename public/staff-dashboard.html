@@ -64,9 +64,12 @@
                 <button class="navbar-toggler me-3 mobile-menu-toggle d-block" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
                     <i class="fas fa-bars text-white fs-4 sidebar-hamburger"></i>
                 </button>
-                <a class="navbar-brand fw-bold" href="#">
-                    <i class="fas fa-user-tie me-2"></i>Belleful Staff
+
+                <a class="navbar-brand fw-bold d-flex align-items-center" href="#" title="Belleful Staff Dashboard">
+                    <img src="asset/logo.jpeg" alt="Belleful Logo" class="logo-img me-2 shadow-sm" style="height: 40px; max-width: 150px; object-fit: contain;">
+                    <span class="d-none d-md-inline fw-bold">Staff</span>
                 </a>
+
             </div>
         </div>
     </nav>
@@ -329,7 +332,7 @@
     <script src="js/staff-dashboard.js"></script>
     <script>
         AOS.init();
-        // StaffDashboardManager auto-initializes
+        // StaffDashboardManager auto-inializes
     </script>
 </body>
 </html>

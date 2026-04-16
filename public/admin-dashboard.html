@@ -14,13 +14,13 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-gradient-primary shadow-lg">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold fs-4" href="#">
-                <i class="fas fa-user-shield me-2"></i>Admin Dashboard
+
+            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="#" title="Belleful Admin Dashboard">
+                <img src="asset/logo.jpeg" alt="Belleful Logo" class="logo-img me-2 shadow-sm" style="height: 40px; max-width: 150px; object-fit: contain;">
+                <span class="d-none d-md-inline fw-bold">Admin Dashboard</span>
             </a>
-            <!-- Sidebar Toggle Button -->
-            <button class="sidebar-toggle btn btn-link text-white p-2 ms-3 me-lg-0 me-xl-3 d-block" type="button" onclick="if(window.DashboardManager?.toggleSidebar){window.DashboardManager.toggleSidebar();} else if(typeof toggleSidebar==='function'){toggleSidebar();}" title="Toggle Menu" aria-label="Toggle sidebar menu" aria-expanded="false" aria-controls="sidebar">
-                <i class="fas fa-bars fa-lg sidebar-hamburger"></i>
-            </button>
+
+
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -39,55 +39,12 @@
 
     <div class="container-fluid py-5 mt-5 min-vh-100 bg-light">
         <div class="row">
-            <!-- Sidebar Wrapper -->
-<div class="sidebar-wrapper d-none position-fixed h-100" style="left: -100%; width: 260px; z-index: 1040; transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);">
-                <!-- Toggle Overlay - Universal -->
-                <div class="sidebar-overlay position-fixed w-100 h-100 d-none bg-dark bg-opacity-50" style="z-index: 1039; top: 0; left: 0; transition: opacity 0.3s ease; opacity: 0;"></div>
-                
-                <!-- Sidebar -->
-                <nav class="sidebar card h-100 border-0 shadow-lg flex-shrink-0" id="sidebar" style="width: 100%;">
-                    <div class="card-body p-0">
-                        <!-- Sidebar Header -->
-                        <div class="sidebar-header">
-                            <h6 class="mb-0">
-                                <i class="fas fa-list-ul me-2"></i>Menu
-                            </h6>
-                        </div>
-                        
-                        <!-- Sidebar Nav -->
-                        <ul class="nav flex-column sidebar-nav px-0">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#stats">
-                                    <i class="fas fa-chart-bar me-2"></i><span>Dashboard</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#orders-admin">
-                                    <i class="fas fa-list me-2"></i><span>Orders</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#users-admin">
-                                    <i class="fas fa-users me-2"></i><span>Users</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#menu-admin">
-                                    <i class="fas fa-utensils me-2"></i><span>Menu Items</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#contacts-admin">
-                                    <i class="fas fa-envelope me-2"></i><span>Contacts</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-            </div>
+
 
             <!-- Main Content -->
-            <div class="col-12 main-content" style="transition: margin-left 0.3s ease;">
+
+            <div class="col-12 main-content">
+
                 <!-- Stats -->
                 <section id="stats" class="mb-5">
                     <div class="row g-4 mb-5" id="adminStats">
