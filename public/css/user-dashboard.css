@@ -186,7 +186,6 @@ body {
 /* Main content push */
 .app-wrapper {
   display: flex;
-  min-height: 100vh;
 }
 
 .main-content {
