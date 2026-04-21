@@ -431,11 +431,12 @@
                 const paymentCell = paymentStatus === 'verified' ? 
                     '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Approved</span>' :
                     (hasReceipt ? 
-                        `<button class="btn btn-sm btn-success me-1" onclick="StaffDashboardManager.staffApprovePayment('${safeId}')" title="Approve Payment Receipt">
+                        `<button class="btn btn-sm btn-success me-1" onclick="StaffDashboardManager.staffApprovePayment('${order._id}')" title="Approve Payment Receipt">
                             <i class="fas fa-check-circle"></i>
                         </button>` : 
                         '<span class="badge bg-warning text-dark">Pending</span>'
                     );
+
                 
                 const statusCell = `
                     <span class="badge staff-badge-${currentStatus === 'pending_approval' ? 'pending' : currentStatus === 'preparing' ? 'preparing' : currentStatus === 'ready_for_pickup' ? 'ready' : 'delivered'} fs-6">
