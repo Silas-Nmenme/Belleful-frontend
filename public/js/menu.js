@@ -162,15 +162,9 @@ function createMenuCard(item, delayIndex = 0) {
             ${item.category}
           </span>
         </div>
-${isLoggedIn() ? `
-          <button class="add-to-cart-btn w-100" onclick="addToCartSafe('${item._id || item.id}', 1)">
-            <i class="fas fa-cart-plus me-2"></i><strong>Add to Cart</strong>
-          </button>
-        ` : `
-          <div class="login-to-order text-center p-3 bg-light rounded border">
-            <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
-          </div>
-        `}
+        <div class="login-to-order text-center p-3 bg-light rounded border">
+          <i class="fas fa-lock me-2 text-info"></i><strong>Login to order</strong>
+        </div>
       </div>
     </div>
   `;
