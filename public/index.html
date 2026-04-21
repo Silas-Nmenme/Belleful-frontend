@@ -17,6 +17,30 @@
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/logo.css">
 
+    <!-- Firebase SDK for Push Notifications -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getMessaging, getToken, onMessage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js';
+
+        // Initialize Firebase
+        const app = initializeApp(window.FIREBASE_CONFIG);
+        const messaging = getMessaging(app);
+
+        // Make messaging available globally
+        window.FirebaseMessaging = { app, messaging, getToken, onMessage };
+
+        // Register service worker for push notifications
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered:', registration);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+    </script>
+
 </head>
 <body>
     <!-- Navigation -->
@@ -304,5 +328,13 @@
             }
         });
     </script>
+
+    <!-- Core JavaScript Files -->
+    <script src="js/constants.js"></script>
+    <script src="js/auth-helpers.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/auth.js"></script>
+
 </body>
 </html>

@@ -217,6 +217,13 @@
       showToast(`Welcome ${result.user.name || 'back'}!`, 'success');
       hideLoading(submitBtn || 'loginFormSubmit');
       
+      // Register device for push notifications
+      if (window.notificationManager) {
+        window.notificationManager.registerDevice().catch(err => 
+          console.log('Device registration failed:', err)
+        );
+      }
+      
       const dash = result.user.role === 'admin' ? 'admin-dashboard.html' : result.user.role === 'staff' ? 'staff-dashboard.html' : 'user-dashboard.html';
       setTimeout(() => window.location.href = dash, 800);
     } catch (error) {

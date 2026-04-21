@@ -48,10 +48,45 @@ function updateOrderProgress(order) {
   }
 }
 
+// Handle order status updates from push notifications
+function handleOrderStatusUpdate(orderId, newStatus) {
+  console.log('Order status update received:', orderId, newStatus);
+  
+  // Update current order display if on tracking page
+  const currentOrderId = new URLSearchParams(window.location.search).get('id');
+  if (currentOrderId === orderId) {
+    // Refresh order data
+    loadOrderDetails(orderId);
+    
+    // Show success toast
+    if (window.showToast) {
+      const statusMessages = {
+        'payment_approved': 'Payment approved! Order is being prepared.',
+        'preparing': 'Your order is now being prepared!',
+        'ready_for_pickup': 'Your order is ready for pickup!',
+        'out_for_delivery': 'Your order is out for delivery!',
+        'delivered': 'Your order has been delivered! Enjoy your meal!',
+        'cancelled': 'Your order has been cancelled.'
+      };
+      
+      window.showToast(statusMessages[newStatus] || `Order status updated to ${newStatus}`, 'success');
+    }
+  }
+  
+  // Update order list if on dashboard
+  if (window.refreshOrderList) {
+    window.refreshOrderList();
+  }
+}
+
+// Make function globally available
+window.updateOrderStatus = handleOrderStatusUpdate;
+
 // Export utilities
 window.OrderManager = {
   getUserOrders,
   pollOrderStatus,
-  updateOrderProgress
+  updateOrderProgress,
+  handleOrderStatusUpdate
 };
 
