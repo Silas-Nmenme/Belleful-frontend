@@ -185,12 +185,11 @@ window.addToCartSafe = async function(menuItemId, quantity = 1) {
       throw new Error('Cart functions not loaded');
     }
     await window.addToCart(menuItemId, quantity);
-    updateCartCount(); // Trigger badge update (cart.js handles toast)
+    showToast('Added to cart!', 'success');
+    updateCartCount(); // Trigger badge update
   } catch (error) {
     console.error('Add to cart failed:', error);
-    if (typeof window.showToast === 'function') {
-      window.showToast('Failed to add item. Please try again.', 'error');
-    }
+    showToast('Failed to add item. Please try again.', 'error');
   }
 };
 
@@ -209,8 +208,15 @@ function updateCartCount(count) {
   document.dispatchEvent(new CustomEvent('cartUpdated', { detail: count }));
 }
 
-// showToast provided by cart.js - do not redefine
-// Custom toast removed to prevent duplication with cart.js Bootstrap toast
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `page-toast page-toast--${type} shadow-lg p-3 rounded-3 position-fixed top-0 end-0 m-4`;
+  toast.style.maxWidth = '400px';
+'<strong>' + (type === 'success' ? '[Success]' : '[Error]') + ' ' + message + '</strong><button class="btn-close ms-2" onclick="this.parentElement.remove()"></button>'
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 1000); // Changed to 1 second
+}
 
     // Auto-init only if menu elements exist
     if (document.getElementById('menuGrid')) {

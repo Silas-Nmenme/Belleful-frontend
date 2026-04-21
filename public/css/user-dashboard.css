@@ -930,52 +930,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Enhanced Toast Styles for Add to Cart */
-#toastContainer {
-  z-index: 1200 !important;
-}
-
-#toastContainer .toast {
-  min-width: 320px;
-  max-width: 400px;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.2);
-  animation: slideInRight 0.3s ease-out;
-}
-
-#toastContainer .toast-success {
-  background: linear-gradient(135deg, #28a745, #20c997) !important;
-  color: white;
-}
-
-#toastContainer .toast-error {
-  background: linear-gradient(135deg, #dc3545, #c82333) !important;
-  color: white;
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@media (max-width: 576px) {
-  #toastContainer .toast {
-    min-width: 280px;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 1rem;
-  }
-}
-
-/* Legacy page-toast fallback */
+/* Toast for cart feedback */
 .page-toast {
   position: fixed;
   top: 1rem;
