@@ -212,7 +212,7 @@ function showToast(message, type = 'info') {
   const toast = document.createElement('div');
   toast.className = `page-toast page-toast--${type} shadow-lg p-3 rounded-3 position-fixed top-0 end-0 m-4`;
   toast.style.maxWidth = '400px';
-  toast.innerHTML = '<strong>' + (type === 'success' ? '✅' : '❌') + ' ' + message + '</strong><button class="btn-close ms-2" onclick="this.parentElement.remove()"></button>';
+'<strong>' + (type === 'success' ? '[Success]' : '[Error]') + ' ' + message + '</strong><button class="btn-close ms-2" onclick="this.parentElement.remove()"></button>'
 
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 1000); // Changed to 1 second
