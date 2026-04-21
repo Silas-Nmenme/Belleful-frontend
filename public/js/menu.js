@@ -212,10 +212,20 @@ function showToast(message, type = 'info') {
   const toast = document.createElement('div');
   toast.className = `page-toast page-toast--${type} shadow-lg p-3 rounded-3 position-fixed top-0 end-0 m-4`;
   toast.style.maxWidth = '400px';
-'<strong>' + (type === 'success' ? '[Success]' : '[Error]') + ' ' + message + '</strong><button class="btn-close ms-2" onclick="this.parentElement.remove()"></button>'
+  toast.style.zIndex = '9999';
+  toast.innerHTML = `
+    <div class="d-flex align-items-center">
+      <strong class="${type === 'success' ? 'text-success' : 'text-danger'} me-3">` + 
+        (type === 'success' ? '✓ Added ' : '✗ Failed ') + message + 
+      `</strong>
+      <button type="button" class="btn-close ms-auto" onclick="this.closest('.page-toast').remove()" aria-label="Close"></button>
+    </div>
+  `;
 
   document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 1000); // Changed to 1 second
+  setTimeout(() => {
+    if (toast.parentNode) toast.remove();
+  }, 3000);
 }
 
     // Auto-init only if menu elements exist
