@@ -1,49 +1,62 @@
 /**
  * Service Worker for Firebase Push Notifications
  * Handles background messages and notification clicks
+ * Gracefully handles Firebase CDN failures
  */
 
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js');
+let messaging = null;
+let firebaseInitialized = false;
 
-// Initialize Firebase
-firebase.initializeApp({
-  apiKey: "AIzaSyB_ilbF0tw_L4jZrQRLt-zkxA2c0I70tHM",
-  authDomain: "belleful-b2ab8.firebaseapp.com",
-  projectId: "belleful-b2ab8",
-  storageBucket: "belleful-b2ab8.firebasestorage.app",
-  messagingSenderId: "321960038846",
-  appId: "1:321960038846:web:fe413a27b434d1f9b6e9ef",
-  measurementId: "G-7CGM68SJWP"
-});
+// Try to load Firebase scripts and initialize messaging
+try {
+  importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js');
+  importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js');
 
-const messaging = firebase.messaging();
+  // Initialize Firebase
+  firebase.initializeApp({
+    apiKey: "AIzaSyB_ilbF0tw_L4jZrQRLt-zkxA2c0I70tHM",
+    authDomain: "belleful-b2ab8.firebaseapp.com",
+    projectId: "belleful-b2ab8",
+    storageBucket: "belleful-b2ab8.firebasestorage.app",
+    messagingSenderId: "321960038846",
+    appId: "1:321960038846:web:fe413a27b434d1f9b6e9ef",
+    measurementId: "G-7CGM68SJWP"
+  });
 
-// Handle background messages
-messaging.onBackgroundMessage((payload) => {
-  console.log('Received background message:', payload);
+  messaging = firebase.messaging();
+  firebaseInitialized = true;
+  console.log('✅ Firebase messaging initialized in service worker');
 
-  const { title, body } = payload.notification || {};
-  const { orderId, status } = payload.data || {};
+  // Handle background messages
+  messaging.onBackgroundMessage((payload) => {
+    console.log('Received background message:', payload);
 
-  if (!title || !body) return;
+    const { title, body } = payload.notification || {};
+    const { orderId, status } = payload.data || {};
 
-  const notificationOptions = {
-    body,
+    if (!title || !body) return;
+
+    const notificationOptions = {
+      body,
       icon: '/asset/logo.jpeg',
       badge: '/asset/logo.jpeg',
-    tag: orderId ? `order-${orderId}` : 'general',
-    requireInteraction: true,
-    data: { orderId, status, url: payload.data?.link || '/' },
-    actions: orderId ? [{
-      action: 'view_order',
-      title: 'View Order',
-      icon: '/asset/icon-192.png'
-    }] : []
-  };
+      tag: orderId ? `order-${orderId}` : 'general',
+      requireInteraction: true,
+      data: { orderId, status, url: payload.data?.link || '/' },
+      actions: orderId ? [{
+        action: 'view_order',
+        title: 'View Order',
+        icon: '/asset/icon-192.png'
+      }] : []
+    };
 
-  return self.registration.showNotification(title, notificationOptions);
-});
+    return self.registration.showNotification(title, notificationOptions);
+  });
+
+} catch (error) {
+  console.warn('⚠️ Firebase initialization failed in service worker:', error.message);
+  console.log('⚠️ Push notifications will not be available. Service worker will continue with other functions.');
+}
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
