@@ -7,6 +7,7 @@ class NotificationManager {
   constructor() {
     this.messaging = null;
     this.initialized = false;
+    this.swRegistration = null;
     this.vapidKey = 'BBf5TtFZyyP9Uv2aGb7hqFoc7N9KYf1X1CoXW7048HA9E53ilWUY1HftQws3y3ySFRgOu_HTj0Vh3cZ0V1ZMl8A';
     this.init();
   }
@@ -14,11 +15,17 @@ class NotificationManager {
   async init() {
     // Check if Firebase is available and service worker is supported
     if (!window.FirebaseMessaging || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-      console.log('Push notifications not supported on this browser');
+      console.log('⚠️ Push notifications not supported on this browser');
       return;
     }
 
     try {
+      // Register the Firebase messaging service worker
+      this.swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+        scope: '/firebase-cloud-messaging-push-scope'
+      });
+      console.log('✅ Service worker registered for Firebase messaging');
+
       this.messaging = window.FirebaseMessaging.messaging;
 
       // Request notification permission
@@ -27,19 +34,20 @@ class NotificationManager {
         await this.registerDevice();
         this.setupMessageListener();
         this.initialized = true;
-        console.log('Push notifications enabled');
+        console.log('✅ Push notifications enabled');
       } else {
-        console.log('Push notifications permission denied');
+        console.log('⚠️ Push notifications permission denied by user');
       }
     } catch (error) {
-      console.error('Failed to initialize notifications:', error);
+      console.error('❌ Failed to initialize notifications:', error);
     }
   }
 
   async registerDevice() {
     try {
       const token = await window.FirebaseMessaging.getToken(this.messaging, {
-        vapidKey: this.vapidKey
+        vapidKey: this.vapidKey,
+        serviceWorkerRegistration: this.swRegistration
       });
 
       if (token) {
@@ -55,13 +63,15 @@ class NotificationManager {
 
         if (response.ok) {
           localStorage.setItem('fcmToken', token);
-          console.log('Device registered for push notifications');
+          console.log('✅ Device registered for push notifications');
         } else {
-          console.error('Failed to register device token');
+          console.warn('⚠️ Failed to register device token on backend');
         }
+      } else {
+        console.warn('⚠️ No FCM token obtained');
       }
     } catch (error) {
-      console.error('Device registration failed:', error);
+      console.error('❌ Device registration failed:', error);
     }
   }
 
