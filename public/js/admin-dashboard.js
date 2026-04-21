@@ -233,7 +233,7 @@
     if (!tbody) return;
     
     try {
-tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3"><div class="spinner-border text-danger" role="status"></div></td></tr>';
+tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3"><div class="spinner-border text-danger" role="status"></div></td></tr>';      
       
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({ page, limit: 10, ...(search && { search }), ...(status && { status }) });
@@ -295,14 +295,26 @@ tbody.innerHTML = sortedOrders.map(order => {
         <td>${order.items?.map(i => i.name).slice(0,2).join(', ') || 'Items'}</td>
         <td>₦${(order.totalAmount || 0).toLocaleString()}</td>
         <td>${statusBadge(order.orderStatus || 'pending_approval')}</td>
-        <td>${hasReceipt ? `<button class="btn btn-sm btn-success" onclick="showReceiptPreview('${order.receiptImage}')" title="View Receipt"><i class="fas fa-eye"></i></button><small class="d-block text-success mt-1"><i class="fas fa-check"></i></small>` : '<span class="text-muted"><i class="fas fa-receipt-slash"></i></span>'}</td>
+        <td>
+          ${order.paymentStatus === 'verified' ? 
+            '<span class=\"badge bg-success\"><i class=\"fas fa-check-circle me-1\"></i>Approved</span>' : 
+            (hasReceipt ? 
+              `<button class=\"btn btn-sm btn-success me-1\" onclick=\"adminApprovePayment('${safeId}')\" title=\"Approve Payment Receipt\"><i class=\"fas fa-check-circle\"></i></button>` : 
+              '<span class=\"badge bg-warning text-dark\">Pending</span>'
+            )
+          }
+        </td>
+        <td>${hasReceipt ? `<button class="btn btn-sm btn-info" onclick="showReceiptPreview('${order.receiptImage}')" title="View Receipt"><i class="fas fa-eye"></i></button>` : '<span class="text-muted"><i class="fas fa-receipt-slash"></i></span>'}</td>
         <td>
           <button class="btn btn-outline-primary btn-sm me-1" onclick="viewOrder('${safeId}')" title="View Details">
             <i class="fas fa-eye"></i>
           </button>
-          <select class="form-select form-select-sm status-dropdown" data-order-id="${safeId}" onchange="updateOrderStatus('${safeId}', this.value)" style="width: auto; display: inline-block;">
-            ${validStatuses.map(s => `<option value="${s}" ${order.orderStatus === s ? 'selected' : ''}>${formatStatus(s)}</option>`).join('')}
-          </select>
+          ${order.paymentStatus === 'verified' || order.orderStatus !== 'pending_approval' ?
+            `<select class="form-select form-select-sm status-dropdown" data-order-id="${safeId}" onchange="updateOrderStatus('${safeId}', this.value)" style="width: auto; display: inline-block;">
+              ${validStatuses.map(s => `<option value="${s}" ${order.orderStatus === s ? 'selected' : ''}>${formatStatus(s)}</option>`).join('')}
+            </select>` : 
+            '<span class=\"badge bg-secondary\" title=\"Approve payment first\">Status Locked</span>'
+          }
         </td>
       </tr>
       `;
@@ -1171,7 +1183,55 @@ window.showReceiptPreview = function(url) {
   }
 };
 
-console.log('admin-dashboard.js ENHANCED - Receipt viewing enabled');
+window.adminApprovePayment = async function(orderId) {
+  if (!confirm('Approve this payment receipt?\\n\\nOrder will be marked "Payment Approved" and ready for kitchen preparation.')) {
+    return;
+  }
+
+  const btn = event?.target;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Authentication required');
+
+    const response = await fetch(`${window.API_BASE || '/api'}/payments/verify-receipt`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        orderId, 
+        verified: true,
+        notes: 'Admin approved via dashboard'
+      })
+    });
+
+    const result = await response.json();
+    
+    if (response.ok) {
+      showAdminToast(`✅ Payment approved for #${orderId.slice(-8)}`, 'success');
+      loadPendingOrders(1);  // Refresh table
+    } else {
+      throw new Error(result.message || 'Approval failed');
+    }
+  } catch (error) {
+    console.error('Payment approval error:', error);
+    showAdminToast('❌ Approval failed: ' + error.message, 'danger');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-check-circle"></i>';
+    }
+  }
+};
+
+console.log('admin-dashboard.js ENHANCED - Payment approval workflow complete');;
+
 
 // ===== ADMIN TRANSACTIONS DOWNLOAD (MATCHES USER DASHBOARD + BACKEND) =====
 async function downloadTransactionsAdmin(format, filters = {}) {
