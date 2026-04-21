@@ -610,13 +610,15 @@ async updateQuantity(menuItemId, quantity, buttonEl, event) {
     showToast(message, type = 'info') {
       // Bootstrap toast compatible - 1 second duration
       const toastContainer = document.createElement('div');
-      toastContainer.className = 'toast-container position-fixed top-1 end-1 p-3 z-5';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3 z-1055';
       const toastEl = document.createElement('div');
       toastEl.className = `toast align-items-center text-bg-${type} border-0`;
       toastEl.setAttribute('role', 'alert');
       toastEl.innerHTML = `
-        <div class="d-flex">${message}</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        <div class="d-flex">
+          <div class="toast-body"><strong>${message}</strong></div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
       `;
       toastContainer.appendChild(toastEl);
       document.body.appendChild(toastContainer);
