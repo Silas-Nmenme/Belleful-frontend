@@ -201,10 +201,12 @@
                                 <div class="col-md-3">
                                     <select class="form-select" id="staffOrderStatusFilter" title="Filter orders" onchange="StaffDashboardManager?.loadStaffOrders(1, '', this.value)">
                                         <option value="">All Pending</option>
-                                        <option value="pending_approval">Pending Approval</option>
-                                        <option value="preparing">Preparing</option>
-                                        <option value="ready_for_pickup">Ready for Pickup</option>
-                                        <option value="delivered">Delivered</option>
+<option value="pending_approval">Pending Approval</option>
+<option value="payment_pending">Pending Payment</option>
+<option value="preparing">Preparing</option>
+<option value="ready_for_pickup">Ready for Pickup</option>
+<option value="delivered">Delivered</option>
+
                                     </select>
                                 </div>
                                 <div class="col-md-2">
@@ -224,9 +226,11 @@
                                         <th>Customer</th>
                                         <th>Items</th>
                                         <th>Total</th>
-                                        <th>Receipt</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
+<th>Status</th>
+<th>Payment</th>
+<th>Receipt</th>
+<th>Action</th>
+
                                     </tr>
                                 </thead>
                                 <tbody id="staffOrdersTable">

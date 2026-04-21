@@ -361,7 +361,8 @@
             const countEl = document.getElementById('staffPendingCount');
             if (!tbody) return;
             
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3"><div class="spinner-border text-staff-primary staff-loader" role="status"></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3"><div class="spinner-border text-staff-primary staff-loader" role="status"></div></td></tr>';
+
             
             try {
                 const token = localStorage.getItem('token');
@@ -394,7 +395,8 @@
                 
             } catch (error) {
                 console.error('Staff orders error:', error);
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-3"></i>Failed to load orders</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-3"></i>Failed to load orders</td></tr>';
+
                 this.showToast('Failed to load orders: ' + error.message, 'danger');
             }
         },
@@ -413,18 +415,50 @@
             const tbody = document.getElementById('staffOrdersTable');
             if (!tbody) return;
             
-            const allStatuses = ['pending_approval', 'preparing', 'ready_for_pickup', 'delivered', 'cancelled'];
             const formatStatus = (status) => status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             
             tbody.innerHTML = orders.map(order => {
                 const safeId = order._id?.slice(-8) || '';
                 const hasReceipt = order.receiptImage;
                 const currentStatus = order.orderStatus || 'pending_approval';
+                const paymentStatus = order.paymentStatus || 'pending';
                 const allowedNext = this.getAllowedStatuses(currentStatus);
                 const dropdownOptions = [currentStatus, ...allowedNext].map(s => 
                     `<option value="${s}" ${currentStatus === s ? 'selected' : ''}>${formatStatus(s)}</option>`
                 ).join('');
-                const isDisabled = allowedNext.length === 0;
+                const isDisabled = allowedNext.length === 0 || paymentStatus !== 'verified';
+                
+                const paymentCell = paymentStatus === 'verified' ? 
+                    '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Approved</span>' :
+                    (hasReceipt ? 
+                        `<button class="btn btn-sm btn-success me-1" onclick="StaffDashboardManager.staffApprovePayment('${safeId}')" title="Approve Payment Receipt">
+                            <i class="fas fa-check-circle"></i>
+                        </button>` : 
+                        '<span class="badge bg-warning text-dark">Pending</span>'
+                    );
+                
+                const statusCell = `
+                    <span class="badge staff-badge-${currentStatus === 'pending_approval' ? 'pending' : currentStatus === 'preparing' ? 'preparing' : currentStatus === 'ready_for_pickup' ? 'ready' : 'delivered'} fs-6">
+                        ${formatStatus(currentStatus)}
+                    </span>
+                `;
+                
+                const receiptCell = hasReceipt ? 
+                    `<button class="btn btn-sm btn-info" onclick="StaffDashboardManager.showReceiptPreview('${order.receiptImage}')" title="View Receipt">
+                        <i class="fas fa-eye"></i>
+                    </button>` : 
+                    '<span class="text-muted small"><i class="fas fa-receipt-slash"></i> None</span>';
+                
+                const actionCell = `
+                    <button class="btn btn-outline-staff-primary btn-sm me-1" onclick="StaffDashboardManager.viewStaffOrder('${order._id}')" title="View order details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <select class="form-select form-select-sm d-inline-block w-auto" style="width: 140px;" 
+                            ${isDisabled ? 'disabled' : `onchange="StaffDashboardManager.updateStaffOrderStatus('${order._id}', this.value)"`} 
+                            title="${isDisabled ? 'Approve payment first' : 'Update status (staff permissions)'}">
+                        ${isDisabled ? '<option>Payment Required</option>' : dropdownOptions}
+                    </select>
+                `;
                 
                 return `
                     <tr>
@@ -432,32 +466,69 @@
                         <td>${order.user?.name || 'Customer'}</td>
                         <td>${(order.items || []).map(i => i.menuItem?.name || i.name).slice(0,2).join(', ') || 'Items'}</td>
                         <td>₦${(order.totalAmount || 0).toLocaleString()}</td>
-                        <td>${hasReceipt ? 
-                            `<button class="btn btn-sm btn-success" onclick="StaffDashboardManager.showReceiptPreview('${order.receiptImage}')" title="View Receipt" aria-label="View payment receipt">
-                                <i class="fas fa-eye"></i>
-                            </button>` : 
-                            '<span class="text-muted small"><i class="fas fa-receipt-slash"></i> None</span>'
-                        }</td>
-                        <td>
-                            <span class="badge staff-badge-${currentStatus === 'pending_approval' ? 'pending' : currentStatus === 'preparing' ? 'preparing' : currentStatus === 'ready_for_pickup' ? 'ready' : 'delivered'} fs-6">
-                                ${formatStatus(currentStatus)}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-outline-staff-primary btn-sm me-1" onclick="StaffDashboardManager.viewStaffOrder('${order._id}')" title="View order details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <select class="form-select form-select-sm d-inline-block w-auto" style="width: 140px;" 
-                                    ${isDisabled ? 'disabled' : `onchange="StaffDashboardManager.updateStaffOrderStatus('${order._id}', this.value)"`} 
-                                    title="${isDisabled ? 'No status changes available' : 'Update status (staff permissions)'}">
-                                ${isDisabled ? '<option>Complete</option>' : dropdownOptions}
-                            </select>
-                        </td>
+                        <td>${statusCell}</td>
+                        <td>${paymentCell}</td>
+                        <td>${receiptCell}</td>
+                        <td>${actionCell}</td>
                     </tr>
                 `;
-            }).join('') || '<tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-50"></i><div class="h6">No pending orders</div></td></tr>';
+            }).join('') || '<tr><td colspan="8" class="text-center py-5 text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-50"></i><div class="h6">No pending orders</div></td></tr>';
+            
+            // Update tfoot colspan to 8
+            const tfoot = document.querySelector('#staffOrdersTable + tfoot');
+            if (tfoot) {
+                tfoot.querySelector('td').setAttribute('colspan', '8');
+            }
         },
+
         
+// ===== STAFF APPROVE PAYMENT (NEW - copy from admin-dashboard.js) =====
+        async staffApprovePayment(orderId) {
+            if (!confirm('Approve this payment receipt?\\n\\nOrder will be marked "Payment Approved" and ready for preparation.')) {
+                return;
+            }
+
+            const btn = event?.target;
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) throw new Error('Authentication required');
+
+                const response = await fetch(`${window.API_BASE || '/api'}/staff/orders/${orderId}/verify-payment`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        verified: true,
+                        notes: 'Staff approved via dashboard'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    this.showToast(`✅ Payment approved for #${orderId.slice(-8)}`, 'success');
+                    this.loadStaffOrders(1);  // Refresh table
+                } else {
+                    throw new Error(result.message || 'Approval failed');
+                }
+            } catch (error) {
+                console.error('Payment approval error:', error);
+                this.showToast('❌ Approval failed: ' + error.message, 'danger');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i>';
+                }
+            }
+        },
+
         // ===== STAFF ORDER STATUS UPDATE =====
         async updateStaffOrderStatus(orderId, status) {
             const dropdown = document.querySelector(`select[onchange*="${orderId}"]`);
@@ -491,6 +562,7 @@
                 if (dropdown) dropdown.disabled = false;
             }
         },
+
         
         // ===== VIEW ORDER DETAILS =====
         async viewStaffOrder(orderId) {
