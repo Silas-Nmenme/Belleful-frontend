@@ -28,8 +28,15 @@
 
   // Force toggle setup for login page
   if (document.getElementById('loginForm')) {
-    setupEventListeners();
-    setupPasswordToggle();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        setupPasswordToggle();
+      });
+    } else {
+      setupEventListeners();
+      setupPasswordToggle();
+    }
   }
 
   function setupEventListeners() {
@@ -67,6 +74,8 @@
     const toggle = document.getElementById('togglePassword');
     const pwd = document.getElementById('loginPassword') || document.querySelector('input[type="password"]');
     if (!toggle || !pwd) return;
+    if (toggle.dataset.passwordToggleBound === 'true') return;
+    toggle.dataset.passwordToggleBound = 'true';
 
     toggle.addEventListener('click', (e) => {
       e.preventDefault();
