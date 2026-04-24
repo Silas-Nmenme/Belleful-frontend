@@ -160,18 +160,19 @@
 
   // API Helper with auth
   async function apiCall(endpoint, options = {}) {
+    const { suppressAuthRedirect = false, ...fetchOptions } = options;
     const token = localStorage.getItem('token');
     const config = {
       headers: {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` })
       },
-      ...options
+      ...fetchOptions
     };
     
     const response = await fetch(`${window.API_BASE || '/api'}${endpoint}`, config);
     
-    if (response.status === 401) {
+    if (response.status === 401 && !suppressAuthRedirect) {
       logout();
       throw new Error('Session expired. Please login again.');
     }
@@ -179,15 +180,16 @@
     return response;
   }
 
-  async function apiPost(endpoint, data) {
+  async function apiPost(endpoint, data, options = {}) {
     return apiCall(endpoint, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      ...options
     });
   }
 
-  async function apiGet(endpoint) {
-    return apiCall(endpoint, { method: 'GET' });
+  async function apiGet(endpoint, options = {}) {
+    return apiCall(endpoint, { method: 'GET', ...options });
   }
 
   // Login handler
@@ -219,7 +221,7 @@
     showLoading(submitBtn || 'loginFormSubmit', 'Signing in...');
     
     try {
-      const response = await apiPost(endpoint, { email, password });
+      const response = await apiPost(endpoint, { email, password }, { suppressAuthRedirect: true });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         hideLoading(submitBtn || 'loginFormSubmit');
@@ -387,7 +389,7 @@
   function showLoading(selectorOrBtn, text) {
     let btn = selectorOrBtn;
     if (typeof selectorOrBtn === 'string') {
-      btn = document.querySelector(selectorOrBtn);
+      btn = document.querySelector(selectorOrBtn) || document.querySelector(`#${selectorOrBtn}`);
       if (!btn) {
         const formSelector = selectorOrBtn.includes('Form') ? selectorOrBtn.replace('Submit', '') : null;
         if (formSelector) {
@@ -412,7 +414,7 @@
   function hideLoading(selectorOrBtn) {
     let btn = selectorOrBtn;
     if (typeof selectorOrBtn === 'string') {
-      btn = document.querySelector(selectorOrBtn);
+      btn = document.querySelector(selectorOrBtn) || document.querySelector(`#${selectorOrBtn}`);
       if (!btn && selectorOrBtn.includes('Form')) {
         const form = document.querySelector(selectorOrBtn.replace('Submit', ''));
         btn = form ? form.querySelector('button[type="submit"]') : null;
@@ -467,6 +469,10 @@
   window.AuthManager.checkAuthStatus = checkAuthStatus;
   window.AuthManager.logout = logout;
   window.AuthManager.updateNavbarForAdmin = updateNavbarForAdmin;
+  window.AuthManager.showLoading = showLoading;
+  window.AuthManager.hideLoading = hideLoading;
+  window.AuthManager.apiPost = apiPost;
+  window.AuthManager.apiGet = apiGet;
   window.AuthManager.initialized = true;
   
   // Auto-init if on login/register page

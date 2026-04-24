@@ -63,12 +63,13 @@ window.StaffAuthManager = {
       // Set staff mode (for consistency, though backend handles roles)
       if (window.AuthManager) window.AuthManager.authMode = 'staff';
       
-      const response = await window.apiPost?.('/auth/login', { email, password }) ||
-                       await fetch(`${window.API_BASE || '/api'}/auth/login`, {
-                         method: 'POST',
-                         headers: { 'Content-Type': 'application/json' },
-                         body: JSON.stringify({ email, password })
-                       });
+      const response = window.AuthManager?.apiPost
+        ? await window.AuthManager.apiPost('/auth/login', { email, password }, { suppressAuthRedirect: true })
+        : await fetch(`${window.API_BASE || '/api'}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
 
       if (!response.ok) {
         const errorData = await response.json();
