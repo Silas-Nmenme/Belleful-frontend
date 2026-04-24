@@ -197,10 +197,14 @@
     // Dynamic element lookup with fallbacks
     const emailInput = document.getElementById('loginEmail') || 
                        document.querySelector('input[type="email"]:not([readonly])') ||
-                       document.getElementById('adminLoginEmail');
+                       document.getElementById('adminLoginEmail') ||
+                       document.getElementById('staffEmail') ||
+                       document.getElementById('adminEmail');
     const passwordInput = document.getElementById('loginPassword') || 
                           document.querySelector('input[type="password"]') ||
-                          document.getElementById('adminLoginPassword');
+                          document.getElementById('adminLoginPassword') ||
+                          document.getElementById('staffPassword') ||
+                          document.getElementById('adminPassword');
     
     const email = emailInput?.value.trim().toLowerCase() || '';
     const password = passwordInput?.value || '';
@@ -218,12 +222,29 @@
       const response = await apiPost(endpoint, { email, password });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Login failed');
+        hideLoading(submitBtn || 'loginFormSubmit');
+        
+        // Handle specific error codes without redirecting
+        const errorMessage = errorData.message || 'Login failed';
+        const errorCode = errorData.code;
+        
+        // Show specific error messages based on error code
+        if (errorCode === 'EMAIL_NOT_FOUND') {
+          showToast('❌ Email not found. Please check your email address or sign up.', 'error');
+        } else if (errorCode === 'WRONG_PASSWORD') {
+          showToast('❌ Incorrect password. Please try again.', 'error');
+        } else if (errorCode === 'EMAIL_NOT_VERIFIED') {
+          showToast('⚠️ ' + errorMessage, 'warning');
+        } else {
+          showToast(errorMessage, 'error');
+        }
+        return; // Stay on login page, don't redirect
       }
+      
       const result = await response.json();
       saveAuth(result);
       localStorage.setItem('currentUser', JSON.stringify(result.user));
-      showToast(`Welcome ${result.user.name || 'back'}!`, 'success');
+      showToast(`✅ Welcome ${result.user.name || 'back'}!`, 'success');
       hideLoading(submitBtn || 'loginFormSubmit');
       
       // Register device for push notifications
@@ -237,7 +258,7 @@
       setTimeout(() => window.location.href = dash, 800);
     } catch (error) {
       hideLoading(submitBtn || 'loginFormSubmit');
-      showToast(error.message, 'error');
+      showToast('Network error: ' + error.message, 'error');
     }
   }
 

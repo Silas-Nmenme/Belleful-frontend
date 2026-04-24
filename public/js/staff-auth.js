@@ -72,7 +72,23 @@ window.StaffAuthManager = {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        if (typeof window.AuthManager?.hideLoading === 'function') {
+          window.AuthManager.hideLoading(submitBtn);
+        }
+        
+        // Handle specific error codes without redirecting
+        const errorCode = errorData.code;
+        
+        if (errorCode === 'EMAIL_NOT_FOUND') {
+          window.showToast?.('❌ Email not found. Please check your email address.', 'error') || alert('Email not found');
+        } else if (errorCode === 'WRONG_PASSWORD') {
+          window.showToast?.('❌ Incorrect password. Please try again.', 'error') || alert('Incorrect password');
+        } else if (errorCode === 'EMAIL_NOT_VERIFIED') {
+          window.showToast?.('⚠️ ' + errorData.message, 'warning') || alert(errorData.message);
+        } else {
+          window.showToast?.(errorData.message || 'Login failed', 'error') || alert(errorData.message || 'Login failed');
+        }
+        return false; // Stay on login page, don't redirect
       }
 
       const result = await response.json();
@@ -85,7 +101,7 @@ window.StaffAuthManager = {
         localStorage.setItem('userRole', result.user.role);
       }
       
-      window.showToast?.(`Welcome back, ${result.user.name}!`, 'success') || alert('Login successful!');
+      window.showToast?.(`✅ Welcome back, ${result.user.name}!`, 'success') || alert('Login successful!');
       
       if (typeof window.AuthManager?.hideLoading === 'function') {
         window.AuthManager.hideLoading(submitBtn);
@@ -101,7 +117,7 @@ window.StaffAuthManager = {
       if (typeof window.AuthManager?.hideLoading === 'function') {
         window.AuthManager.hideLoading(submitBtn);
       }
-      window.showToast?.(error.message, 'error') || alert(error.message);
+      window.showToast?.('Network error: ' + error.message, 'error') || alert('Network error: ' + error.message);
       return false;
     }
   }
