@@ -149,7 +149,9 @@
                                 <div class="col-12 mb-3">
                                     <div class="bg-white p-3 rounded-3 border border-primary">
                                         <div class="h2 fw-bold text-primary mb-1" id="accountNumber">6142357992</div>
-                                        <div class="text-muted small">Opay Account Number</div>
+                                        <div class="text-muted small mb-2">Opay Account Number</div>
+                                        <div class="text-dark fw-semibold" id="accountName">Nwosu Fortune Uchechi</div>
+                                        <div class="text-muted small">Account Name</div>
                                     </div>
                                 </div>
                             </div>
@@ -254,9 +256,10 @@
         // Copy payment details function
         function copyPaymentDetails() {
             const accountNumber = document.getElementById('accountNumber').textContent;
+            const accountName = document.getElementById('accountName')?.textContent || 'Belleful';
             const amount = document.getElementById('paymentAmount').textContent;
             
-            const details = `Opay Account: ${accountNumber}\nAmount: ${amount}\nBank: Opay`;
+            const details = `Opay Account: ${accountNumber}\nAccount Name: ${accountName}\nAmount: ${amount}\nBank: Opay`;
             
             navigator.clipboard.writeText(details).then(() => {
                 showToast('Payment details copied to clipboard!', 'success');
