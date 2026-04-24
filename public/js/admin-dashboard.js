@@ -1184,7 +1184,7 @@ window.showReceiptPreview = function(url) {
 };
 
 window.adminApprovePayment = async function(orderId) {
-  if (!confirm('Approve this payment receipt?\\n\\nOrder will be marked "Payment Approved" and ready for kitchen preparation.')) {
+  if (!confirm('Approve this payment receipt?\n\nOrder will be marked "Payment Approved" and ready for kitchen preparation.')) {
     return;
   }
 

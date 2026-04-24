@@ -485,7 +485,7 @@
         
 // ===== STAFF APPROVE PAYMENT (NEW - copy from admin-dashboard.js) =====
         async staffApprovePayment(orderId) {
-            if (!confirm('Approve this payment receipt?\\n\\nOrder will be marked "Payment Approved" and ready for preparation.')) {
+            if (!confirm('Approve this payment receipt?\n\nOrder will be marked "Payment Approved" and ready for preparation.')) {
                 return;
             }
 
