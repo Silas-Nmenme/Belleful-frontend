@@ -55,15 +55,12 @@ async function loadCheckoutData() {
     
     renderCheckoutItems(cart.items);
     
-    // Calculate consistent totals using CartManager logic
+    // Calculate totals (items only, no extra fees)
     const totals = window.CartManager ? window.CartManager.getTotals() : {
         subtotal: cart.items.reduce((sum, i) => sum + i.price * i.quantity, 0),
-        delivery: cart.deliveryPreference === 'delivery' ? 2000 : 0,
-        service: 500,
-        vat: 0.015,
-        grandTotal: 0 // fallback calc
+        grandTotal: 0
     };
-    const grandTotal = totals.grandTotal || Math.round(totals.subtotal + totals.delivery + totals.service + totals.subtotal * 0.015);
+    const grandTotal = totals.grandTotal || totals.subtotal;
     
     document.getElementById('checkoutTotal').textContent = `₦${grandTotal.toLocaleString()}`;
     document.getElementById('paymentAmount').textContent = `₦${grandTotal.toLocaleString()}`;
