@@ -3,7 +3,15 @@
 
 (function() {
   let currentUser = null;
-  let authMode = 'user'; // 'user' or 'admin'
+  let authMode = 'user'; // 'user', 'admin', or 'staff'
+  const currentPath = window.location.pathname.toLowerCase();
+  if (currentPath.includes('admin-login') || currentPath.includes('admin-dashboard') || currentPath.includes('/admin')) {
+    authMode = 'admin';
+  } else if (currentPath.includes('staff-login') || currentPath.includes('staff-dashboard') || currentPath.includes('/staff')) {
+    authMode = 'staff';
+  } else {
+    authMode = localStorage.getItem('authMode') || 'user';
+  }
 
   // Initialize auth system - check if already initialized
   if (window.AuthManager && window.AuthManager.initialized) return;
@@ -98,6 +106,42 @@
     });
   }
 
+  function getLoginPage() {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('admin-login') || path.includes('admin-dashboard') || path.includes('/admin')) {
+      return 'admin-login.html';
+    }
+    if (path.includes('staff-login') || path.includes('staff-dashboard') || path.includes('/staff')) {
+      return 'staff-login.html';
+    }
+    const role = localStorage.getItem('userRole');
+    if (role === 'admin') return 'admin-login.html';
+    if (role === 'staff') return 'staff-login.html';
+    return 'login.html';
+  }
+
+  function getSafeRedirectUrl(url) {
+    if (!url) return null;
+    try {
+      const redirectUrl = new URL(url, window.location.origin);
+      if (redirectUrl.origin !== window.location.origin) return null;
+      const pathname = redirectUrl.pathname.toLowerCase();
+      if (pathname.endsWith('login.html') || pathname.endsWith('admin-login.html') || pathname.endsWith('staff-login.html') || pathname.endsWith('signup.html') || pathname.endsWith('otp-verify.html') || pathname.endsWith('reset-password.html')) {
+        return null;
+      }
+      return redirectUrl.pathname + redirectUrl.search;
+    } catch {
+      return null;
+    }
+  }
+
+  function getLoginPageUrlWithRedirect() {
+    const loginPage = getLoginPage();
+    const currentUrl = window.location.pathname + window.location.search;
+    const redirectTo = getSafeRedirectUrl(currentUrl);
+    return redirectTo ? `${loginPage}?redirect=${encodeURIComponent(redirectTo)}` : loginPage;
+  }
+
   // Check authentication status
   async function checkAuthStatus() {
     const pathname = window.location.pathname;
@@ -114,7 +158,7 @@
     
     const token = localStorage.getItem('token');
     if (!token) {
-      window.location.href = currentPath.includes('admin') ? 'admin-login.html' : 'login.html';
+      window.location.href = getLoginPageUrlWithRedirect();
       return;
     }
 
@@ -173,7 +217,7 @@
     const response = await fetch(`${window.API_BASE || '/api'}${endpoint}`, config);
     
     if (response.status === 401 && !suppressAuthRedirect) {
-      logout();
+      logout(true);
       throw new Error('Session expired. Please login again.');
     }
     
@@ -256,8 +300,15 @@
         );
       }
       
+      const params = new URLSearchParams(window.location.search);
+      const requestedRedirect = getSafeRedirectUrl(params.get('redirect'));
       const dash = result.user.role === 'admin' ? 'admin-dashboard.html' : result.user.role === 'staff' ? 'staff-dashboard.html' : 'user-dashboard.html';
-      setTimeout(() => window.location.href = dash, 800);
+      const target = requestedRedirect && (
+        (requestedRedirect.includes('admin') && result.user.role === 'admin') ||
+        (requestedRedirect.includes('staff') && result.user.role === 'staff') ||
+        (!requestedRedirect.includes('admin') && !requestedRedirect.includes('staff'))
+      ) ? requestedRedirect : dash;
+      setTimeout(() => window.location.href = target, 800);
     } catch (error) {
       hideLoading(submitBtn || 'loginFormSubmit');
       showToast('Network error: ' + error.message, 'error');
@@ -371,18 +422,23 @@
   }
 
   // Logout
-  function logout() {
+  function logout(redirectImmediately = false) {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
     localStorage.removeItem('currentUser');
     localStorage.removeItem('currentUserName');
     localStorage.removeItem('pendingEmail');
     currentUser = null;
-    showToast('logged out');
     updateNavbarForAdmin();
+    const redirectUrl = getLoginPageUrlWithRedirect();
+    if (redirectImmediately) {
+      window.location.href = redirectUrl;
+      return;
+    }
+    showToast('Logged out');
     setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 1000);
+      window.location.href = redirectUrl;
+    }, 800);
   }
 
   // Utility functions

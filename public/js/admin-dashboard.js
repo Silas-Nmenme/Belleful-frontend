@@ -373,7 +373,7 @@ tbody.innerHTML = sortedOrders.map(order => {
   }
 
   // Contacts Table
-  async function loadAdminContacts(page = 1, search = '', status = '') {
+  window.loadAdminContacts = async function(page = 1, search = '', status = '') {
     const tbody = document.getElementById('contactsTable');
     const countEl = document.getElementById('contactsCount');
     if (!tbody) return;
@@ -1022,6 +1022,42 @@ window.markContactReady = async function(contactId) {
   } catch (error) {
     console.error('Mark ready error:', error);
     showAdminToast('Failed to mark ready', 'danger');
+  }
+};
+
+// Update contact status (read/unread)
+window.updateContactStatus = async function(contactId, status) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}/status`, {
+      method: 'PATCH',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status: status })
+    });
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    // Update the UI without reloading the entire list
+    const markReadBtn = document.getElementById('markReadBtn');
+    if (markReadBtn && status === 'read') {
+      markReadBtn.style.display = 'none';
+    }
+    
+    // Update status badge in modal
+    const statusBadge = document.querySelector('#contactModalBody .badge');
+    if (statusBadge) {
+      statusBadge.textContent = status.toUpperCase();
+      statusBadge.className = `badge bg-${status === 'read' ? 'success' : 'danger'}`;
+    }
+    
+    showAdminToast(`Marked as ${status.toUpperCase()} ✅`, 'success');
+    
+  } catch (error) {
+    console.error('Update contact status error:', error);
+    showAdminToast('Failed to update status', 'danger');
   }
 };
 
