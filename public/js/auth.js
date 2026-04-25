@@ -22,6 +22,9 @@
     // Listen for auth state changes
     checkAuthStatus();
     
+    // Check for OAuth callback params
+    checkOAuthCallback();
+    
     // Update navbar for current auth state
     updateNavbarForAdmin();
     
@@ -202,6 +205,40 @@
     }
   }
 
+  // Check for OAuth callback params
+  function checkOAuthCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const refreshToken = params.get('refreshToken');
+    const userParam = params.get('user');
+    const error = params.get('error');
+
+    if (error) {
+      showToast('Google authentication failed: ' + error, 'error');
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+
+    if (token && refreshToken && userParam) {
+      try {
+        const user = JSON.parse(decodeURIComponent(userParam));
+        const authData = { token, refreshToken, user };
+        saveAuth(authData);
+        showToast('Successfully signed in with Google!', 'success');
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Redirect to dashboard
+        setTimeout(() => {
+          const dash = user.role === 'admin' ? 'admin-dashboard.html' : user.role === 'staff' ? 'staff-dashboard.html' : 'user-dashboard.html';
+          window.location.href = dash;
+        }, 1500);
+      } catch (e) {
+        showToast('Failed to process authentication data', 'error');
+      }
+    }
+  }
+
   // API Helper with auth
   async function apiCall(endpoint, options = {}) {
     const { suppressAuthRedirect = false, ...fetchOptions } = options;
@@ -281,6 +318,8 @@
           showToast('❌ Incorrect password. Please try again.', 'error');
         } else if (errorCode === 'EMAIL_NOT_VERIFIED') {
           showToast('⚠️ ' + errorMessage, 'warning');
+        } else if (errorCode === 'GOOGLE_ACCOUNT') {
+          showToast('ℹ️ ' + errorMessage + ' Click the Google button below.', 'info');
         } else {
           showToast(errorMessage, 'error');
         }
@@ -406,6 +445,25 @@
     currentUser = result.user;
   }
 
+  // Google OAuth Login
+  async function handleGoogleLogin() {
+    try {
+      const response = await apiGet('/auth/google');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to initiate Google login');
+      }
+      const result = await response.json();
+      if (result.authUrl) {
+        window.location.href = result.authUrl;
+      } else {
+        throw new Error('No auth URL received');
+      }
+    } catch (error) {
+      showToast('Google login failed: ' + error.message, 'error');
+    }
+  }
+
   // Show OTP form
   function showOTPForm(email) {
     const loginForm = document.getElementById('loginForm');
@@ -522,6 +580,7 @@
   window.AuthManager.login = handleLogin;
   window.AuthManager.register = handleRegister;
   window.AuthManager.verifyOTP = handleVerifyOTP;
+  window.AuthManager.googleLogin = handleGoogleLogin;
   window.AuthManager.checkAuthStatus = checkAuthStatus;
   window.AuthManager.logout = logout;
   window.AuthManager.updateNavbarForAdmin = updateNavbarForAdmin;
