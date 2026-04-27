@@ -45,6 +45,13 @@ class NotificationManager {
 
   async registerDevice() {
     try {
+      // Check if user is authenticated
+      const authToken = localStorage.getItem('token');
+      if (!authToken) {
+        console.log('⚠️ No auth token found, skipping device registration');
+        return;
+      }
+
       const token = await window.FirebaseMessaging.getToken(this.messaging, {
         vapidKey: this.vapidKey,
         serviceWorkerRegistration: this.swRegistration
@@ -56,7 +63,7 @@ class NotificationManager {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${authToken}`
           },
           body: JSON.stringify({ token, platform: 'web' })
         });
