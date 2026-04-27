@@ -442,6 +442,8 @@
     localStorage.setItem('token', result.token);
     if (result.refreshToken) localStorage.setItem('refreshToken', result.refreshToken);
     localStorage.setItem('userRole', result.user.role);
+    localStorage.setItem('currentUser', JSON.stringify(result.user));
+    if (result.user.name) localStorage.setItem('currentUserName', result.user.name);
     currentUser = result.user;
   }
 
