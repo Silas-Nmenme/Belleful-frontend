@@ -18,6 +18,40 @@
     setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 1000);
   };
 
+  function redirectToAdminLogin(message = 'Session expired. Please login again.') {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('currentUserName');
+    if (message) showAdminToast(message, 'warning');
+    setTimeout(() => {
+      window.location.href = 'admin-login.html';
+    }, 600);
+  }
+
+  async function adminFetch(path, options = {}) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      redirectToAdminLogin('Please sign in to continue.');
+      throw new Error('Authentication required');
+    }
+
+    const baseUrl = window.API_BASE || '/api';
+    const url = path.startsWith('http') || path.startsWith(baseUrl) ? path : `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+    const headers = {
+      ...(options.headers || {}),
+      'Authorization': `Bearer ${token}`
+    };
+
+    const response = await fetch(url, { ...options, headers });
+    if (response.status === 401 || response.status === 403) {
+      redirectToAdminLogin('Session expired. Redirecting to admin login...');
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return response;
+  }
+
   // ===== SIDEBAR INITIALIZATION & TOGGLE =====
   function initSidebar() {
     const sidebarWrapper = document.querySelector('.sidebar-wrapper');
@@ -84,9 +118,7 @@
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No auth token');
       
-      const response = await fetch(`${window.API_BASE || '/api'}/dashboard/admin/stats`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await adminFetch('/dashboard/admin/stats');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
       const stats = await response.json();
@@ -238,9 +270,7 @@ tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3"><div class="spin
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({ page, limit: 10, ...(search && { search }), ...(status && { status }) });
       
-      const response = await fetch(`${window.API_BASE || '/api'}/orders/admin?${params}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await adminFetch(`/orders/admin?${params}`);
       
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
@@ -339,9 +369,7 @@ tbody.innerHTML = sortedOrders.map(order => {
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({ page, limit: 10, ...(search && { search }) });
       
-      const response = await fetch(`${window.API_BASE || '/api'}/dashboard/admin/users?${params}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await adminFetch(`/dashboard/admin/users?${params}`);
       
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
@@ -384,9 +412,7 @@ tbody.innerHTML = sortedOrders.map(order => {
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({ page, limit: 10, ...(search && { search }), ...(status && { status }) });
       
-      const response = await fetch(`${window.API_BASE || '/api'}/contact/?${params}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await adminFetch(`/contact/?${params}`);
       
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
@@ -476,10 +502,7 @@ tbody.innerHTML = sortedOrders.map(order => {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No token');
       
-      const response = await fetch(`${window.API_BASE || '/api'}/menu/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await adminFetch(`/menu/${id}`, { method: 'DELETE' });
       
       if (response.ok) {
         showAdminToast('Item deleted successfully', 'success');
@@ -660,12 +683,8 @@ const method = menuId ? 'PUT' : 'POST';
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No auth token');
         
-        const response = await fetch(url, {
+        const response = await adminFetch(url, {
           method,
-          headers: {
-            'Authorization': `Bearer ${token}`
-            // No Content-Type - let browser set multipart boundary
-          },
           body: menuFormData
         });
         
@@ -780,9 +799,7 @@ window.viewOrder = async function(orderId) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${window.API_BASE || '/api'}/orders/${orderId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await adminFetch(`/orders/${orderId}`);
 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -868,12 +885,9 @@ window.updateOrderStatus = async function(orderId, status) {
       
       console.log(`🔄 Updating ${orderId.slice(-8)} → ${status}`);
       
-      const response = await fetch(`${window.API_BASE || '/api'}/orders/${orderId}/status`, {
+      const response = await adminFetch(`/orders/${orderId}/status`, {
         method: 'PATCH',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
       
@@ -930,9 +944,7 @@ window.updateOrderStatus = async function(orderId, status) {
       
       // Fetch contact details
       const token = localStorage.getItem('token');
-      const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await adminFetch(`/contact/${contactId}`);
       
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
@@ -1005,12 +1017,9 @@ window.updateOrderStatus = async function(orderId, status) {
 window.markContactReady = async function(contactId) {
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}/status`, {
+    const response = await adminFetch(`/contact/${contactId}/status`, {
       method: 'PATCH',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'ready' })
     });
     
@@ -1029,12 +1038,9 @@ window.markContactReady = async function(contactId) {
 window.updateContactStatus = async function(contactId, status) {
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}/status`, {
+    const response = await adminFetch(`/contact/${contactId}/status`, {
       method: 'PATCH',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: status })
     });
     
@@ -1066,10 +1072,7 @@ let currentReplyContact = null;
 
 window.openReplyModal = async function(contactId) {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${window.API_BASE || '/api'}/contact/${contactId}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const response = await adminFetch(`/contact/${contactId}`);
     
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const result = await response.json();
@@ -1120,12 +1123,9 @@ window.sendReply = async function() {
   
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${window.API_BASE || '/api'}/contact/${currentReplyContact._id}/reply`, {
+    const response = await adminFetch(`/contact/${currentReplyContact._id}/reply`, {
       method: 'POST',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ replyText })
     });
     
@@ -1234,12 +1234,9 @@ window.adminApprovePayment = async function(orderId) {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Authentication required');
 
-    const response = await fetch(`${window.API_BASE || '/api'}/payments/verify-receipt`, {
+    const response = await adminFetch(`/payments/verify-receipt`, {
       method: 'POST',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         orderId, 
         verified: true,
@@ -1283,11 +1280,8 @@ async function downloadTransactionsAdmin(format, filters = {}) {
     
     showAdminToast(`Generating ${format.toUpperCase()}...`, 'info');
     
-    const response = await fetch(`${window.API_BASE || '/api'}/orders/admin/download?${params}`, {
-      method: 'GET',
-      headers: { 
-        'Authorization': `Bearer ${token}`
-      }
+    const response = await adminFetch(`/orders/admin/download?${params}`, {
+      method: 'GET'
     });
     
     if (!response.ok) {
