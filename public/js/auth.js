@@ -228,12 +228,11 @@
         showToast('Successfully signed in with Google!', 'success');
         // Clean URL
         window.history.replaceState({}, document.title, window.location.pathname);
-        // Redirect to dashboard
-        setTimeout(() => {
-          const dash = user.role === 'admin' ? 'admin-dashboard.html' : user.role === 'staff' ? 'staff-dashboard.html' : 'user-dashboard.html';
-          window.location.href = dash;
-        }, 1500);
+        // Redirect to dashboard immediately
+        const dash = user.role === 'admin' ? 'admin-dashboard.html' : user.role === 'staff' ? 'staff-dashboard.html' : 'user-dashboard.html';
+        window.location.href = dash;
       } catch (e) {
+        console.error('OAuth callback error:', e);
         showToast('Failed to process authentication data', 'error');
       }
     }
@@ -441,6 +440,7 @@
   // Save auth data
   function saveAuth(result) {
     localStorage.setItem('token', result.token);
+    if (result.refreshToken) localStorage.setItem('refreshToken', result.refreshToken);
     localStorage.setItem('userRole', result.user.role);
     currentUser = result.user;
   }
@@ -602,6 +602,8 @@
   // Global access
   window.checkAuth = checkAuthStatus;
   window.logout = logout;
-  
+
+  // Initialize authentication when this script loads
+  initAuth();
 })();
 
