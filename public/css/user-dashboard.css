@@ -21,6 +21,8 @@ body {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .main-wrapper {
@@ -186,6 +188,7 @@ body {
 /* Main content push */
 .app-wrapper {
   display: flex;
+  overflow: visible;
 }
 
 .main-content {
@@ -193,6 +196,8 @@ body {
     flex: 1;
     transition: var(--transition);
     overflow-x: hidden;
+    overflow-y: visible;
+    min-height: calc(100vh - var(--header-height));
     padding: 2rem 1rem 2rem 1rem;
     padding-top: calc(var(--header-height) + 1rem);
   }
@@ -626,6 +631,7 @@ body {
   .app-wrapper {
     display: block !important;
     min-height: 100vh;
+    overflow: visible !important;
   }
   
   .main-content {
@@ -635,6 +641,8 @@ body {
     width: 100vw !important;
     position: relative;
     left: 0 !important;
+    min-height: calc(100vh - var(--header-height));
+    overflow-y: visible !important;
   }
   
   .sidebar {
