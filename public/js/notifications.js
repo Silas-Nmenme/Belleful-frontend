@@ -21,12 +21,15 @@ class NotificationManager {
 
     try {
       // Register the Firebase messaging service worker
-      this.swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-        scope: '/firebase-cloud-messaging-push-scope'
-      });
+      this.swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
       console.log('✅ Service worker registered for Firebase messaging');
 
-      this.messaging = window.FirebaseMessaging.messaging;
+      this.messaging = window.FirebaseMessaging?.messaging ||
+        (window.FirebaseMessaging?.getMessaging ? window.FirebaseMessaging.getMessaging(window.FirebaseMessaging.app) : null);
+      if (!this.messaging) {
+        console.warn('⚠️ Firebase messaging instance is not available');
+        return;
+      }
 
       // Request notification permission
       const permission = await Notification.requestPermission();
@@ -83,6 +86,10 @@ class NotificationManager {
   }
 
   setupMessageListener() {
+    if (!this.messaging || !window.FirebaseMessaging?.onMessage) {
+      return;
+    }
+
     // Handle foreground messages
     window.FirebaseMessaging.onMessage(this.messaging, (payload) => {
       console.log('Received foreground message:', payload);
@@ -97,7 +104,7 @@ class NotificationManager {
     if (!title || !body) return;
 
     // Show browser notification
-    if (Notification.permission === 'granted') {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
       const notification = new Notification(title, {
         body,
         icon: '/asset/logo.jpeg',
